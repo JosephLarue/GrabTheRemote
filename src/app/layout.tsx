@@ -4,6 +4,8 @@ import { APP_NAME, APP_TAGLINE } from '@/config/app';
 import { AdsScript } from '@/components/AdsScript';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
+import { localeOf } from '@/i18n';
+import { lastRoom } from '@/lib/last-room';
 import './globals.css';
 
 const bagel = Bagel_Fat_One({ variable: '--font-bagel', weight: '400', subsets: ['latin'] });
@@ -19,13 +21,14 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: '#6c4df6' };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const room = await lastRoom();
   return (
-    <html lang="en">
+    <html lang={localeOf(room)}>
       <body className={`${bagel.variable} ${nunito.variable} antialiased`}>
-        <Header />
+        <Header lastRoom={room} />
         <main className="mx-auto w-full max-w-6xl px-4 pb-16">{children}</main>
-        <Footer />
+        <Footer lastRoom={room} />
         <AdsScript />
       </body>
     </html>

@@ -72,6 +72,14 @@ export const en = {
     ruleTheme: "When there's a theme, your pick has to fit it.",
     ruleReport: 'If 10% of viewers report a video, it gets hidden.',
   },
+  tagline: 'One screen. The whole internet. Only one remote.',
+  footer: {
+    notAffiliated: (app: string) =>
+      `${app} is not affiliated with YouTube or Google. It uses YouTube API Services; by using it, you agree to the`,
+    ytTerms: 'YouTube Terms of Service',
+    privacy: 'Privacy',
+    legal: 'Legal notice',
+  },
   celebration: 'Your pick grabbed the remote! 🎉',
   hall: {
     title: 'Hall of Fame',

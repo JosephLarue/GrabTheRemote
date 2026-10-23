@@ -73,6 +73,14 @@ export const es: Dict = {
     ruleTheme: 'Cuando hay tema, tu elección tiene que encajar.',
     ruleReport: 'Si el 10 % del público denuncia un vídeo, se oculta.',
   },
+  tagline: 'Una pantalla. Todo internet. Un solo mando.',
+  footer: {
+    notAffiliated: (app) =>
+      `${app} no está afiliado a YouTube ni a Google. Usa los servicios de API de YouTube; al usarlo, aceptas los`,
+    ytTerms: 'Términos del servicio de YouTube',
+    privacy: 'Privacidad',
+    legal: 'Aviso legal',
+  },
   celebration: '¡Tu elección ha pillado el mando! 🎉',
   hall: {
     title: 'Hall of Fame',

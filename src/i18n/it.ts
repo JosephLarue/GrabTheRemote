@@ -73,6 +73,14 @@ export const it: Dict = {
     ruleTheme: "Quando c'è un tema, la tua scelta deve rispettarlo.",
     ruleReport: 'Se il 10% degli spettatori segnala un video, viene nascosto.',
   },
+  tagline: 'Uno schermo. Tutto internet. Un solo telecomando.',
+  footer: {
+    notAffiliated: (app) =>
+      `${app} non è affiliato a YouTube né a Google. Usa i servizi API di YouTube; usandolo, accetti i`,
+    ytTerms: 'Termini di servizio di YouTube',
+    privacy: 'Privacy',
+    legal: 'Note legali',
+  },
   celebration: 'La tua scelta ha preso il telecomando! 🎉',
   hall: {
     title: 'Hall of Fame',
