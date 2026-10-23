@@ -1,15 +1,18 @@
 // Every room is its own screen: own queue, playback, skip/report, viewers, vote cooldown and Hall of Fame.
 // Themes are shared by all rooms. `lang` is the room's language (ISO 639-1); null means anything goes
-// (The Jungle). `language` is its English name, for messages.
+// (The Jungle). `language` is its English name, for messages. `wall` is the room's wallpaper colour
+// (browser theme-color); the rest of its look lives in globals.css under [data-room].
 export const ROOMS = ['en', 'fr', 'es', 'it', 'jungle'] as const;
 export type RoomId = (typeof ROOMS)[number];
 
-export const ROOM_INFO: Record<RoomId, { name: string; emoji: string; lang: string | null; language: string | null }> = {
-  en: { name: 'English', emoji: '🇬🇧', lang: 'en', language: 'English' },
-  fr: { name: 'Français', emoji: '🇫🇷', lang: 'fr', language: 'French' },
-  es: { name: 'Español', emoji: '🇪🇸', lang: 'es', language: 'Spanish' },
-  it: { name: 'Italiano', emoji: '🇮🇹', lang: 'it', language: 'Italian' },
-  jungle: { name: 'The Jungle', emoji: '🌴', lang: null, language: null },
+type RoomInfo = { name: string; emoji: string; lang: string | null; language: string | null; wall: string };
+
+export const ROOM_INFO: Record<RoomId, RoomInfo> = {
+  en: { name: 'English', emoji: '🇬🇧', lang: 'en', language: 'English', wall: '#33404f' },
+  fr: { name: 'Français', emoji: '🇫🇷', lang: 'fr', language: 'French', wall: '#6e1f3f' },
+  es: { name: 'Español', emoji: '🇪🇸', lang: 'es', language: 'Spanish', wall: '#1f4fb5' },
+  it: { name: 'Italiano', emoji: '🇮🇹', lang: 'it', language: 'Italian', wall: '#b3343c' },
+  jungle: { name: 'The Jungle', emoji: '🌴', lang: null, language: null, wall: '#14532d' },
 };
 
 export const DEFAULT_ROOM: RoomId = 'en';
