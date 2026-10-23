@@ -100,6 +100,7 @@ pnpm dev                        # http://localhost:3000
 - **Turnstile:** `.env.example` ships Cloudflare's test keys, which always pass. Use real keys in production.
 - **Admin:** `/admin`, any username, password = `ADMIN_PASSWORD`.
 - **Tests:** `pnpm test`, `pnpm typecheck`, `pnpm lint`.
+- **CI** (`.github/workflows/ci.yml`) runs on every PR into `dev` or `main` and after each merge: lint, unit tests, migrations on an empty Postgres, a check that `schema.ts` and `drizzle/` are in sync, build, typecheck, then a smoke test of the production server (health, every room, redirects, 404, admin auth). If you change `schema.ts`, run `pnpm db:generate` and commit `drizzle/`.
 - **Encrypted env:** `.env.local.enc` is committed; the key is not. With the key in `.env.key` (or `ENV_KEY`), run `pnpm env:decrypt` to restore `.env.local`. After editing it, run `pnpm env:encrypt` and commit the `.enc`. First time: `pnpm env:keygen`.
 
 ### How it fits together
