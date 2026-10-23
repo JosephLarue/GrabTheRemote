@@ -17,18 +17,18 @@ export function PoolBars({
   onPlusOne?: (id: string) => void;
   plusOneDisabled?: boolean;
 }) {
-  const { room } = useLive();
+  const { room, t } = useLive();
   const top = pool.slice(0, limit);
   const max = Math.max(1, ...top.map((p) => p.votes));
 
   if (top.length === 0) {
     return (
       <div className="panel p-5">
-        <p className="font-extrabold">Nothing queued yet.</p>
+        <p className="font-extrabold">{t.pool.empty}</p>
         <p className="mt-1 text-sm">
-          The first link posted plays next.{' '}
+          {t.pool.emptyHint}{' '}
           <Link href={`/${room}/vote`} className="font-extrabold underline decoration-[3px] underline-offset-2">
-            Pick a video
+            {t.pool.pickVideo}
           </Link>
         </p>
       </div>
@@ -54,7 +54,7 @@ export function PoolBars({
             <p className="truncate text-xs font-semibold opacity-75">
               {p.channelTitle}
               {p.durationS > 0 && `, ${formatClock(p.durationS * 1000)}`}
-              {!p.matchesTheme && '. Off-theme, no new votes'}
+              {!p.matchesTheme && t.pool.offTheme}
             </p>
             <div className="mt-1 h-3 overflow-hidden rounded-full border-2 border-[var(--edge)] bg-[var(--ink)]/10">
               <div
@@ -66,7 +66,7 @@ export function PoolBars({
           </div>
           <div className="flex shrink-0 flex-col items-center">
             <span className="font-display text-2xl tabular-nums">{p.votes}</span>
-            <span className="text-[10px] font-extrabold">{p.votes === 1 ? 'vote' : 'votes'}</span>
+            <span className="text-[10px] font-extrabold">{t.pool.votes(p.votes)}</span>
           </div>
           {onPlusOne && (
             <button
@@ -74,7 +74,7 @@ export function PoolBars({
               className="btn shrink-0 bg-[var(--glow)] px-3 py-1 text-[var(--ink)]"
               disabled={plusOneDisabled || !p.matchesTheme}
               onClick={() => onPlusOne(p.id)}
-              aria-label={`Vote for ${p.title}`}
+              aria-label={t.pool.voteFor(p.title)}
             >
               +1
             </button>

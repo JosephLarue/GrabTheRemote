@@ -45,7 +45,7 @@ function loadYT() {
 let unmutedThisSession = false;
 
 export function SyncedPlayer({ np }: { np: NowPlaying | null }) {
-  const { serverNow } = useLive();
+  const { serverNow, t } = useLive();
   const host = useRef<HTMLDivElement>(null);
   const player = useRef<YTPlayer | null>(null);
   const [ready, setReady] = useState(false);
@@ -139,31 +139,32 @@ export function SyncedPlayer({ np }: { np: NowPlaying | null }) {
       <button
         type="button"
         onClick={crankItUp}
-        aria-label={muted ? 'Turn the sound on' : 'Video'}
+        aria-label={muted ? t.player.soundOn : t.player.video}
         tabIndex={muted ? 0 : -1}
         className="absolute inset-0 z-20 grid cursor-default place-items-center"
       >
         {muted && !waiting && !reported && (
           <span className="wobble sticker font-display cursor-pointer bg-[var(--report)] px-5 py-3 text-xl text-[var(--ink)] sm:text-3xl">
-            Click to crank it up 🔊
+            {t.player.crank}
           </span>
         )}
       </button>
 
       {reported && <MassReportedCard />}
       {!reported && (waiting || !videoId) && (
-        <StaticNoise label={videoId ? 'Changing the channel…' : 'Nothing on. Go grab the remote!'} />
+        <StaticNoise label={videoId ? t.player.changing : t.player.nothingOn} />
       )}
     </div>
   );
 }
 
 function MassReportedCard() {
+  const { t } = useLive();
   return (
     <div className="absolute inset-0 z-30 grid place-items-center bg-[var(--skip)] p-6 text-center text-[var(--ink)]">
       <div>
-        <p className="font-display text-3xl sm:text-5xl">Mass reported 🚨</p>
-        <p className="mt-2 text-base font-extrabold sm:text-xl">The crowd hid this one. Next pick coming right up.</p>
+        <p className="font-display text-3xl sm:text-5xl">{t.player.massReported}</p>
+        <p className="mt-2 text-base font-extrabold sm:text-xl">{t.player.massReportedSub}</p>
       </div>
     </div>
   );
