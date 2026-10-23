@@ -14,6 +14,7 @@ const base: VideoMeta = {
   thumbnailUrl: '',
   embeddable: true,
   ageRestricted: false,
+  audioLanguage: null,
   flagged: false,
   banned: false,
 };

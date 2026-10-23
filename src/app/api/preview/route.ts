@@ -1,7 +1,7 @@
 import { parseYouTubeId } from '@/lib/youtube-id';
 import { ApiError, handle, ok, roomFromUrl } from '@/server/http';
 import { ipHash } from '@/server/ip';
-import { assertAllowed } from '@/server/moderation';
+import { assertAllowed, assertFitsRoom } from '@/server/moderation';
 import { poolHas } from '@/server/pool';
 import { rateLimit } from '@/server/ratelimit';
 import { currentTheme } from '@/server/themes';
@@ -28,6 +28,7 @@ export const GET = handle(async (req: Request) => {
   if (p.meta) {
     try {
       await assertAllowed(p.meta);
+      assertFitsRoom(room, p.meta);
     } catch (e) {
       problem = e instanceof ApiError ? e.message : null;
     }

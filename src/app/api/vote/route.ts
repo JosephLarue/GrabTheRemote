@@ -3,7 +3,7 @@ import { parseYouTubeId } from '@/lib/youtube-id';
 import { ApiError, handle, ok, roomOf } from '@/server/http';
 import { ipHash } from '@/server/ip';
 import { K } from '@/server/keys';
-import { assertAllowed } from '@/server/moderation';
+import { assertAllowed, assertFitsRoom } from '@/server/moderation';
 import { addVote } from '@/server/pool';
 import { rateLimit } from '@/server/ratelimit';
 import { redis } from '@/server/redis';
@@ -45,6 +45,7 @@ export const POST = handle(async (req: Request) => {
   }
   if (!meta) throw new ApiError(404, 'not_found', "Couldn't find that video. Private or deleted? 👻");
   await assertAllowed(meta);
+  assertFitsRoom(room, meta);
 
   const np = await getNowPlaying(room);
   if (np?.video.id === id) throw new ApiError(409, 'now_playing', "That's literally on screen right now 📺");

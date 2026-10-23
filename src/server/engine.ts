@@ -6,7 +6,7 @@ import { ROOMS, type RoomId } from '@/config/rooms';
 import type { NowPlaying, VideoMeta } from '@/lib/types';
 import { db, schema } from './db/client';
 import { K } from './keys';
-import { assertAllowed } from './moderation';
+import { assertAllowed, assertFitsRoom } from './moderation';
 import { popBest, poolIds, sweepPool } from './pool';
 import { redis } from './redis';
 import {
@@ -42,9 +42,10 @@ export async function withLock<T>(room: RoomId, fn: () => Promise<T>, { wait = t
   return undefined;
 }
 
-const isPlayable = async (m: VideoMeta) => {
+const isPlayable = (room: RoomId) => async (m: VideoMeta) => {
   try {
     await assertAllowed(m);
+    assertFitsRoom(room, m);
     return true;
   } catch {
     return false;
@@ -84,7 +85,7 @@ async function fallbackPick(room: RoomId, excludeId?: string): Promise<VideoMeta
   const ids = hall.length ? hall.map((h) => h.id) : FALLBACK_VIDEOS.filter((id) => id !== excludeId);
   for (const id of [...ids].sort(() => Math.random() - 0.5)) {
     const meta = await getMeta(id, { allowFetch: true }).catch(() => null);
-    if (meta && (await isPlayable(meta))) return meta;
+    if (meta && (await isPlayable(room)(meta))) return meta;
   }
   return null;
 }
@@ -98,7 +99,7 @@ export async function advance(room: RoomId, reason: EndReason | null) {
   if (prev && reason) await closePlay(prev, reason);
   if (prev) await redis().del(K.skipVotes(prev.playId), K.reportVotes(prev.playId));
 
-  const picked = await popBest(room, isPlayable);
+  const picked = await popBest(room, isPlayable(room));
   const meta = picked?.meta ?? (await fallbackPick(room, prev?.video.id));
   if (!meta) {
     await redis().del(K.nowPlaying(room));

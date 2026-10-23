@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { AdSlot } from '@/components/AdSlot';
+import { ROOM_INFO } from '@/config/rooms';
 import { PoolBars } from '@/components/PoolBars';
 import { ThemeBanner } from '@/components/ThemeBanner';
 import { post, rememberPick } from '@/lib/api';
@@ -181,6 +182,11 @@ export default function VotePage() {
           <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold">
             <li>Embeddable YouTube videos only, 15 minutes max.</li>
             <li>No age-restricted videos.</li>
+            <li>
+              {ROOM_INFO[room].language
+                ? `${ROOM_INFO[room].language} videos only. If YouTube says it's in another language, it's refused.`
+                : 'Any language goes. Welcome to The Jungle 🌴'}
+            </li>
             <li>When there&apos;s a theme, your pick has to fit it.</li>
             <li>If 10% of viewers report a video, it gets hidden.</li>
           </ul>

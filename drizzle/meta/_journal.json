@@ -15,6 +15,13 @@
       "when": 1792763997171,
       "tag": "0001_polite_valkyrie",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792764184708,
+      "tag": "0002_bitter_xavin",
+      "breakpoints": true
     }
   ]
 }

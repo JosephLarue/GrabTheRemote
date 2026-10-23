@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isRoom, roomFromAcceptLanguage } from './rooms';
+import { fitsRoomLanguage, isRoom, roomFromAcceptLanguage } from './rooms';
 
 describe('roomFromAcceptLanguage', () => {
   it('picks the first supported language', () => {
@@ -21,4 +21,17 @@ describe('isRoom', () => {
     expect(isRoom('de')).toBe(false);
     expect(isRoom(undefined)).toBe(false);
   });
+});
+
+describe('fitsRoomLanguage', () => {
+  it('accepts the room language and unknown languages', () => {
+    expect(fitsRoomLanguage('fr', 'fr')).toBe(true);
+    expect(fitsRoomLanguage('fr', null)).toBe(true);
+    expect(fitsRoomLanguage('fr', undefined)).toBe(true);
+  });
+  it('refuses another declared language', () => {
+    expect(fitsRoomLanguage('fr', 'en')).toBe(false);
+    expect(fitsRoomLanguage('it', 'es')).toBe(false);
+  });
+  it('lets anything into The Jungle', () => expect(fitsRoomLanguage('jungle', 'ja')).toBe(true));
 });
