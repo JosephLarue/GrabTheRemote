@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { APP_NAME } from '@/config/app';
@@ -24,9 +25,12 @@ export function Header() {
     <header className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-4 pt-6 pb-10">
       <Link
         href={room ? `/${room}` : '/'}
-        className="font-display -rotate-2 rounded-2xl border-[3px] border-[var(--edge)] bg-[var(--report)] px-4 py-1 text-2xl text-[var(--ink)] shadow-[var(--pop)] sm:text-3xl"
+        className="flex items-center gap-2"
       >
-        {APP_NAME} 📺
+        <Image src="/logo.png" alt="" width={56} height={56} priority className="h-12 w-12 sm:h-14 sm:w-14" />
+        <span className="font-display -rotate-2 rounded-2xl border-[3px] border-[var(--edge)] bg-[var(--report)] px-4 py-1 text-2xl text-[var(--ink)] shadow-[var(--pop)] sm:text-3xl">
+          {APP_NAME}
+        </span>
       </Link>
       <div className="flex flex-wrap items-center gap-3">
         <nav aria-label={t.nav.main} className="flex gap-2">
