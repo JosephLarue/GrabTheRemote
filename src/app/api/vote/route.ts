@@ -8,6 +8,7 @@ import { addVote } from '@/server/pool';
 import { rateLimit } from '@/server/ratelimit';
 import { redis } from '@/server/redis';
 import { getNowPlaying, markPoolDirty } from '@/server/state';
+import { noteVoter } from '@/server/steal';
 import { currentTheme } from '@/server/themes';
 import { verifyTurnstile } from '@/server/turnstile';
 import { QuotaExhaustedError, getMeta } from '@/server/youtube';
@@ -59,7 +60,7 @@ export const POST = handle(async (req: Request) => {
     throw cooldownError(await redis().ttl(K.voteCd(room, iph)));
   }
   await addVote(room, id);
-  await markPoolDirty(room);
+  await Promise.all([markPoolDirty(room), noteVoter(room, iph)]);
 
   return ok({ ok: true, videoId: id, cooldownEndsAt: Date.now() + VOTE_COOLDOWN_S * 1000 });
 });

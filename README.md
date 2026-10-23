@@ -48,13 +48,25 @@ But careful: once a skip passes, the button **overheats for 30 minutes**, for th
 
 Something nasty on screen? Hit **REPORT**. If 10% of viewers agree, the video gets yanked and replaced with a big *MASS REPORTED* card, and the next pick takes over. The crowd is the bouncer.
 
-## 🏆 Hall of Fame (and Shame)
+## 🎯 The stolen remote
+
+Once an hour, at a random moment, the remote gets stolen. One random person who voted recently and is watching right now gets **🎯 YOU have the remote** and a **VETO** button for 60 seconds: one press kills what's playing. No vote, no cooldown. Everyone else just sees the countdown and sweats.
+
+## ⚔️ Remote fight
+
+When the top two videos in the queue are neck and neck, a **REMOTE FIGHT** banner shows up with a live tug-of-war bar. Pick a side.
+
+## 😂 Couch reactions
+
+😂 💀 🔥 😍 🤮 👏 float up over the TV for everyone, live. A fixed set of emojis and no chat, so there's nothing to moderate.
+
+
 
 - **Most watched** — the crowd's all-time favorites
 - **Most picked** — the videos that keep coming back
 - **Biggest landslide** — the most votes for a single pick
 - **Peak crowd** — the biggest audience ever in the room
-- **Hall of Shame** — fastest skips and mass-reported disasters. Legends, in their own way.
+- **Hall of Shame** — fastest skips, vetoes and mass-reported disasters, each with its own roast ("Skipped faster than a YouTube ad"). Legends, in their own way. Every entry has a **📸 Share** card: *"Skipped after 4s by 600 people."*
 
 ## 🔊 "Why is it muted?!"
 

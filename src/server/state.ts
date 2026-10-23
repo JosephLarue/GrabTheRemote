@@ -50,16 +50,22 @@ export async function reportState(playId: number | undefined, viewers: number): 
   return { votes, needed: reportThreshold(viewers) };
 }
 
+export async function stealState(room: RoomId): Promise<LiveSnapshot['steal']> {
+  const pttl = await redis().pttl(K.steal(room));
+  return pttl > 0 ? { endsAt: Date.now() + pttl } : null;
+}
+
 export async function poolForClients(room: RoomId) {
   return topPool(room, POOL_SIZE, await currentTheme());
 }
 
 export async function snapshot(room: RoomId): Promise<LiveSnapshot> {
   const [nowPlaying, theme, viewers] = await Promise.all([getNowPlaying(room), currentTheme(), viewerCount(room)]);
-  const [pool, skip, report] = await Promise.all([
+  const [pool, skip, report, steal] = await Promise.all([
     topPool(room, POOL_SIZE, theme),
     skipState(room, nowPlaying?.playId, viewers),
     reportState(nowPlaying?.playId, viewers),
+    stealState(room),
   ]);
   return {
     serverNow: Date.now(),
@@ -70,6 +76,7 @@ export async function snapshot(room: RoomId): Promise<LiveSnapshot> {
     viewers,
     skip,
     report,
+    steal,
   };
 }
 

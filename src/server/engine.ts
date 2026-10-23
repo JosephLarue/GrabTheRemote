@@ -8,7 +8,7 @@ import { db, schema } from './db/client';
 import { K } from './keys';
 import { assertAllowed, assertFitsRoom } from './moderation';
 import { popBest, poolIds, sweepPool } from './pool';
-import { redis } from './redis';
+import { delIfEquals, redis } from './redis';
 import {
   getNowPlaying,
   poolForClients,
@@ -18,12 +18,11 @@ import {
   skipState,
   viewerCount,
 } from './state';
+import { maybeStealRemote } from './steal';
 import { currentTheme, slotEndsAt, slotId, toTheme } from './themes';
 import { getMeta, refreshStale, toCard } from './youtube';
 
-type EndReason = 'finished' | 'skipped' | 'reported' | 'admin';
-
-const RELEASE_LUA = `if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end`;
+type EndReason = 'finished' | 'skipped' | 'reported' | 'admin' | 'vetoed';
 
 /** Serializes a room's playback changes across requests, the ticker and multiple instances. */
 export async function withLock<T>(room: RoomId, fn: () => Promise<T>, { wait = true } = {}): Promise<T | undefined> {
@@ -34,7 +33,7 @@ export async function withLock<T>(room: RoomId, fn: () => Promise<T>, { wait = t
       try {
         return await fn();
       } finally {
-        await redis().eval(RELEASE_LUA, 1, key, token);
+        await delIfEquals(key, token);
       }
     }
     if (wait) await new Promise((r) => setTimeout(r, 50));
@@ -155,6 +154,8 @@ async function tickRoom(room: RoomId, now: number) {
         const reason = np && np.state === 'playing' ? 'finished' : null;
         const next = await advance(room, reason);
         if (!next) nextAdvanceTry.set(room, now + 10_000);
+      } else if (np?.state === 'playing') {
+        await maybeStealRemote(room, now);
       }
 
       const slot = slotId(now);

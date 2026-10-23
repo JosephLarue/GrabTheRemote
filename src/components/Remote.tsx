@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { errorText } from '@/i18n';
+import { COUCH_COLLAPSE_AT } from '@/config/app';
+import { errorText, localeOf } from '@/i18n';
 import { post } from '@/lib/api';
 import { formatClock, useLive, useServerNow } from '@/lib/live';
 import { useTurnstile } from '@/lib/turnstile';
@@ -19,6 +20,8 @@ export function Remote() {
   const skip = state?.skip;
   const report = state?.report;
   const skipCd = skip?.cooldownEndsAt && skip.cooldownEndsAt > now ? skip.cooldownEndsAt - now : 0;
+  const viewers = state?.viewers;
+  const collapsing = (viewers ?? 0) >= COUCH_COLLAPSE_AT;
 
   const press = async (kind: 'skip' | 'report') => {
     setBusy(kind);
@@ -52,9 +55,11 @@ export function Remote() {
           />
           {connected ? t.remote.live : t.remote.reconnecting}
         </span>
-        <div className="rounded-xl border-[3px] border-[var(--edge)] bg-[#9fe8c8] px-3 py-1 text-center text-[var(--ink)] shadow-[inset_3px_3px_0_rgba(0,0,0,0.15)]">
-          <span className="font-display text-2xl tabular-nums">{state?.viewers ?? '–'}</span>
-          <span className="ml-1 text-sm font-extrabold">{t.remote.onCouch}</span>
+        <div
+          className={`rounded-xl border-[3px] border-[var(--edge)] px-3 py-1 text-center text-[var(--ink)] shadow-[inset_3px_3px_0_rgba(0,0,0,0.15)] ${collapsing ? 'wobble bg-[var(--report)]' : 'bg-[#9fe8c8]'}`}
+        >
+          <span className="font-display text-2xl tabular-nums">{viewers?.toLocaleString(localeOf(room)) ?? '–'}</span>
+          <span className="ml-1 text-sm font-extrabold">{collapsing ? t.remote.couchCollapsing : t.remote.onCouch}</span>
         </div>
       </div>
 
@@ -80,16 +85,19 @@ export function Remote() {
       </div>
 
       <div className="flex flex-col items-center gap-2">
+        {/* Caution tape around a yellow label: reads as "for emergencies", not as a second skip button. */}
         <button
           type="button"
-          className="btn remote-btn max-w-[84px] bg-[var(--report)] text-sm text-[var(--ink)]"
+          className="report-btn"
           disabled={!playing || busy !== null || me.reported}
           onClick={() => press('report')}
         >
-          <span aria-hidden className="text-xl">
-            🚨
+          <span className="report-label">
+            <span aria-hidden className="report-siren">
+              🚨
+            </span>
+            <span className="font-display text-base uppercase">{t.remote.report}</span>
           </span>
-          {t.remote.report}
         </button>
         <p className="text-center text-xs font-bold text-[var(--muted)]">
           {me.reported ? t.remote.reported : t.remote.toHide(report?.votes ?? 0, report?.needed ?? 3)}

@@ -1,6 +1,7 @@
 import { MAX_DURATION_S } from '@/config/app';
 import { ROOM_INFO, type RoomId } from '@/config/rooms';
 import type { ApiFailure } from '@/lib/api';
+import { formatLasted } from '@/lib/roast';
 import type { Theme } from '@/lib/types';
 import { type Dict, en } from './en';
 import { es } from './es';
@@ -31,7 +32,7 @@ export const themeLabel = (t: Dict, theme: NonNullable<Theme>) => t.themes[theme
 export function errorText(
   t: Dict,
   err: Pick<ApiFailure, 'error' | 'message'>,
-  ctx: { room: RoomId; kind?: 'skip' | 'report'; theme?: Theme },
+  ctx: { room: RoomId; kind?: 'skip' | 'report' | 'veto'; theme?: Theme },
 ): string {
   const e = t.errors;
   switch (err.error) {
@@ -45,10 +46,17 @@ export function errorText(
       return e.too_long(Math.floor(MAX_DURATION_S / 60));
     case 'nothing':
     case 'already': {
-      const msg = e[`${err.error}_${ctx.kind ?? 'skip'}`];
+      const msg = (e as Record<string, unknown>)[`${err.error}_${ctx.kind ?? 'skip'}`];
       return typeof msg === 'string' ? msg : err.message;
     }
   }
   const msg = (e as Record<string, unknown>)[err.error];
   return typeof msg === 'string' ? msg : err.message;
+}
+
+/** "Skipped after 4s by 600 people", for a Hall of Shame entry. */
+export function shameHeadline(t: Dict, row: { reason?: string; value: number; votes?: number }) {
+  const d = formatLasted(row.value);
+  if (row.reason === 'vetoed') return t.shame.vetoed(d);
+  return (row.reason === 'reported' ? t.shame.reported : t.shame.skipped)(d, row.votes ?? 0);
 }
