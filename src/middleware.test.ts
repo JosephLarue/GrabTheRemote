@@ -44,3 +44,27 @@ describe('admin auth', () => {
     expect(middleware(req('/administrator')).status).toBe(200);
   });
 });
+
+describe('room routing', () => {
+  const location = (path: string, headers: Record<string, string> = {}) =>
+    new URL(middleware(req(path, headers)).headers.get('location') ?? '').pathname;
+
+  it('sends / to the browser language room', () => {
+    vi.stubEnv('ORIGIN_SECRET', '');
+    expect(location('/', { 'accept-language': 'fr-FR,fr;q=0.9' })).toBe('/fr');
+    expect(location('/vote', { 'accept-language': 'it' })).toBe('/it/vote');
+    expect(location('/hall', { 'accept-language': 'de' })).toBe('/en/hall');
+  });
+
+  it('prefers the last room visited', () => {
+    vi.stubEnv('ORIGIN_SECRET', '');
+    expect(location('/', { 'accept-language': 'fr', cookie: 'gtr_room=jungle' })).toBe('/jungle');
+    expect(location('/', { 'accept-language': 'fr', cookie: 'gtr_room=nope' })).toBe('/fr');
+  });
+
+  it('remembers the room being visited', () => {
+    vi.stubEnv('ORIGIN_SECRET', '');
+    expect(middleware(req('/es/vote')).headers.get('set-cookie')).toContain('gtr_room=es');
+    expect(middleware(req('/es', { cookie: 'gtr_room=es' })).headers.get('set-cookie')).toBeNull();
+  });
+});

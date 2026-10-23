@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { PoolEntry } from '@/lib/types';
-import { formatClock } from '@/lib/live';
+import { formatClock, useLive } from '@/lib/live';
 
 const BAR_COLORS = ['var(--glow)', 'var(--tv)', 'var(--report)', 'var(--mint)', '#ff9b4a'];
 
@@ -17,6 +17,7 @@ export function PoolBars({
   onPlusOne?: (id: string) => void;
   plusOneDisabled?: boolean;
 }) {
+  const { room } = useLive();
   const top = pool.slice(0, limit);
   const max = Math.max(1, ...top.map((p) => p.votes));
 
@@ -26,7 +27,7 @@ export function PoolBars({
         <p className="font-extrabold">Nothing queued yet.</p>
         <p className="mt-1 text-sm">
           The first link posted plays next.{' '}
-          <Link href="/vote" className="font-extrabold underline decoration-[3px] underline-offset-2">
+          <Link href={`/${room}/vote`} className="font-extrabold underline decoration-[3px] underline-offset-2">
             Pick a video
           </Link>
         </p>

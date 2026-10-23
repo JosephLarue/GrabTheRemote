@@ -35,6 +35,8 @@ export const plays = pgTable(
   'plays',
   {
     id: serial('id').primaryKey(),
+    // Plays from before rooms existed belong to the English room.
+    room: text('room').notNull().default('en'),
     videoId: text('video_id').notNull().references(() => videos.id),
     votesAtPick: integer('votes_at_pick').notNull().default(0),
     source: playSource('source').notNull(),
@@ -47,7 +49,11 @@ export const plays = pgTable(
     skipVotes: integer('skip_votes').notNull().default(0),
     reportVotes: integer('report_votes').notNull().default(0),
   },
-  (t) => [index('plays_video_idx').on(t.videoId), index('plays_started_idx').on(t.startedAt)],
+  (t) => [
+    index('plays_video_idx').on(t.videoId),
+    index('plays_started_idx').on(t.startedAt),
+    index('plays_room_idx').on(t.room),
+  ],
 );
 
 export const themeSlots = pgTable('theme_slots', {

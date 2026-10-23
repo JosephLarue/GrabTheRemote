@@ -2,6 +2,7 @@
 
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { DEFAULT_ROOM, ROOMS, isRoom, type RoomId } from '@/config/rooms';
 import { db, schema } from '@/server/db/client';
 import { advance, withLock } from '@/server/engine';
 import { K } from '@/server/keys';
@@ -14,18 +15,24 @@ import { invalidateMeta } from '@/server/youtube';
 // Every action here is reachable only through /admin, which middleware guards with basic auth.
 
 const str = (f: FormData, k: string) => String(f.get(k) ?? '').trim();
+const roomOf = (f: FormData): RoomId => {
+  const r = str(f, 'room');
+  return isRoom(r) ? r : DEFAULT_ROOM;
+};
 const done = () => revalidatePath('/admin');
 
-export async function forceSkip() {
-  await withLock(async () => {
-    if (await getNowPlaying()) await advance('admin');
+export async function forceSkip(f: FormData) {
+  const room = roomOf(f);
+  await withLock(room, async () => {
+    if (await getNowPlaying(room)) await advance(room, 'admin');
   });
   done();
 }
 
 export async function dropCandidate(f: FormData) {
-  await removeCandidate(str(f, 'id'));
-  await markPoolDirty();
+  const room = roomOf(f);
+  await removeCandidate(room, str(f, 'id'));
+  await markPoolDirty(room);
   done();
 }
 
@@ -34,15 +41,18 @@ async function setVideoFlags(id: string, set: { banned?: boolean; flagged?: bool
   await invalidateMeta(id);
 }
 
+/** Bans everywhere: drops it from every room's queue and skips it wherever it is playing. */
 export async function banVideo(f: FormData) {
   const id = str(f, 'id');
   await setVideoFlags(id, { banned: true });
-  await removeCandidate(id);
-  await markPoolDirty();
-  await withLock(async () => {
-    const np = await getNowPlaying();
-    if (np?.video.id === id && np.state === 'playing') await advance('admin');
-  });
+  for (const room of ROOMS) {
+    await removeCandidate(room, id);
+    await markPoolDirty(room);
+    await withLock(room, async () => {
+      const np = await getNowPlaying(room);
+      if (np?.video.id === id && np.state === 'playing') await advance(room, 'admin');
+    });
+  }
   done();
 }
 

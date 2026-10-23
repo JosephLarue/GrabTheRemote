@@ -1,6 +1,6 @@
-import { handle, ok } from '@/server/http';
+import { handle, ok, roomFromUrl } from '@/server/http';
 import { snapshot } from '@/server/state';
 
 export const dynamic = 'force-dynamic';
 
-export const GET = handle(async () => ok(await snapshot()));
+export const GET = handle(async (req: Request) => ok(await snapshot(roomFromUrl(req))));
