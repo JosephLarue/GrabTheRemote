@@ -1,15 +1,16 @@
 export const APP_NAME = 'Grab The Remote';
 export const APP_TAGLINE = 'One screen. The whole internet. Only one remote.';
 
-// Legal notice (/legal, required in France by the LCEN) and contact for /privacy. Public: fill in before launch.
+// Legal notice (/legal, required in France by the LCEN) and contact for /privacy. Public.
 export const LEGAL = {
-  publisher: '[publisher name or company to fill in before launch]',
-  publisherAddress: '[publisher address to fill in before launch]',
-  publicationDirector: '[publication director to fill in before launch]',
-  contactEmail: '[contact email to fill in before launch]',
-  host: '[host name to fill in before launch, e.g. Railway Corporation]',
-  hostAddress: '[host address to fill in before launch]',
-  hostWebsite: '[host website to fill in before launch]',
+  publisher: 'Joseph Larue',
+  publisherAddress: 'Paris, France',
+  publicationDirector: 'Joseph Larue',
+  contactEmail: 'joseph.larue@edhec.com',
+  // From memory: check against railway.com's legal pages before launch.
+  host: 'Railway Corporation',
+  hostAddress: '548 Market St PMB 68956, San Francisco, CA 94104, USA',
+  hostWebsite: 'https://railway.com',
 };
 
 // Queue + voting
