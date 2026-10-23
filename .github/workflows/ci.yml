@@ -68,6 +68,14 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
+      # Vote, skip, report, admin and read routes against the real Postgres and Redis, with Turnstile and
+      # YouTube stubbed. Creates and migrates its own database; wipes it and Redis db 15 before each test.
+      - name: Functional tests
+        run: pnpm test:functional
+        env:
+          TEST_DATABASE_URL: postgres://gtr:gtr@localhost:5432/gtr_test
+          TEST_REDIS_URL: redis://localhost:6379/15
+
       - name: Migrations apply on an empty database
         run: pnpm db:migrate
 
