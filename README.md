@@ -92,6 +92,7 @@ pnpm dev                        # http://localhost:3000
 - **Turnstile:** `.env.example` ships Cloudflare's test keys, which always pass. Use real keys in production.
 - **Admin:** `/admin`, any username, password = `ADMIN_PASSWORD`.
 - **Tests:** `pnpm test`, `pnpm typecheck`, `pnpm lint`.
+- **Encrypted env:** `.env.local.enc` is committed; the key is not. With the key in `.env.key` (or `ENV_KEY`), run `pnpm env:decrypt` to restore `.env.local`. After editing it, run `pnpm env:encrypt` and commit the `.enc`. First time: `pnpm env:keygen`.
 
 ### How it fits together
 

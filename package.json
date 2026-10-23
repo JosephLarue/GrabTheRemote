@@ -9,6 +9,9 @@
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "env:keygen": "tsx scripts/env-crypt.ts keygen",
+    "env:encrypt": "tsx scripts/env-crypt.ts encrypt",
+    "env:decrypt": "tsx scripts/env-crypt.ts decrypt",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
