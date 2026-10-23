@@ -1,0 +1,43 @@
+import 'server-only';
+import { MAX_DURATION_S } from '@/config/app';
+import type { VideoMeta } from '@/lib/types';
+import { db, schema } from './db/client';
+import { ApiError } from './http';
+
+const LIST_TTL_MS = 60_000;
+let lists: { at: number; channels: Set<string>; keywords: string[] } | undefined;
+
+async function blocklists() {
+  if (!lists || Date.now() - lists.at > LIST_TTL_MS) {
+    const [channels, keywords] = await Promise.all([
+      db().select({ id: schema.bannedChannels.channelId }).from(schema.bannedChannels),
+      db().select({ k: schema.blockedKeywords.keyword }).from(schema.blockedKeywords),
+    ]);
+    lists = { at: Date.now(), channels: new Set(channels.map((c) => c.id)), keywords: keywords.map((k) => k.k.toLowerCase()) };
+  }
+  return lists;
+}
+
+/** Call after admin edits so changes apply immediately. */
+export function invalidateBlocklists() {
+  lists = undefined;
+}
+
+/** Throws a user-facing ApiError if the video can never be voted for. */
+export async function assertAllowed(m: VideoMeta) {
+  const reject = (code: string, message: string) => {
+    throw new ApiError(422, code, message);
+  };
+  if (!m.embeddable) reject('not_embeddable', "This video doesn't allow playing outside YouTube. Pick another one 📵");
+  if (m.ageRestricted) reject('age_restricted', 'Age-restricted videos are a no-go here 🔞');
+  if (m.banned) reject('banned', 'This video is banned from the living room 🚫');
+  if (m.flagged) reject('flagged', 'The crowd mass-reported this one. It stays in timeout 🚨');
+  if (m.durationS <= 0) reject('live', "Live streams can't grab the remote 📡");
+  if (m.durationS > MAX_DURATION_S) {
+    reject('too_long', `Too long! Max ${Math.floor(MAX_DURATION_S / 60)} minutes, nobody has time for that ⏳`);
+  }
+  const { channels, keywords } = await blocklists();
+  if (channels.has(m.channelId)) reject('banned_channel', 'This channel is banned from the living room 🚫');
+  const title = m.title.toLowerCase();
+  if (keywords.some((k) => title.includes(k))) reject('blocked_keyword', 'Nope, not that kind of video 🙅');
+}

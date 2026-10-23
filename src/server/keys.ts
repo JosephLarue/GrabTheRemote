@@ -1,0 +1,21 @@
+// Every Redis key in one place. Never put raw IPs in a key: use the HMAC (`iph`).
+export const K = {
+  pool: 'pool',
+  poolFirst: 'pool:first',
+  poolLast: 'pool:last',
+  poolDirty: 'pool:dirty',
+  voteCd: (iph: string) => `votecd:${iph}`,
+  nowPlaying: 'nowplaying',
+  skipVotes: (playId: number) => `skip:${playId}`,
+  reportVotes: (playId: number) => `report:${playId}`,
+  skipGlobalCd: 'skip:global_cd',
+  theme: (slotId: number) => `theme:${slotId}`,
+  themeWeights: 'theme:weights',
+  presence: 'presence',
+  ytCache: (id: string) => `yt:cache:${id}`,
+  ytQuota: (day: string) => `yt:quota:${day}`,
+  lockAdvance: 'lock:advance',
+  rate: (bucket: string, iph: string) => `rate:${bucket}:${iph}`,
+  hallCache: (tab: string) => `hall:${tab}`,
+  events: 'events',
+} as const;

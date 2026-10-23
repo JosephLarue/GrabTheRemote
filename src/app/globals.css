@@ -1,0 +1,239 @@
+@import "tailwindcss";
+
+:root {
+  --wall: #6c4df6;
+  --wall-pattern: #7a5eff;
+  --tv: #ff5da2;
+  --tv-dark: #d93f84;
+  --ink: #1c1236;
+  --remote: #2e2650;
+  --remote-hi: #463b74;
+  --skip: #ff4a3d;
+  --report: #ffd23f;
+  --glow: #3ddcff;
+  --cream: #fff6e0;
+  --mint: #5ef2b5;
+  --muted: #d9cffd;
+  --panel: #fff6e0;
+  --panel-ink: #1c1236;
+  --edge: #1c1236;
+  --antenna: #1c1236;
+  --shade: #1c1236;
+  --line: 3px;
+  --pop: 5px 5px 0 var(--shade);
+  --pop-sm: 3px 3px 0 var(--shade);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --wall: #1b1440;
+    --wall-pattern: #221a52;
+    --tv: #e84d92;
+    --tv-dark: #b8336f;
+    --remote: #241d42;
+    --remote-hi: #3a3066;
+    --muted: #a99ce0;
+    --panel: #2a2156;
+    --panel-ink: #fff6e0;
+    /* lights off: black outlines, neon-pink drop shadows */
+    --edge: #07040f;
+    --antenna: #8f84c6;
+    --shade: #e84d92;
+  }
+}
+
+@theme inline {
+  --font-display: var(--font-bagel);
+  --font-sans: var(--font-nunito);
+}
+
+html {
+  background: var(--wall);
+}
+
+body {
+  min-height: 100dvh;
+  color: var(--cream);
+  font-family: var(--font-nunito), system-ui, sans-serif;
+  /* 70s living-room wallpaper */
+  background-color: var(--wall);
+  background-image:
+    radial-gradient(circle at 25% 25%, var(--wall-pattern) 0 18%, transparent 19%),
+    radial-gradient(circle at 75% 75%, var(--wall-pattern) 0 18%, transparent 19%);
+  background-size: 64px 64px;
+}
+
+.font-display {
+  font-family: var(--font-bagel), system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+:focus-visible {
+  outline: 4px solid var(--glow);
+  outline-offset: 3px;
+  border-radius: 12px;
+}
+
+/* ---------------------------------------------------------------- chunky primitives */
+
+.panel {
+  background: var(--panel);
+  color: var(--panel-ink);
+  border: var(--line) solid var(--edge);
+  border-radius: 20px;
+  box-shadow: var(--pop);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: var(--line) solid var(--edge);
+  border-radius: 999px;
+  box-shadow: var(--pop-sm);
+  font-weight: 800;
+  padding: 0.6rem 1.2rem;
+  transition: transform 80ms ease, box-shadow 80ms ease;
+  cursor: pointer;
+  user-select: none;
+}
+.btn:active:not(:disabled) {
+  transform: translate(3px, 3px) scale(0.97, 0.92);
+  box-shadow: 0 0 0 var(--shade);
+}
+.btn:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.6) brightness(0.85);
+}
+
+.sticker {
+  display: inline-block;
+  border: var(--line) solid var(--edge);
+  border-radius: 14px;
+  box-shadow: var(--pop-sm);
+  padding: 0.35rem 0.8rem;
+  font-weight: 800;
+}
+
+/* ---------------------------------------------------------------- the TV */
+
+.tv {
+  position: relative;
+  isolation: isolate;
+  background: var(--tv);
+  border: var(--line) solid var(--edge);
+  border-radius: 36px;
+  box-shadow: 8px 8px 0 var(--shade), inset -10px -10px 0 var(--tv-dark);
+  padding: clamp(12px, 2.5vw, 26px);
+}
+.tv::before,
+.tv::after {
+  /* rabbit-ear antennas */
+  content: "";
+  position: absolute;
+  top: -64px;
+  width: 6px;
+  height: 80px;
+  background: var(--antenna);
+  border-radius: 6px;
+  transform-origin: bottom center;
+  z-index: -1;
+}
+.tv::before {
+  left: 42%;
+  transform: rotate(-28deg);
+}
+.tv::after {
+  left: 56%;
+  transform: rotate(24deg);
+}
+.tv-screen {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #000;
+  border: var(--line) solid var(--edge);
+  border-radius: 28px / 22px;
+  box-shadow: 0 0 0 6px var(--tv-dark), 0 0 40px -4px var(--glow);
+}
+.tv-screen iframe,
+.tv-screen > .tv-player {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.tv-screen::after {
+  /* scanlines + glass curve */
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 0 2px, transparent 2px 4px),
+    radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.12), transparent 55%);
+}
+.tv-knob {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--report);
+  border: var(--line) solid var(--edge);
+  box-shadow: inset -4px -4px 0 rgba(0, 0, 0, 0.18);
+}
+
+/* ---------------------------------------------------------------- the remote */
+
+.remote {
+  background: var(--remote);
+  border: var(--line) solid var(--edge);
+  border-radius: 48px;
+  box-shadow: var(--pop), inset 6px 6px 0 var(--remote-hi);
+  color: var(--cream);
+}
+.remote-btn {
+  border-radius: 50%;
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: 120px;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.5rem;
+  box-shadow: 0 6px 0 var(--shade);
+}
+.remote-btn:active:not(:disabled) {
+  transform: translateY(5px) scale(1.04, 0.9);
+  box-shadow: 0 1px 0 var(--shade);
+}
+
+/* ---------------------------------------------------------------- motion */
+
+@keyframes wobble {
+  0%, 100% { transform: rotate(-3deg) scale(1); }
+  50% { transform: rotate(3deg) scale(1.06); }
+}
+.wobble {
+  animation: wobble 0.9s ease-in-out infinite;
+}
+
+@keyframes bump {
+  0% { transform: scaleY(1); }
+  40% { transform: scaleY(1.25); }
+  100% { transform: scaleY(1); }
+}
+.bump {
+  animation: bump 350ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wobble,
+  .bump {
+    animation: none;
+  }
+  .btn,
+  .remote-btn {
+    transition: none;
+  }
+}
