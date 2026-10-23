@@ -99,8 +99,9 @@ pnpm dev                        # http://localhost:3000
 - **No YouTube API key?** Leave `YT_API_KEY` empty. Dev mode falls back to oEmbed, with a fake 3-minute duration and no view counts, so the themes won't be accurate. Get a key from the [Google Cloud console](https://console.cloud.google.com/apis/library/youtube.googleapis.com) (YouTube Data API v3).
 - **Turnstile:** `.env.example` ships Cloudflare's test keys, which always pass. Use real keys in production.
 - **Admin:** `/admin`, any username, password = `ADMIN_PASSWORD`.
-- **Tests:** `pnpm test`, `pnpm typecheck`, `pnpm lint`.
-- **CI** (`.github/workflows/ci.yml`) runs on every PR into `dev` or `main` and after each merge: lint, unit tests, migrations on an empty Postgres, a check that `schema.ts` and `drizzle/` are in sync, build, typecheck, then a smoke test of the production server (health, every room, redirects, 404, admin auth). If you change `schema.ts`, run `pnpm db:generate` and commit `drizzle/`.
+- **Tests:** `pnpm test` (unit), `pnpm test:functional`, `pnpm typecheck`, `pnpm lint`.
+- **Functional tests** (`tests/functional/`) call the API routes and admin actions in-process against the docker-compose Postgres and Redis, with Turnstile and YouTube stubbed: voting rules, queue to screen, skip, report, admin moderation, state and preview. They create and migrate a `gtr_test` database and use Redis db 15, both wiped before each test (override with `TEST_DATABASE_URL` / `TEST_REDIS_URL`; the database name must end in `_test`).
+- **CI** (`.github/workflows/ci.yml`) runs on every PR into `dev` or `main` and after each merge: lint, unit tests, functional tests, migrations on an empty Postgres, a check that `schema.ts` and `drizzle/` are in sync, build, typecheck, then a smoke test of the production server (health, every room, redirects, 404, admin auth). If you change `schema.ts`, run `pnpm db:generate` and commit `drizzle/`.
 - **Encrypted env:** `.env.local.enc` is committed; the key is not. With the key in `.env.key` (or `ENV_KEY`), run `pnpm env:decrypt` to restore `.env.local`. After editing it, run `pnpm env:encrypt` and commit the `.enc`. First time: `pnpm env:keygen`.
 
 ### How it fits together
