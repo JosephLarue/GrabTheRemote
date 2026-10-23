@@ -19,6 +19,8 @@ GrabTheRemote is a single shared screen playing YouTube videos. Everybody watche
 
 Five screens, five crowds: 🇬🇧 **English** (`/en`), 🇫🇷 **Français** (`/fr`), 🇪🇸 **Español** (`/es`), 🇮🇹 **Italiano** (`/it`) and 🌴 **The Jungle** (`/jungle`), where anything goes. Each room has its own queue, its own remote, its own vote cooldown and its own Hall of Fame. Themes are shared.
 
+Language rooms only refuse a video when YouTube says it's in another language; videos that don't declare a language get the benefit of the doubt. The Jungle takes anything.
+
 Landing on `/` takes you back to your last room, or to the one matching your browser language.
 
 ## 🎲 Theme roulette

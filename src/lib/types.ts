@@ -10,6 +10,8 @@ export type VideoMeta = {
   thumbnailUrl: string;
   embeddable: boolean;
   ageRestricted: boolean;
+  /** ISO 639-1 code from YouTube (audio language, else metadata language). null when YouTube doesn't say. */
+  audioLanguage: string | null;
   flagged: boolean;
   banned: boolean;
 };

@@ -1,14 +1,15 @@
 // Every room is its own screen: own queue, playback, skip/report, viewers, vote cooldown and Hall of Fame.
-// Themes are shared by all rooms. `lang` is the room's language; null means anything goes (The Jungle).
+// Themes are shared by all rooms. `lang` is the room's language (ISO 639-1); null means anything goes
+// (The Jungle). `language` is its English name, for messages.
 export const ROOMS = ['en', 'fr', 'es', 'it', 'jungle'] as const;
 export type RoomId = (typeof ROOMS)[number];
 
-export const ROOM_INFO: Record<RoomId, { name: string; emoji: string; lang: string | null }> = {
-  en: { name: 'English', emoji: '🇬🇧', lang: 'en' },
-  fr: { name: 'Français', emoji: '🇫🇷', lang: 'fr' },
-  es: { name: 'Español', emoji: '🇪🇸', lang: 'es' },
-  it: { name: 'Italiano', emoji: '🇮🇹', lang: 'it' },
-  jungle: { name: 'The Jungle', emoji: '🌴', lang: null },
+export const ROOM_INFO: Record<RoomId, { name: string; emoji: string; lang: string | null; language: string | null }> = {
+  en: { name: 'English', emoji: '🇬🇧', lang: 'en', language: 'English' },
+  fr: { name: 'Français', emoji: '🇫🇷', lang: 'fr', language: 'French' },
+  es: { name: 'Español', emoji: '🇪🇸', lang: 'es', language: 'Spanish' },
+  it: { name: 'Italiano', emoji: '🇮🇹', lang: 'it', language: 'Italian' },
+  jungle: { name: 'The Jungle', emoji: '🌴', lang: null, language: null },
 };
 
 export const DEFAULT_ROOM: RoomId = 'en';
@@ -16,6 +17,15 @@ export const DEFAULT_ROOM: RoomId = 'en';
 export const ROOM_COOKIE = 'gtr_room';
 
 export const isRoom = (s: unknown): s is RoomId => (ROOMS as readonly unknown[]).includes(s);
+
+/**
+ * Language rule: a language room only refuses videos YouTube says are in another language.
+ * Unknown language passes (many videos don't declare one), and The Jungle takes anything.
+ */
+export function fitsRoomLanguage(room: RoomId, videoLanguage: string | null | undefined): boolean {
+  const lang = ROOM_INFO[room].lang;
+  return !lang || !videoLanguage || videoLanguage === lang;
+}
 
 /** Best language room for an Accept-Language header ("fr-FR,fr;q=0.9,en;q=0.8"), else DEFAULT_ROOM. */
 export function roomFromAcceptLanguage(header: string | null): RoomId {

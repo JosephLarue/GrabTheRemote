@@ -39,12 +39,20 @@ type ApiItem = {
     publishedAt: string;
     categoryId: string;
     liveBroadcastContent?: string;
+    defaultAudioLanguage?: string;
+    defaultLanguage?: string;
     thumbnails: Record<string, { url: string }>;
   };
   contentDetails: { duration: string; contentRating?: { ytRating?: string } };
   statistics: { viewCount?: string };
   status: { embeddable: boolean; privacyStatus: string };
 };
+
+/** "fr-CA" → "fr". YouTube uses "zxx" for "not applicable" (music without lyrics…), which we treat as unknown. */
+function primaryLanguage(tag: string | undefined): string | null {
+  const lang = tag?.split('-')[0].toLowerCase();
+  return lang && lang !== 'zxx' ? lang : null;
+}
 
 /** One API call for up to 50 ids (always 1 quota unit). */
 async function fetchFromApi(ids: string[]): Promise<Map<string, Omit<VideoMeta, 'flagged' | 'banned'>>> {
@@ -73,6 +81,7 @@ async function fetchFromApi(ids: string[]): Promise<Map<string, Omit<VideoMeta, 
       thumbnailUrl: (t.medium ?? t.high ?? t.default).url,
       embeddable: it.status.embeddable && it.status.privacyStatus !== 'private',
       ageRestricted: it.contentDetails.contentRating?.ytRating === 'ytAgeRestricted',
+      audioLanguage: primaryLanguage(it.snippet.defaultAudioLanguage ?? it.snippet.defaultLanguage),
     });
   }
   return out;
@@ -102,6 +111,7 @@ function rowToMeta(r: schema.VideoRow): VideoMeta & { statsFetchedAt: number } {
     thumbnailUrl: r.thumbnailUrl,
     embeddable: r.embeddable,
     ageRestricted: r.ageRestricted,
+    audioLanguage: r.audioLanguage,
     flagged: r.flagged,
     banned: r.banned,
     statsFetchedAt: r.statsFetchedAt.getTime(),
@@ -121,6 +131,7 @@ async function upsert(m: Omit<VideoMeta, 'flagged' | 'banned'>) {
         viewCount: values.viewCount,
         embeddable: values.embeddable,
         ageRestricted: values.ageRestricted,
+        audioLanguage: values.audioLanguage,
         thumbnailUrl: values.thumbnailUrl,
         statsFetchedAt: now,
       },
@@ -153,6 +164,7 @@ async function devFallback(id: string) {
     thumbnailUrl: o.status === 'ok' ? o.data.thumbnail_url : `https://i.ytimg.com/vi/${id}/mqdefault.jpg`,
     embeddable: o.status === 'ok',
     ageRestricted: false,
+    audioLanguage: null,
   });
 }
 

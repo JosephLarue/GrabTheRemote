@@ -12,6 +12,7 @@ export const videos = pgTable('videos', {
   thumbnailUrl: text('thumbnail_url').notNull(),
   embeddable: boolean('embeddable').notNull(),
   ageRestricted: boolean('age_restricted').notNull(),
+  audioLanguage: text('audio_language'),
   flagged: boolean('flagged').notNull().default(false),
   banned: boolean('banned').notNull().default(false),
   fetchedAt: timestamp('fetched_at', { withTimezone: true }).notNull().defaultNow(),

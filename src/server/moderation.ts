@@ -1,5 +1,6 @@
 import 'server-only';
 import { MAX_DURATION_S } from '@/config/app';
+import { ROOM_INFO, type RoomId, fitsRoomLanguage } from '@/config/rooms';
 import type { VideoMeta } from '@/lib/types';
 import { db, schema } from './db/client';
 import { ApiError } from './http';
@@ -21,6 +22,17 @@ async function blocklists() {
 /** Call after admin edits so changes apply immediately. */
 export function invalidateBlocklists() {
   lists = undefined;
+}
+
+/** Throws a user-facing ApiError if the video is in another language than the room's. */
+export function assertFitsRoom(room: RoomId, m: VideoMeta) {
+  if (!fitsRoomLanguage(room, m.audioLanguage)) {
+    throw new ApiError(
+      422,
+      'wrong_language',
+      `This is the ${ROOM_INFO[room].language} room, and this video is in another language. Try The Jungle 🌴`,
+    );
+  }
 }
 
 /** Throws a user-facing ApiError if the video can never be voted for. */
