@@ -2,12 +2,15 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { RoomId } from '@/config/rooms';
+import { type Dict, dict, localeOf } from '@/i18n';
 import type { LiveEvent, LiveSnapshot } from './types';
 
 type Me = { voteCooldownEndsAt: number | null; skipped: boolean; reported: boolean };
 
 type LiveCtx = {
   room: RoomId;
+  /** UI copy in the room's language. */
+  t: Dict;
   state: LiveSnapshot | null;
   connected: boolean;
   /** Server time in ms: Date.now() corrected by the offset measured at connect. */
@@ -42,6 +45,11 @@ export function LiveProvider({ room, children }: { room: RoomId; children: React
   const [connected, setConnected] = useState(false);
   const [me, setMe] = useState<Me>({ voteCooldownEndsAt: null, skipped: false, reported: false });
   const offset = useRef(0);
+
+  // The root layout can't know the room, so the room sets the document language itself.
+  useEffect(() => {
+    document.documentElement.lang = localeOf(room);
+  }, [room]);
 
   const refreshMe = useCallback(async () => {
     const res = await fetch(`/api/me?room=${room}`, { cache: 'no-store' }).catch(() => null);
@@ -100,7 +108,7 @@ export function LiveProvider({ room, children }: { room: RoomId; children: React
 
   const serverNow = useCallback(() => Date.now() + offset.current, []);
 
-  return <Ctx.Provider value={{ room, state, connected, serverNow, me, refreshMe }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ room, t: dict(room), state, connected, serverNow, me, refreshMe }}>{children}</Ctx.Provider>;
 }
 
 export function useLive() {

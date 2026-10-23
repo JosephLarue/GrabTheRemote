@@ -21,7 +21,7 @@ Five screens, five crowds: 🇬🇧 **English** (`/en`), 🇫🇷 **Français** 
 
 Language rooms only refuse a video when YouTube says it's in another language; videos that don't declare a language get the benefit of the doubt. The Jungle takes anything.
 
-Landing on `/` takes you back to your last room, or to the one matching your browser language.
+Landing on `/` takes you back to your last room, or to the one matching your browser language. The interface speaks the room's language (English in The Jungle); `/privacy`, `/legal` and `/admin` stay in English.
 
 ## 🎲 Theme roulette
 
@@ -99,7 +99,9 @@ pnpm dev                        # http://localhost:3000
 - **No YouTube API key?** Leave `YT_API_KEY` empty. Dev mode falls back to oEmbed, with a fake 3-minute duration and no view counts, so the themes won't be accurate. Get a key from the [Google Cloud console](https://console.cloud.google.com/apis/library/youtube.googleapis.com) (YouTube Data API v3).
 - **Turnstile:** `.env.example` ships Cloudflare's test keys, which always pass. Use real keys in production.
 - **Admin:** `/admin`, any username, password = `ADMIN_PASSWORD`.
-- **Tests:** `pnpm test`, `pnpm typecheck`, `pnpm lint`.
+- **Tests:** `pnpm test` (unit), `pnpm test:functional`, `pnpm typecheck`, `pnpm lint`.
+- **Functional tests** (`tests/functional/`) call the API routes and admin actions in-process against the docker-compose Postgres and Redis, with Turnstile and YouTube stubbed: voting rules, queue to screen, skip, report, admin moderation, state and preview. They create and migrate a `gtr_test` database and use Redis db 15, both wiped before each test (override with `TEST_DATABASE_URL` / `TEST_REDIS_URL`; the database name must end in `_test`).
+- **CI** (`.github/workflows/ci.yml`) runs on every PR into `dev` or `main` and after each merge: lint, unit tests, functional tests, migrations on an empty Postgres, a check that `schema.ts` and `drizzle/` are in sync, build, typecheck, then a smoke test of the production server (health, every room, redirects, 404, admin auth). If you change `schema.ts`, run `pnpm db:generate` and commit `drizzle/`.
 - **Encrypted env:** `.env.local.enc` is committed; the key is not. With the key in `.env.key` (or `ENV_KEY`), run `pnpm env:decrypt` to restore `.env.local`. After editing it, run `pnpm env:encrypt` and commit the `.enc`. First time: `pnpm env:keygen`.
 
 ### How it fits together
@@ -109,6 +111,7 @@ pnpm dev                        # http://localhost:3000
 | Every tunable number (cooldowns, thresholds, quota limits) | `src/config/app.ts` |
 | Themes | `src/config/constraints.ts` |
 | Rooms (list, names, browser-language pick) | `src/config/rooms.ts`, routing in `src/middleware.ts`, pages in `src/app/[room]` |
+| UI copy per room language (en, fr, es, it) | `src/i18n` |
 | Playback ticker, queue advance, per-room lock | `src/server/engine.ts`, started from `src/instrumentation.ts` |
 | Live state, SSE fan-out, viewer presence | `src/server/state.ts`, `src/app/api/stream` |
 | YouTube metadata cache (Redis → Postgres → API) and quota guard | `src/server/youtube.ts` |

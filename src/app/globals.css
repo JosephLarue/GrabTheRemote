@@ -22,6 +22,11 @@
   --line: 3px;
   --pop: 5px 5px 0 var(--shade);
   --pop-sm: 3px 3px 0 var(--shade);
+  /* 70s living-room wallpaper */
+  --wall-image:
+    radial-gradient(circle at 25% 25%, var(--wall-pattern) 0 18%, transparent 19%),
+    radial-gradient(circle at 75% 75%, var(--wall-pattern) 0 18%, transparent 19%);
+  --wall-size: 64px 64px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -42,6 +47,124 @@
   }
 }
 
+/* ---------------------------------------------------------------- rooms
+   Each room redecorates the living room. The room layout renders [data-room], and :has() lets the
+   whole page (wallpaper, header) follow it from the first server render. */
+
+/* English: rainy London evening, red phone-box TV */
+:root:has([data-room="en"]) {
+  --wall: #33404f;
+  --wall-pattern: #3f4e60;
+  --wall-image: repeating-linear-gradient(110deg, transparent 0 22px, var(--wall-pattern) 22px 25px);
+  --wall-size: auto;
+  --tv: #e03a3e;
+  --tv-dark: #b0262b;
+  --remote: #222a35;
+  --remote-hi: #36414f;
+  --muted: #cfd8e3;
+}
+
+/* Français: bistro bordeaux, marinière stripes, macaron TV */
+:root:has([data-room="fr"]) {
+  --wall: #6e1f3f;
+  --wall-pattern: #7f2b4d;
+  --wall-image: repeating-linear-gradient(to bottom, var(--wall-pattern) 0 14px, transparent 14px 34px);
+  --wall-size: auto;
+  --tv: #ff9bb3;
+  --tv-dark: #e0748f;
+  --remote: #3d1024;
+  --remote-hi: #5a1c38;
+  --muted: #f3cbd8;
+}
+
+/* Español: azulejo tiles, naranja TV */
+:root:has([data-room="es"]) {
+  --wall: #1f4fb5;
+  --wall-pattern: #2b5ec9;
+  --wall-image: conic-gradient(from 45deg, var(--wall-pattern) 25%, transparent 0 50%, var(--wall-pattern) 0 75%, transparent 0);
+  --wall-size: 56px 56px;
+  --tv: #ff8a3d;
+  --tv-dark: #d9661c;
+  --remote: #142f6e;
+  --remote-hi: #23448f;
+  --muted: #cddcff;
+}
+
+/* Italiano: trattoria gingham, limone TV */
+:root:has([data-room="it"]) {
+  --wall: #b3343c;
+  --wall-pattern: rgba(255, 246, 224, 0.1);
+  --wall-image:
+    linear-gradient(90deg, var(--wall-pattern) 50%, transparent 0),
+    linear-gradient(var(--wall-pattern) 50%, transparent 0);
+  --wall-size: 48px 48px;
+  --tv: #ffe45c;
+  --tv-dark: #e0c12f;
+  --remote: #5c1a1f;
+  --remote-hi: #7a2a30;
+  --muted: #ffd9d6;
+}
+
+/* The Jungle: big leaves, tiger-orange TV, lime glow */
+:root:has([data-room="jungle"]) {
+  --wall: #14532d;
+  --wall-pattern: #1c6638;
+  --wall-image:
+    radial-gradient(ellipse 30% 16% at 30% 30%, var(--wall-pattern) 98%, transparent),
+    radial-gradient(ellipse 16% 30% at 75% 70%, var(--wall-pattern) 98%, transparent);
+  --wall-size: 90px 90px;
+  --tv: #ff7a1a;
+  --tv-dark: #d65c00;
+  --glow: #b6ff3d;
+  --remote: #0b2e1a;
+  --remote-hi: #17452a;
+  --muted: #c9f2d3;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* lights off: same rooms, darker walls, the TV's colour for the neon shadows */
+  :root:has([data-room="en"]) {
+    --wall: #161c24;
+    --wall-pattern: #1f2732;
+    --remote: #1a212b;
+    --remote-hi: #2b3542;
+    --panel: #232c38;
+    --shade: #e03a3e;
+  }
+  :root:has([data-room="fr"]) {
+    --wall: #2e0c1b;
+    --wall-pattern: #3a1225;
+    --remote: #2a0b19;
+    --remote-hi: #46162d;
+    --panel: #3d1529;
+    --shade: #ff9bb3;
+  }
+  :root:has([data-room="es"]) {
+    --wall: #0d214d;
+    --wall-pattern: #13295c;
+    --remote: #0f2557;
+    --remote-hi: #1c3a7a;
+    --panel: #172d61;
+    --shade: #ff8a3d;
+  }
+  :root:has([data-room="it"]) {
+    --wall: #4a1418;
+    --wall-pattern: rgba(255, 246, 224, 0.06);
+    --remote: #3d1014;
+    --remote-hi: #5c1d22;
+    --panel: #561a20;
+    --shade: #ffe45c;
+  }
+  :root:has([data-room="jungle"]) {
+    --wall: #082414;
+    --wall-pattern: #0e321c;
+    --remote: #08200f;
+    --remote-hi: #133a22;
+    --panel: #10351f;
+    --shade: #b6ff3d;
+  }
+}
+
 @theme inline {
   --font-display: var(--font-bagel);
   --font-sans: var(--font-nunito);
@@ -57,10 +180,8 @@ body {
   font-family: var(--font-nunito), system-ui, sans-serif;
   /* 70s living-room wallpaper */
   background-color: var(--wall);
-  background-image:
-    radial-gradient(circle at 25% 25%, var(--wall-pattern) 0 18%, transparent 19%),
-    radial-gradient(circle at 75% 75%, var(--wall-pattern) 0 18%, transparent 19%);
-  background-size: 64px 64px;
+  background-image: var(--wall-image);
+  background-size: var(--wall-size);
 }
 
 .font-display {

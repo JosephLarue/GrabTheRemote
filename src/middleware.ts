@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { ROOM_COOKIE, isRoom, roomFromAcceptLanguage } from '@/config/rooms';
+import { ROOM_COOKIE, ROOM_HEADER, isRoom, roomFromAcceptLanguage } from '@/config/rooms';
 
 // Railway/Fly health checks hit the origin directly, without going through Cloudflare.
 const ORIGIN_LOCK_EXEMPT = ['/api/health'];
@@ -34,28 +34,28 @@ function adminAllowed(req: NextRequest): boolean {
 const ROOM_ENTRY = ['/', '/vote', '/hall'];
 const ROOM_COOKIE_MAX_AGE_S = 365 * 86400;
 
-function roomRedirect(req: NextRequest): NextResponse | null {
+function rooms(req: NextRequest): NextResponse {
   const path = req.nextUrl.pathname;
+  const saved = req.cookies.get(ROOM_COOKIE)?.value;
+  const fallback = isRoom(saved) ? saved : roomFromAcceptLanguage(req.headers.get('accept-language'));
   if (ROOM_ENTRY.includes(path)) {
-    const saved = req.cookies.get(ROOM_COOKIE)?.value;
-    const room = isRoom(saved) ? saved : roomFromAcceptLanguage(req.headers.get('accept-language'));
     const url = req.nextUrl.clone();
-    url.pathname = `/${room}${path === '/' ? '' : path}`;
+    url.pathname = `/${fallback}${path === '/' ? '' : path}`;
     return NextResponse.redirect(url);
   }
+  // Pages outside a room (/privacy, /legal) follow the last room visited.
   const first = path.split('/')[1];
-  if (isRoom(first) && req.cookies.get(ROOM_COOKIE)?.value !== first) {
-    const res = NextResponse.next();
+  const headers = new Headers(req.headers);
+  headers.set(ROOM_HEADER, isRoom(first) ? first : fallback);
+  const res = NextResponse.next({ request: { headers } });
+  if (isRoom(first) && saved !== first) {
     res.cookies.set(ROOM_COOKIE, first, { path: '/', maxAge: ROOM_COOKIE_MAX_AGE_S, sameSite: 'lax' });
-    return res;
   }
-  return null;
+  return res;
 }
 
 export function middleware(req: NextRequest) {
   if (!originAllowed(req)) return new NextResponse('Forbidden', { status: 403 });
-  const rooms = roomRedirect(req);
-  if (rooms) return rooms;
   const path = req.nextUrl.pathname;
   if ((path === '/admin' || path.startsWith('/admin/')) && !adminAllowed(req)) {
     return new NextResponse('Admins only 🔒', {
@@ -63,7 +63,7 @@ export function middleware(req: NextRequest) {
       headers: { 'WWW-Authenticate': 'Basic realm="Grab The Remote admin", charset="UTF-8"' },
     });
   }
-  return NextResponse.next();
+  return rooms(req);
 }
 
 // Everything except build assets, which are public anyway.

@@ -1,10 +1,11 @@
 'use client';
 
 import { THEMES_ENABLED } from '@/config/app';
+import { themeLabel } from '@/i18n';
 import { formatClock, useLive, useServerNow } from '@/lib/live';
 
 export function ThemeBanner() {
-  const { state } = useLive();
+  const { state, t: d } = useLive();
   const now = useServerNow(1000);
   if (!state || !THEMES_ENABLED) return null;
   const left = formatClock(state.themeEndsAt - now);
@@ -17,12 +18,12 @@ export function ThemeBanner() {
       {t ? (
         <>
           <span className="font-display text-lg">
-            {t.emoji} {t.label}
+            {t.emoji} {themeLabel(d, t)}
           </span>{' '}
-          <span className="text-sm font-bold">is the theme. New theme in {left}.</span>
+          <span className="text-sm font-bold">{d.theme.current(left)}</span>
         </>
       ) : (
-        <span className="text-sm font-bold">No theme right now. Anything goes for {left}.</span>
+        <span className="text-sm font-bold">{d.theme.none(left)}</span>
       )}
     </div>
   );

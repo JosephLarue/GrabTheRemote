@@ -1,48 +1,54 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { APP_NAME } from '@/config/app';
-import { ROOM_INFO, ROOMS, isRoom } from '@/config/rooms';
+import { ROOM_INFO, ROOMS, type RoomId } from '@/config/rooms';
+import { dict } from '@/i18n';
+import { useRoom } from '@/lib/use-room';
 
 const NAV = [
-  { href: '', label: 'Watch' },
-  { href: '/vote', label: 'Vote' },
-  { href: '/hall', label: 'Hall of Fame' },
-];
+  { href: '', key: 'watch' },
+  { href: '/vote', key: 'vote' },
+  { href: '/hall', key: 'hall' },
+] as const;
 
-export function Header() {
+export function Header({ lastRoom }: { lastRoom: RoomId }) {
   const path = usePathname();
-  const [, first = '', ...rest] = path.split('/');
   // Outside a room (/privacy, /legal…), links go through / and the middleware picks the room.
-  const room = isRoom(first) ? first : null;
-  const sub = room ? (rest.length ? `/${rest.join('/')}` : '') : '';
+  const { room, ui } = useRoom(lastRoom);
+  const sub = room ? path.slice(room.length + 1) : '';
+  const t = dict(ui);
 
   return (
     <header className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-4 pt-6 pb-10">
       <Link
         href={room ? `/${room}` : '/'}
-        className="font-display -rotate-2 rounded-2xl border-[3px] border-[var(--edge)] bg-[var(--report)] px-4 py-1 text-2xl text-[var(--ink)] shadow-[var(--pop)] sm:text-3xl"
+        className="flex items-center gap-2"
       >
-        {APP_NAME} 📺
+        <Image src="/logo.png" alt="" width={56} height={56} priority className="h-12 w-12 sm:h-14 sm:w-14" />
+        <span className="font-display -rotate-2 rounded-2xl border-[3px] border-[var(--edge)] bg-[var(--report)] px-4 py-1 text-2xl text-[var(--ink)] shadow-[var(--pop)] sm:text-3xl">
+          {APP_NAME}
+        </span>
       </Link>
       <div className="flex flex-wrap items-center gap-3">
-        <nav aria-label="Main" className="flex gap-2">
+        <nav aria-label={t.nav.main} className="flex gap-2">
           {NAV.map((n) => {
             const active = room !== null && sub.startsWith(n.href) && (n.href !== '' || sub === '');
             return (
               <Link
-                key={n.label}
+                key={n.key}
                 href={room ? `/${room}${n.href}` : n.href || '/'}
                 aria-current={active ? 'page' : undefined}
                 className={`btn text-sm sm:text-base ${active ? 'bg-[var(--glow)] text-[var(--ink)]' : 'bg-[var(--remote)] text-[var(--cream)]'}`}
               >
-                {n.label}
+                {t.nav[n.key]}
               </Link>
             );
           })}
         </nav>
-        <nav aria-label="Rooms" className="flex gap-1">
+        <nav aria-label={t.nav.rooms} className="flex gap-1">
           {ROOMS.map((r) => (
             <Link
               key={r}

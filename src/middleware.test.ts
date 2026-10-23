@@ -67,4 +67,13 @@ describe('room routing', () => {
     expect(middleware(req('/es/vote')).headers.get('set-cookie')).toContain('gtr_room=es');
     expect(middleware(req('/es', { cookie: 'gtr_room=es' })).headers.get('set-cookie')).toBeNull();
   });
+
+  it('tells pages which room to follow', () => {
+    vi.stubEnv('ORIGIN_SECRET', '');
+    const room = (path: string, headers: Record<string, string> = {}) =>
+      middleware(req(path, headers)).headers.get('x-middleware-request-x-gtr-room');
+    expect(room('/it/hall', { cookie: 'gtr_room=fr' })).toBe('it');
+    expect(room('/privacy', { cookie: 'gtr_room=es' })).toBe('es');
+    expect(room('/legal', { 'accept-language': 'fr' })).toBe('fr');
+  });
 });

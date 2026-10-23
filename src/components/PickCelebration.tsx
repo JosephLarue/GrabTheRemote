@@ -8,7 +8,7 @@ const COLORS = ['#ff5da2', '#ffd23f', '#3ddcff', '#5ef2b5', '#ff4a3d', '#fff6e0'
 
 /** Confetti when a video this browser voted for grabs the screen. */
 export function PickCelebration() {
-  const { state } = useLive();
+  const { state, t } = useLive();
   const id = state?.nowPlaying?.video.id;
   const seen = useRef<string | undefined>(undefined);
   const [show, setShow] = useState(false);
@@ -42,7 +42,7 @@ export function PickCelebration() {
           />
         ))}
       <p className="font-display sticker absolute top-24 left-1/2 -translate-x-1/2 -rotate-2 bg-[var(--mint)] px-5 py-3 text-xl text-[var(--ink)] sm:text-3xl">
-        Your pick grabbed the remote! 🎉
+        {t.celebration}
       </p>
       <style>{`@keyframes confetti { to { transform: translateY(110vh) rotate(720deg); } }`}</style>
     </div>

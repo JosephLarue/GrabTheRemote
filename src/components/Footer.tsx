@@ -1,21 +1,27 @@
+'use client';
+
 import Link from 'next/link';
 import { APP_NAME } from '@/config/app';
+import type { RoomId } from '@/config/rooms';
+import { dict } from '@/i18n';
+import { useRoom } from '@/lib/use-room';
 
-export function Footer() {
+export function Footer({ lastRoom }: { lastRoom: RoomId }) {
+  const t = dict(useRoom(lastRoom).ui).footer;
   return (
     <footer className="mx-auto w-full max-w-6xl px-4 pb-10 text-sm font-semibold text-[var(--muted)]">
       <p>
-        {APP_NAME} is not affiliated with YouTube or Google. It uses YouTube API Services; by using it, you agree to the{' '}
+        {t.notAffiliated(APP_NAME)}{' '}
         <a href="https://www.youtube.com/t/terms" className="underline underline-offset-2" target="_blank" rel="noreferrer">
-          YouTube Terms of Service
+          {t.ytTerms}
         </a>
         .{' '}
         <Link href="/privacy" className="underline underline-offset-2">
-          Privacy
+          {t.privacy}
         </Link>{' '}
         ·{' '}
         <Link href="/legal" className="underline underline-offset-2">
-          Legal notice
+          {t.legal}
         </Link>
       </p>
     </footer>

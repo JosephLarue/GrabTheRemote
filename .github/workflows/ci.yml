@@ -1,0 +1,120 @@
+name: CI
+
+# Runs on every PR into dev or main, and again on dev/main once something is merged.
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev, main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Lint, test, migrate, build, smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: gtr
+          POSTGRES_PASSWORD: gtr
+          POSTGRES_DB: gtr
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U gtr" --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 5s --health-retries 10
+
+    # Same shape as .env.example. Turnstile test keys always pass; no YouTube key means dev fallbacks.
+    env:
+      DATABASE_URL: postgres://gtr:gtr@localhost:5432/gtr
+      REDIS_URL: redis://localhost:6379
+      YT_API_KEY: ''
+      IP_HASH_SECRET: ci-only-secret-not-used-anywhere-else
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+      TURNSTILE_SECRET: 1x0000000000000000000000000000000AA
+      ADMIN_PASSWORD: ci-admin
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_ADS_PROVIDER: none
+      NEXT_TELEMETRY_DISABLED: '1'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Version comes from "packageManager" in package.json.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit tests
+        run: pnpm test
+
+      # Vote, skip, report, admin and read routes against the real Postgres and Redis, with Turnstile and
+      # YouTube stubbed. Creates and migrates its own database; wipes it and Redis db 15 before each test.
+      - name: Functional tests
+        run: pnpm test:functional
+        env:
+          TEST_DATABASE_URL: postgres://gtr:gtr@localhost:5432/gtr_test
+          TEST_REDIS_URL: redis://localhost:6379/15
+
+      - name: Migrations apply on an empty database
+        run: pnpm db:migrate
+
+      # Fails when src/server/db/schema.ts was changed without running `pnpm db:generate`.
+      - name: Schema and migrations are in sync
+        run: |
+          pnpm db:generate
+          if [ -n "$(git status --porcelain drizzle)" ]; then
+            echo "::error::schema.ts changed but no migration was committed. Run 'pnpm db:generate' and commit drizzle/."
+            git status --porcelain drizzle
+            exit 1
+          fi
+
+      - name: Build
+        run: pnpm build
+
+      # After the build, which generates next-env.d.ts and .next/types.
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Smoke test (production server)
+        run: |
+          pnpm start > server.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:3000/api/health > /dev/null && break
+            sleep 1
+          done
+          set -x
+          curl -sf http://localhost:3000/api/health | grep -q '"ok":true'
+          for room in en fr es it jungle; do
+            curl -sf -o /dev/null "http://localhost:3000/$room"
+            curl -sf "http://localhost:3000/api/state?room=$room" | grep -q '"serverNow"'
+          done
+          curl -sf -o /dev/null http://localhost:3000/privacy
+          curl -sf -o /dev/null http://localhost:3000/legal
+          test "$(curl -s -o /dev/null -w '%{redirect_url}' -H 'accept-language: fr-FR' http://localhost:3000/)" = "http://localhost:3000/fr"
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/nope)" = "404"
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/admin)" = "401"
+
+      - name: Server log
+        if: failure()
+        run: cat server.log || true

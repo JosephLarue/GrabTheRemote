@@ -3,25 +3,18 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AdSlot } from '@/components/AdSlot';
 import { isRoom } from '@/config/rooms';
+import { type Dict, dict, localeOf } from '@/i18n';
 import { HALL_TABS, type HallRow, type HallTab, hall } from '@/server/hall';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Hall of Fame' };
 
-const TABS: Record<HallTab, { label: string; blurb: string; unit: (n: number) => string }> = {
-  watched: {
-    label: 'Most watched',
-    blurb: 'Total minutes watched, summed over every viewer.',
-    unit: (n) => `${n.toLocaleString('en')} min`,
-  },
-  picked: { label: 'Most picked', blurb: 'How many times the crowd voted it onto the screen.', unit: (n) => `${n}×` },
-  landslide: { label: 'Biggest landslide', blurb: 'Most votes at the moment it was picked.', unit: (n) => `${n} votes` },
-  peak: { label: 'Peak crowd', blurb: 'The most people watching at the same time.', unit: (n) => `${n} viewers` },
-  shame: {
-    label: 'Hall of Shame',
-    blurb: 'Fastest skips and mass-reported disasters.',
-    unit: (n) => (n < 60 ? `${n}s` : `${Math.floor(n / 60)}m ${n % 60}s`),
-  },
+const UNITS: Record<HallTab, (t: Dict, locale: string) => (n: number) => string> = {
+  watched: (t, locale) => (n) => t.hall.minutes(n.toLocaleString(locale)),
+  picked: (t) => t.hall.times,
+  landslide: (t) => t.hall.votes,
+  peak: (t) => t.hall.viewers,
+  shame: () => (n) => (n < 60 ? `${n}s` : `${Math.floor(n / 60)}m ${n % 60}s`),
 };
 
 export default async function HallPage({
@@ -35,21 +28,22 @@ export default async function HallPage({
   if (!isRoom(room)) notFound();
   const tab: HallTab = (HALL_TABS as readonly string[]).includes(raw ?? '') ? (raw as HallTab) : 'watched';
   const rows = await hall(room, tab);
-  const meta = TABS[tab];
+  const t = dict(room);
+  const meta = { ...t.hall.tabs[tab], unit: UNITS[tab](t, localeOf(room)) };
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-display text-4xl sm:text-5xl">Hall of Fame</h1>
+      <h1 className="font-display text-4xl sm:text-5xl">{t.hall.title}</h1>
 
-      <nav aria-label="Leaderboards" className="flex flex-wrap gap-2">
-        {HALL_TABS.map((t) => (
+      <nav aria-label={t.hall.leaderboards} className="flex flex-wrap gap-2">
+        {HALL_TABS.map((id) => (
           <Link
-            key={t}
-            href={t === 'watched' ? `/${room}/hall` : `/${room}/hall?tab=${t}`}
-            aria-current={t === tab ? 'page' : undefined}
-            className={`btn text-sm ${t === tab ? (t === 'shame' ? 'bg-[var(--skip)]' : 'bg-[var(--report)]') + ' text-[var(--ink)]' : 'bg-[var(--remote)] text-[var(--cream)]'}`}
+            key={id}
+            href={id === 'watched' ? `/${room}/hall` : `/${room}/hall?tab=${id}`}
+            aria-current={id === tab ? 'page' : undefined}
+            className={`btn text-sm ${id === tab ? (id === 'shame' ? 'bg-[var(--skip)]' : 'bg-[var(--report)]') + ' text-[var(--ink)]' : 'bg-[var(--remote)] text-[var(--cream)]'}`}
           >
-            {TABS[t].label}
+            {t.hall.tabs[id].label}
           </Link>
         ))}
       </nav>
@@ -58,18 +52,18 @@ export default async function HallPage({
 
       {rows.length === 0 ? (
         <div className="panel p-6">
-          <p className="font-extrabold">Nobody&apos;s made it here yet.</p>
+          <p className="font-extrabold">{t.hall.empty}</p>
           <p className="mt-1 text-sm">
             <Link href={`/${room}/vote`} className="font-extrabold underline decoration-[3px] underline-offset-2">
-              Pick a video
+              {t.hall.emptyPick}
             </Link>{' '}
-            and it could be the first.
+            {t.hall.emptyRest}
           </p>
         </div>
       ) : (
         <ol className="flex flex-col gap-3">
           {rows.map((r, i) => (
-            <Row key={`${r.videoId}-${r.at ?? i}`} row={r} rank={i + 1} unit={meta.unit} shame={tab === 'shame'} />
+            <Row key={`${r.videoId}-${r.at ?? i}`} row={r} rank={i + 1} unit={meta.unit} shame={tab === 'shame'} t={t} />
           ))}
         </ol>
       )}
@@ -79,7 +73,19 @@ export default async function HallPage({
   );
 }
 
-function Row({ row, rank, unit, shame }: { row: HallRow; rank: number; unit: (n: number) => string; shame: boolean }) {
+function Row({
+  row,
+  rank,
+  unit,
+  shame,
+  t,
+}: {
+  row: HallRow;
+  rank: number;
+  unit: (n: number) => string;
+  shame: boolean;
+  t: Dict;
+}) {
   const podium = ['bg-[var(--report)]', 'bg-[#e6e1f5]', 'bg-[#ffb27a]'][rank - 1];
   return (
     <li className="panel flex items-center gap-3 p-2 pr-4 sm:gap-4">
@@ -104,7 +110,7 @@ function Row({ row, rank, unit, shame }: { row: HallRow; rank: number; unit: (n:
       )}
       <div className="min-w-0 flex-1">
         {row.hidden ? (
-          <p className="font-extrabold">Mass-reported video</p>
+          <p className="font-extrabold">{t.hall.massReported}</p>
         ) : (
           <a
             href={`https://www.youtube.com/watch?v=${row.videoId}`}
@@ -116,12 +122,12 @@ function Row({ row, rank, unit, shame }: { row: HallRow; rank: number; unit: (n:
           </a>
         )}
         <p className="truncate text-xs font-semibold opacity-75">
-          {row.hidden ? 'The crowd hid it' : row.channelTitle}
-          {shame && row.reason === 'skipped' && ', skipped'}
+          {row.hidden ? t.hall.crowdHid : row.channelTitle}
+          {shame && row.reason === 'skipped' && t.hall.skipped}
         </p>
       </div>
       <span className="font-display shrink-0 text-right text-lg tabular-nums sm:text-xl">
-        {shame && row.reason === 'skipped' ? `after ${unit(row.value)}` : unit(row.value)}
+        {shame && row.reason === 'skipped' ? t.hall.after(unit(row.value)) : unit(row.value)}
       </span>
     </li>
   );
