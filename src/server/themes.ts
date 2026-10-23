@@ -1,5 +1,5 @@
 import 'server-only';
-import { P_NO_CONSTRAINT, THEME_SLOT_S } from '@/config/app';
+import { P_NO_CONSTRAINT, THEME_SLOT_S, THEMES_ENABLED } from '@/config/app';
 import { type Constraint, constraintById, drawConstraint } from '@/config/constraints';
 import type { Theme } from '@/lib/types';
 import { db, schema } from './db/client';
@@ -29,6 +29,6 @@ export async function themeForSlot(slot: number): Promise<Constraint | null> {
   return drawn;
 }
 
-export const currentTheme = () => themeForSlot(slotId());
+export const currentTheme = async () => (THEMES_ENABLED ? themeForSlot(slotId()) : null);
 
 export const toTheme = (c: Constraint | null): Theme => (c ? { id: c.id, label: c.label, emoji: c.emoji } : null);

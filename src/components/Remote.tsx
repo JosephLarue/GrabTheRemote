@@ -7,7 +7,7 @@ import { formatClock, useLive, useServerNow } from '@/lib/live';
 import { useTurnstile } from '@/lib/turnstile';
 
 export function Remote() {
-  const { state, connected, me, refreshMe } = useLive();
+  const { room, state, connected, me, refreshMe } = useLive();
   const now = useServerNow(1000);
   const { ref: captchaRef, getToken } = useTurnstile();
   const [busy, setBusy] = useState<'skip' | 'report' | null>(null);
@@ -24,7 +24,7 @@ export function Remote() {
     setMsg(null);
     try {
       const token = await getToken();
-      const res = await post<{ skipped?: boolean; hidden?: boolean }>(`/api/${kind}`, { token });
+      const res = await post<{ skipped?: boolean; hidden?: boolean }>(`/api/${kind}`, { room, token });
       if (!res.ok) setMsg(res.err.message);
       else if (res.data.skipped) setMsg('Skipped! The crowd has spoken 🔴');
       else if (res.data.hidden) setMsg('Hidden. Thanks for keeping the couch clean 🚨');
@@ -95,7 +95,7 @@ export function Remote() {
         </p>
       </div>
 
-      <Link href="/vote" className="btn whitespace-nowrap bg-[var(--glow)] text-[var(--ink)]">
+      <Link href={`/${room}/vote`} className="btn whitespace-nowrap bg-[var(--glow)] text-[var(--ink)]">
         Pick what&apos;s next
       </Link>
 

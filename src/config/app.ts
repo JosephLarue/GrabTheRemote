@@ -1,16 +1,28 @@
 export const APP_NAME = 'Grab The Remote';
 export const APP_TAGLINE = 'One screen. The whole internet. Only one remote.';
 
+// Legal notice (/legal, required in France by the LCEN) and contact for /privacy. Public: fill in before launch.
+export const LEGAL = {
+  publisher: '[publisher name or company to fill in before launch]',
+  publisherAddress: '[publisher address to fill in before launch]',
+  publicationDirector: '[publication director to fill in before launch]',
+  contactEmail: '[contact email to fill in before launch]',
+  host: '[host name to fill in before launch, e.g. Railway Corporation]',
+  hostAddress: '[host address to fill in before launch]',
+  hostWebsite: '[host website to fill in before launch]',
+};
+
 // Queue + voting
 export const MAX_DURATION_S = 900;
 export const VOTE_COOLDOWN_S = 900;
 export const CANDIDATE_TTL_MIN = 60;
 
-// Themes
+// Themes. Kill switch: false means no draw, no banner, every video is accepted.
+export const THEMES_ENABLED = true;
 export const THEME_SLOT_S = 900;
 export const P_NO_CONSTRAINT = 0.5;
 
-// Skip (cooldown is site-wide)
+// Skip (cooldown applies to the whole room)
 export const SKIP_MIN = 3;
 export const SKIP_RATIO = 0.5;
 export const SKIP_COOLDOWN_S = 1800;

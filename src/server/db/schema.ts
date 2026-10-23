@@ -12,6 +12,7 @@ export const videos = pgTable('videos', {
   thumbnailUrl: text('thumbnail_url').notNull(),
   embeddable: boolean('embeddable').notNull(),
   ageRestricted: boolean('age_restricted').notNull(),
+  audioLanguage: text('audio_language'),
   flagged: boolean('flagged').notNull().default(false),
   banned: boolean('banned').notNull().default(false),
   fetchedAt: timestamp('fetched_at', { withTimezone: true }).notNull().defaultNow(),
@@ -35,6 +36,8 @@ export const plays = pgTable(
   'plays',
   {
     id: serial('id').primaryKey(),
+    // Plays from before rooms existed belong to the English room.
+    room: text('room').notNull().default('en'),
     videoId: text('video_id').notNull().references(() => videos.id),
     votesAtPick: integer('votes_at_pick').notNull().default(0),
     source: playSource('source').notNull(),
@@ -47,7 +50,11 @@ export const plays = pgTable(
     skipVotes: integer('skip_votes').notNull().default(0),
     reportVotes: integer('report_votes').notNull().default(0),
   },
-  (t) => [index('plays_video_idx').on(t.videoId), index('plays_started_idx').on(t.startedAt)],
+  (t) => [
+    index('plays_video_idx').on(t.videoId),
+    index('plays_started_idx').on(t.startedAt),
+    index('plays_room_idx').on(t.room),
+  ],
 );
 
 export const themeSlots = pgTable('theme_slots', {
