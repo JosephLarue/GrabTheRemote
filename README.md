@@ -112,7 +112,7 @@ The ticker needs a **long-running Node process** (not serverless). Run a single 
 
 1. Provision Postgres and Redis, then set every variable from `.env.example`. Set `IP_HASH_SECRET` to a long random string.
 2. Build with `pnpm build`, run `pnpm db:migrate` as the pre-deploy step, and start with `pnpm start`.
-3. Put **Cloudflare** in front: proxied DNS, and lock the origin to Cloudflare IPs so `CF-Connecting-IP` can't be spoofed.
+3. Put **Cloudflare** in front with proxied DNS, then lock the origin so `CF-Connecting-IP` can't be spoofed: set `ORIGIN_SECRET` (`openssl rand -base64 32`) and add a Cloudflare Transform Rule (Rules > Transform Rules > Modify request header) that sets `x-origin-secret: <ORIGIN_SECRET>` on every request. The middleware answers 403 to anything without it, except `/api/health`.
 4. **Ads:** set `NEXT_PUBLIC_ADS_PROVIDER=adsense` and `NEXT_PUBLIC_ADSENSE_CLIENT_ID=ca-pub-…`. Turn on the GDPR message in AdSense > Privacy & messaging. `ads.txt` is generated automatically.
 5. Fill in the contact email on `/privacy`.
 
