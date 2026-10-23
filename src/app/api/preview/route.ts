@@ -24,6 +24,7 @@ export const GET = handle(async (req: Request) => {
 
   // Full checks only when metadata is already cached; otherwise the vote itself decides.
   let problem: string | null = null;
+  let problemCode: string | null = null;
   let matchesTheme: boolean | null = null;
   if (p.meta) {
     try {
@@ -31,9 +32,10 @@ export const GET = handle(async (req: Request) => {
       assertFitsRoom(room, p.meta);
     } catch (e) {
       problem = e instanceof ApiError ? e.message : null;
+      problemCode = e instanceof ApiError ? e.code : null;
     }
     const theme = await currentTheme();
     matchesTheme = theme ? theme.check(p.meta) : true;
   }
-  return ok({ video: p.video, inPool: await poolHas(room, id), problem, matchesTheme });
+  return ok({ video: p.video, inPool: await poolHas(room, id), problem, problemCode, matchesTheme });
 });

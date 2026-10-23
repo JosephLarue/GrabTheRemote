@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { errorText } from '@/i18n';
 import { post } from '@/lib/api';
 import { formatClock, useLive, useServerNow } from '@/lib/live';
 import { useTurnstile } from '@/lib/turnstile';
 
 export function Remote() {
-  const { room, state, connected, me, refreshMe } = useLive();
+  const { room, t, state, connected, me, refreshMe } = useLive();
   const now = useServerNow(1000);
   const { ref: captchaRef, getToken } = useTurnstile();
   const [busy, setBusy] = useState<'skip' | 'report' | null>(null);
@@ -25,12 +26,12 @@ export function Remote() {
     try {
       const token = await getToken();
       const res = await post<{ skipped?: boolean; hidden?: boolean }>(`/api/${kind}`, { room, token });
-      if (!res.ok) setMsg(res.err.message);
-      else if (res.data.skipped) setMsg('Skipped! The crowd has spoken 🔴');
-      else if (res.data.hidden) setMsg('Hidden. Thanks for keeping the couch clean 🚨');
-      else setMsg(kind === 'skip' ? 'Vote counted. Need more hands on the button.' : 'Report counted. Thanks 🚨');
+      if (!res.ok) setMsg(errorText(t, res.err, { room, kind }));
+      else if (res.data.skipped) setMsg(t.remote.skipped);
+      else if (res.data.hidden) setMsg(t.remote.hidden);
+      else setMsg(kind === 'skip' ? t.remote.skipCounted : t.remote.reportCounted);
     } catch {
-      setMsg('The robot check failed. Try again 🤖');
+      setMsg(t.errors.captcha);
     } finally {
       setBusy(null);
       refreshMe();
@@ -39,7 +40,7 @@ export function Remote() {
 
   return (
     <aside
-      aria-label="The remote"
+      aria-label={t.remote.label}
       className="remote flex flex-row flex-wrap items-center justify-around gap-4 p-5 lg:flex-col lg:flex-nowrap lg:justify-start lg:gap-6 lg:px-6 lg:py-8"
     >
       {/* power LED doubles as the live connection indicator */}
@@ -49,11 +50,11 @@ export function Remote() {
             aria-hidden
             className={`inline-block h-3 w-3 rounded-full border-2 border-[var(--edge)] ${connected ? 'bg-[var(--mint)]' : 'bg-[var(--skip)]'}`}
           />
-          {connected ? 'Live' : 'Reconnecting'}
+          {connected ? t.remote.live : t.remote.reconnecting}
         </span>
         <div className="rounded-xl border-[3px] border-[var(--edge)] bg-[#9fe8c8] px-3 py-1 text-center text-[var(--ink)] shadow-[inset_3px_3px_0_rgba(0,0,0,0.15)]">
           <span className="font-display text-2xl tabular-nums">{state?.viewers ?? '–'}</span>
-          <span className="ml-1 text-sm font-extrabold">on the couch</span>
+          <span className="ml-1 text-sm font-extrabold">{t.remote.onCouch}</span>
         </div>
       </div>
 
@@ -64,17 +65,17 @@ export function Remote() {
           disabled={!playing || busy !== null || me.skipped || skipCd > 0}
           onClick={() => press('skip')}
         >
-          Skip
+          {t.remote.skip}
           <span className="font-sans text-xs font-extrabold">
-            {skipCd > 0 ? `cools in ${formatClock(skipCd)}` : `${skip?.votes ?? 0}/${skip?.needed ?? 3}`}
+            {skipCd > 0 ? t.remote.coolsIn(formatClock(skipCd)) : `${skip?.votes ?? 0}/${skip?.needed ?? 3}`}
           </span>
         </button>
         <p className="max-w-[12rem] text-center text-xs font-bold text-[var(--muted)]">
           {skipCd > 0
-            ? 'Someone skipped recently. The button is overheating for everyone.'
+            ? t.remote.overheating
             : me.skipped
-              ? 'You voted to skip this one.'
-              : 'Half the room has to agree.'}
+              ? t.remote.youSkipped
+              : t.remote.halfRoom}
         </p>
       </div>
 
@@ -88,15 +89,15 @@ export function Remote() {
           <span aria-hidden className="text-xl">
             🚨
           </span>
-          Report
+          {t.remote.report}
         </button>
         <p className="text-center text-xs font-bold text-[var(--muted)]">
-          {me.reported ? 'Reported.' : `${report?.votes ?? 0}/${report?.needed ?? 3} to hide it`}
+          {me.reported ? t.remote.reported : t.remote.toHide(report?.votes ?? 0, report?.needed ?? 3)}
         </p>
       </div>
 
       <Link href={`/${room}/vote`} className="btn whitespace-nowrap bg-[var(--glow)] text-[var(--ink)]">
-        Pick what&apos;s next
+        {t.remote.pickNext}
       </Link>
 
       <div ref={captchaRef} />

@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AdSlot } from '@/components/AdSlot';
-import { ROOM_INFO } from '@/config/rooms';
+import { errorText, roomLanguage } from '@/i18n';
 import { PoolBars } from '@/components/PoolBars';
 import { ThemeBanner } from '@/components/ThemeBanner';
 import { post, rememberPick } from '@/lib/api';
@@ -11,11 +11,22 @@ import { useTurnstile } from '@/lib/turnstile';
 import type { VideoCard } from '@/lib/types';
 import { parseYouTubeId } from '@/lib/youtube-id';
 
-type PreviewRes = { video: VideoCard; inPool: boolean; problem: string | null; matchesTheme: boolean | null };
+type PreviewRes = {
+  video: VideoCard;
+  inPool: boolean;
+  problem: string | null;
+  problemCode: string | null;
+  matchesTheme: boolean | null;
+};
 type PreviewState = { status: 'idle' | 'loading' } | { status: 'ok'; data: PreviewRes } | { status: 'error'; message: string };
 
 export default function VotePage() {
-  const { room, state, me, refreshMe } = useLive();
+  const { room, t, state, me, refreshMe } = useLive();
+  const theme = state?.theme;
+  const fail = useCallback(
+    (err: { error: string; message: string }) => errorText(t, err, { room, theme }),
+    [t, room, theme],
+  );
   const now = useServerNow(1000);
   const { ref: captchaRef, getToken } = useTurnstile();
   const [url, setUrl] = useState('');
@@ -30,26 +41,26 @@ export default function VotePage() {
   useEffect(() => {
     if (!id) {
       setPreview(
-        url.trim() ? { status: 'error', message: "That's not a YouTube link we recognize 🤔" } : { status: 'idle' },
+        url.trim() ? { status: 'error', message: t.errors.bad_url } : { status: 'idle' },
       );
       return;
     }
     setPreview({ status: 'loading' });
     const ctrl = new AbortController();
-    const t = setTimeout(async () => {
+    const timer = setTimeout(async () => {
       try {
         const res = await fetch(`/api/preview?room=${room}&url=${encodeURIComponent(id)}`, { signal: ctrl.signal });
         const data = await res.json();
-        setPreview(res.ok ? { status: 'ok', data } : { status: 'error', message: data.message });
+        setPreview(res.ok ? { status: 'ok', data } : { status: 'error', message: fail(data) });
       } catch {
-        if (!ctrl.signal.aborted) setPreview({ status: 'error', message: 'Lost the signal. Try again 📡' });
+        if (!ctrl.signal.aborted) setPreview({ status: 'error', message: t.errors.network });
       }
     }, 400);
     return () => {
-      clearTimeout(t);
+      clearTimeout(timer);
       ctrl.abort();
     };
-  }, [id, url, room]);
+  }, [id, url, room, t, fail]);
 
   const vote = async (target: string) => {
     setBusy(true);
@@ -59,13 +70,13 @@ export default function VotePage() {
       const res = await post<{ videoId: string }>('/api/vote', { room, url: target, token });
       if (res.ok) {
         rememberPick(res.data.videoId);
-        setMsg({ ok: true, text: "Vote counted! You'll get confetti if it makes it to the screen 🎉" });
+        setMsg({ ok: true, text: t.vote.counted });
         setUrl('');
       } else {
-        setMsg({ ok: false, text: res.err.message });
+        setMsg({ ok: false, text: fail(res.err) });
       }
     } catch {
-      setMsg({ ok: false, text: 'The robot check failed. Try again 🤖' });
+      setMsg({ ok: false, text: t.errors.captcha });
     } finally {
       setBusy(false);
       refreshMe();
@@ -79,11 +90,8 @@ export default function VotePage() {
     <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
       <div className="flex min-w-0 flex-col gap-6">
         <section className="panel p-5 sm:p-7">
-          <h1 className="font-display text-3xl sm:text-4xl">Pick what plays next</h1>
-          <p className="mt-2 max-w-prose font-semibold">
-            Paste a YouTube link. You get one vote every 15 minutes. When the current video ends, the video with the
-            most votes takes over the screen.
-          </p>
+          <h1 className="font-display text-3xl sm:text-4xl">{t.vote.title}</h1>
+          <p className="mt-2 max-w-prose font-semibold">{t.vote.intro}</p>
 
           <form
             className="mt-5 flex flex-col gap-3 sm:flex-row"
@@ -93,7 +101,7 @@ export default function VotePage() {
             }}
           >
             <label htmlFor="url" className="sr-only">
-              YouTube link
+              {t.vote.linkLabel}
             </label>
             <input
               id="url"
@@ -110,18 +118,18 @@ export default function VotePage() {
               className="btn font-display bg-[var(--skip)] px-6 text-lg text-[var(--ink)]"
               disabled={!id || busy || cooldown > 0 || blocked}
             >
-              {busy ? 'Grabbing…' : 'Grab the remote'}
+              {busy ? t.vote.grabbing : t.vote.grab}
             </button>
           </form>
 
           {cooldown > 0 && (
             <p className="mt-3 font-extrabold">
-              You can grab the remote again in <span className="font-display tabular-nums">{formatClock(cooldown)}</span>.
+              {t.vote.againIn} <span className="font-display tabular-nums">{formatClock(cooldown)}</span>.
             </p>
           )}
 
           <div className="mt-4 min-h-[86px]" aria-live="polite">
-            {preview.status === 'loading' && <p className="font-bold opacity-70">Tuning in…</p>}
+            {preview.status === 'loading' && <p className="font-bold opacity-70">{t.vote.tuning}</p>}
             {preview.status === 'error' && <p className="font-extrabold text-[var(--skip)]">{preview.message}</p>}
             {p && (
               <div className="flex items-center gap-4">
@@ -141,13 +149,15 @@ export default function VotePage() {
                   </p>
                   <p className="mt-1 text-sm font-extrabold">
                     {p.problem ? (
-                      <span className="text-[var(--skip)]">{p.problem}</span>
+                      <span className="text-[var(--skip)]">
+                        {p.problemCode ? fail({ error: p.problemCode, message: p.problem }) : p.problem}
+                      </span>
                     ) : p.matchesTheme === false ? (
-                      <span className="text-[var(--skip)]">Doesn&apos;t fit the current theme.</span>
+                      <span className="text-[var(--skip)]">{t.vote.offTheme}</span>
                     ) : p.inPool ? (
-                      'Already in the queue. Your vote adds +1.'
+                      t.vote.inQueue
                     ) : (
-                      'Looks good. Grab it!'
+                      t.vote.looksGood
                     )}
                   </p>
                 </div>
@@ -166,7 +176,7 @@ export default function VotePage() {
         <ThemeBanner />
 
         <section>
-          <h2 className="font-display mb-3 text-2xl">The queue</h2>
+          <h2 className="font-display mb-3 text-2xl">{t.vote.queue}</h2>
           <PoolBars
             pool={state?.pool ?? []}
             limit={10}
@@ -178,17 +188,13 @@ export default function VotePage() {
 
       <aside className="flex flex-col gap-6">
         <div className="panel p-5">
-          <h2 className="font-display text-xl">House rules</h2>
+          <h2 className="font-display text-xl">{t.vote.rules}</h2>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold">
-            <li>Embeddable YouTube videos only, 15 minutes max.</li>
-            <li>No age-restricted videos.</li>
-            <li>
-              {ROOM_INFO[room].language
-                ? `${ROOM_INFO[room].language} videos only. If YouTube says it's in another language, it's refused.`
-                : 'Any language goes. Welcome to The Jungle 🌴'}
-            </li>
-            <li>When there&apos;s a theme, your pick has to fit it.</li>
-            <li>If 10% of viewers report a video, it gets hidden.</li>
+            <li>{t.vote.ruleEmbeddable}</li>
+            <li>{t.vote.ruleAge}</li>
+            <li>{t.vote.ruleLanguage(roomLanguage(room, t))}</li>
+            <li>{t.vote.ruleTheme}</li>
+            <li>{t.vote.ruleReport}</li>
           </ul>
         </div>
         <AdSlot slot="vote-rail" />

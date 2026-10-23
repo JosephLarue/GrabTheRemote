@@ -21,7 +21,7 @@ Five screens, five crowds: 🇬🇧 **English** (`/en`), 🇫🇷 **Français** 
 
 Language rooms only refuse a video when YouTube says it's in another language; videos that don't declare a language get the benefit of the doubt. The Jungle takes anything.
 
-Landing on `/` takes you back to your last room, or to the one matching your browser language.
+Landing on `/` takes you back to your last room, or to the one matching your browser language. The interface speaks the room's language (English in The Jungle); `/privacy`, `/legal` and `/admin` stay in English.
 
 ## 🎲 Theme roulette
 
@@ -109,6 +109,7 @@ pnpm dev                        # http://localhost:3000
 | Every tunable number (cooldowns, thresholds, quota limits) | `src/config/app.ts` |
 | Themes | `src/config/constraints.ts` |
 | Rooms (list, names, browser-language pick) | `src/config/rooms.ts`, routing in `src/middleware.ts`, pages in `src/app/[room]` |
+| UI copy per room language (en, fr, es, it) | `src/i18n` |
 | Playback ticker, queue advance, per-room lock | `src/server/engine.ts`, started from `src/instrumentation.ts` |
 | Live state, SSE fan-out, viewer presence | `src/server/state.ts`, `src/app/api/stream` |
 | YouTube metadata cache (Redis → Postgres → API) and quota guard | `src/server/youtube.ts` |
