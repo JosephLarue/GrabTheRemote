@@ -1,12 +1,14 @@
 import { desc, eq } from 'drizzle-orm';
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { DEFAULT_ROOM, ROOM_INFO, ROOMS, isRoom } from '@/config/rooms';
 import { CONSTRAINTS } from '@/config/constraints';
 import { YT_QUOTA_HARD, YT_QUOTA_SOFT } from '@/config/app';
 import { db, schema } from '@/server/db/client';
 import { K } from '@/server/keys';
 import { poolIds } from '@/server/pool';
 import { redis } from '@/server/redis';
-import { snapshot } from '@/server/state';
+import { snapshot, viewerCount } from '@/server/state';
 import { themeWeights } from '@/server/themes';
 import { getMeta, quotaUsed } from '@/server/youtube';
 import {
@@ -27,10 +29,12 @@ export const metadata: Metadata = { title: 'Admin', robots: { index: false } };
 
 const btn = 'btn px-3 py-1 text-xs';
 
-export default async function AdminPage() {
-  const [snap, ids, quota, flagged, banned, channels, keywords, weights, recent] = await Promise.all([
-    snapshot(),
-    poolIds(),
+export default async function AdminPage({ searchParams }: { searchParams: Promise<{ room?: string }> }) {
+  const { room: raw } = await searchParams;
+  const room = isRoom(raw) ? raw : DEFAULT_ROOM;
+  const [snap, ids, quota, flagged, banned, channels, keywords, weights, recent, roomViewers] = await Promise.all([
+    snapshot(room),
+    poolIds(room),
     quotaUsed(),
     db().select().from(schema.videos).where(eq(schema.videos.flagged, true)),
     db().select().from(schema.videos).where(eq(schema.videos.banned, true)),
@@ -41,11 +45,17 @@ export default async function AdminPage() {
       .select({ play: schema.plays, title: schema.videos.title })
       .from(schema.plays)
       .innerJoin(schema.videos, eq(schema.videos.id, schema.plays.videoId))
+      .where(eq(schema.plays.room, room))
       .orderBy(desc(schema.plays.id))
       .limit(15),
+    Promise.all(ROOMS.map(viewerCount)),
   ]);
   const pool = await Promise.all(
-    ids.map(async (id) => ({ id, votes: Number(await redis().zscore(K.pool, id)), meta: await getMeta(id, { allowFetch: false }) })),
+    ids.map(async (id) => ({
+      id,
+      votes: Number(await redis().zscore(K.pool(room), id)),
+      meta: await getMeta(id, { allowFetch: false }),
+    })),
   );
   const np = snap.nowPlaying;
 
@@ -53,8 +63,25 @@ export default async function AdminPage() {
     <div className="flex flex-col gap-6">
       <h1 className="font-display text-4xl">Control room</h1>
 
+      <nav aria-label="Rooms" className="flex flex-wrap gap-2">
+        {ROOMS.map((r, i) => (
+          <Link
+            key={r}
+            href={`/admin?room=${r}`}
+            aria-current={r === room ? 'page' : undefined}
+            className={`${btn} ${r === room ? 'bg-[var(--glow)] text-[var(--ink)]' : 'bg-[var(--remote)] text-[var(--cream)]'}`}
+          >
+            {ROOM_INFO[r].emoji} {ROOM_INFO[r].name} ({roomViewers[i]})
+          </Link>
+        ))}
+      </nav>
+      <p className="-mt-3 text-sm">
+        Now playing, queue and recent plays below are for {ROOM_INFO[room].name}. Bans, keywords and theme weights apply to
+        every room.
+      </p>
+
       <section className="grid gap-4 sm:grid-cols-3">
-        <Stat label="Viewers now" value={snap.viewers} />
+        <Stat label={`Viewers now in ${ROOM_INFO[room].name}`} value={snap.viewers} />
         <Stat
           label={`YouTube quota today (soft ${YT_QUOTA_SOFT}, hard ${YT_QUOTA_HARD})`}
           value={`${quota} / 10,000`}
@@ -70,6 +97,7 @@ export default async function AdminPage() {
               {np.video.title} <span className="font-semibold opacity-70">({np.video.id}, {np.state})</span>
             </p>
             <form action={forceSkip}>
+              <input type="hidden" name="room" value={room} />
               <button className={`${btn} bg-[var(--skip)] text-[var(--ink)]`}>Force skip</button>
             </form>
             <form action={banVideo}>
@@ -91,6 +119,7 @@ export default async function AdminPage() {
               <span className="min-w-0 flex-1 truncate font-bold">{c.meta?.title ?? c.id}</span>
               <span className="text-xs opacity-70">{c.meta?.channelTitle}</span>
               <form action={dropCandidate}>
+                <input type="hidden" name="room" value={room} />
                 <input type="hidden" name="id" value={c.id} />
                 <button className={`${btn} bg-white text-[var(--ink)]`}>Remove</button>
               </form>

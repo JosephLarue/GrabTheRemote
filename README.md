@@ -15,6 +15,12 @@ GrabTheRemote is a single shared screen playing YouTube videos. Everybody watche
 3. **The crowd has spoken** — when the current video ends, the most-voted video jumps on screen and its votes are spent. Everyone else's votes stay in the fight.
 4. **Watch together** — same video, same frame, same cringe, for everyone.
 
+## 🌍 Rooms
+
+Five screens, five crowds: 🇬🇧 **English** (`/en`), 🇫🇷 **Français** (`/fr`), 🇪🇸 **Español** (`/es`), 🇮🇹 **Italiano** (`/it`) and 🌴 **The Jungle** (`/jungle`), where anything goes. Each room has its own queue, its own remote, its own vote cooldown and its own Hall of Fame. Themes are shared.
+
+Landing on `/` takes you back to your last room, or to the one matching your browser language.
+
 ## 🎲 Theme roulette
 
 Every 15 minutes the remote *might* get possessed. Sometimes there's no rule. Sometimes it's:
@@ -34,7 +40,7 @@ If your link doesn't match the theme, the remote slaps your hand away.
 
 Hate what's playing? Smash **SKIP**. If half the room agrees, it's gone.
 
-But careful: once a skip passes, the button **overheats for 30 minutes**, for the entire site. Spend it wisely.
+But careful: once a skip passes, the button **overheats for 30 minutes**, for the whole room. Spend it wisely.
 
 ## 🚨 The yellow button
 
@@ -100,7 +106,8 @@ pnpm dev                        # http://localhost:3000
 |---|---|
 | Every tunable number (cooldowns, thresholds, quota limits) | `src/config/app.ts` |
 | Themes | `src/config/constraints.ts` |
-| Playback ticker, queue advance, site-wide lock | `src/server/engine.ts`, started from `src/instrumentation.ts` |
+| Rooms (list, names, browser-language pick) | `src/config/rooms.ts`, routing in `src/middleware.ts`, pages in `src/app/[room]` |
+| Playback ticker, queue advance, per-room lock | `src/server/engine.ts`, started from `src/instrumentation.ts` |
 | Live state, SSE fan-out, viewer presence | `src/server/state.ts`, `src/app/api/stream` |
 | YouTube metadata cache (Redis → Postgres → API) and quota guard | `src/server/youtube.ts` |
 | Moderation filters | `src/server/moderation.ts` |

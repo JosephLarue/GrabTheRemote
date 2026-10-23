@@ -22,7 +22,7 @@ export const THEMES_ENABLED = true;
 export const THEME_SLOT_S = 900;
 export const P_NO_CONSTRAINT = 0.5;
 
-// Skip (cooldown is site-wide)
+// Skip (cooldown applies to the whole room)
 export const SKIP_MIN = 3;
 export const SKIP_RATIO = 0.5;
 export const SKIP_COOLDOWN_S = 1800;

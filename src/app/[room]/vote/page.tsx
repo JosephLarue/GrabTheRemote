@@ -14,7 +14,7 @@ type PreviewRes = { video: VideoCard; inPool: boolean; problem: string | null; m
 type PreviewState = { status: 'idle' | 'loading' } | { status: 'ok'; data: PreviewRes } | { status: 'error'; message: string };
 
 export default function VotePage() {
-  const { state, me, refreshMe } = useLive();
+  const { room, state, me, refreshMe } = useLive();
   const now = useServerNow(1000);
   const { ref: captchaRef, getToken } = useTurnstile();
   const [url, setUrl] = useState('');
@@ -37,7 +37,7 @@ export default function VotePage() {
     const ctrl = new AbortController();
     const t = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/preview?url=${encodeURIComponent(id)}`, { signal: ctrl.signal });
+        const res = await fetch(`/api/preview?room=${room}&url=${encodeURIComponent(id)}`, { signal: ctrl.signal });
         const data = await res.json();
         setPreview(res.ok ? { status: 'ok', data } : { status: 'error', message: data.message });
       } catch {
@@ -48,14 +48,14 @@ export default function VotePage() {
       clearTimeout(t);
       ctrl.abort();
     };
-  }, [id, url]);
+  }, [id, url, room]);
 
   const vote = async (target: string) => {
     setBusy(true);
     setMsg(null);
     try {
       const token = await getToken();
-      const res = await post<{ videoId: string }>('/api/vote', { url: target, token });
+      const res = await post<{ videoId: string }>('/api/vote', { room, url: target, token });
       if (res.ok) {
         rememberPick(res.data.videoId);
         setMsg({ ok: true, text: "Vote counted! You'll get confetti if it makes it to the screen 🎉" });

@@ -1,11 +1,13 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import type { RoomId } from '@/config/rooms';
 import type { LiveEvent, LiveSnapshot } from './types';
 
 type Me = { voteCooldownEndsAt: number | null; skipped: boolean; reported: boolean };
 
 type LiveCtx = {
+  room: RoomId;
   state: LiveSnapshot | null;
   connected: boolean;
   /** Server time in ms: Date.now() corrected by the offset measured at connect. */
@@ -35,16 +37,16 @@ function apply(s: LiveSnapshot | null, e: LiveEvent): LiveSnapshot | null {
   }
 }
 
-export function LiveProvider({ children }: { children: React.ReactNode }) {
+export function LiveProvider({ room, children }: { room: RoomId; children: React.ReactNode }) {
   const [state, setState] = useState<LiveSnapshot | null>(null);
   const [connected, setConnected] = useState(false);
   const [me, setMe] = useState<Me>({ voteCooldownEndsAt: null, skipped: false, reported: false });
   const offset = useRef(0);
 
   const refreshMe = useCallback(async () => {
-    const res = await fetch('/api/me', { cache: 'no-store' }).catch(() => null);
+    const res = await fetch(`/api/me?room=${room}`, { cache: 'no-store' }).catch(() => null);
     if (res?.ok) setMe(await res.json());
-  }, []);
+  }, [room]);
 
   useEffect(() => {
     let es: EventSource | null = null;
@@ -58,7 +60,7 @@ export function LiveProvider({ children }: { children: React.ReactNode }) {
     const startPolling = () => {
       if (poll) return;
       poll = setInterval(async () => {
-        const res = await fetch('/api/state', { cache: 'no-store' }).catch(() => null);
+        const res = await fetch(`/api/state?room=${room}`, { cache: 'no-store' }).catch(() => null);
         if (!res?.ok) return;
         const snap = (await res.json()) as LiveSnapshot;
         onSnapshot(snap);
@@ -68,7 +70,7 @@ export function LiveProvider({ children }: { children: React.ReactNode }) {
 
     const connect = () => {
       if (closed) return;
-      es = new EventSource('/api/stream');
+      es = new EventSource(`/api/stream?room=${room}`);
       es.onopen = () => {
         setConnected(true);
         if (poll) clearInterval(poll);
@@ -94,11 +96,11 @@ export function LiveProvider({ children }: { children: React.ReactNode }) {
       es?.close();
       if (poll) clearInterval(poll);
     };
-  }, [refreshMe]);
+  }, [room, refreshMe]);
 
   const serverNow = useCallback(() => Date.now() + offset.current, []);
 
-  return <Ctx.Provider value={{ state, connected, serverNow, me, refreshMe }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ room, state, connected, serverNow, me, refreshMe }}>{children}</Ctx.Provider>;
 }
 
 export function useLive() {

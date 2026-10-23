@@ -8,6 +8,13 @@
       "when": 1792760106315,
       "tag": "0000_wakeful_katie_power",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792763997171,
+      "tag": "0001_polite_valkyrie",
+      "breakpoints": true
     }
   ]
 }

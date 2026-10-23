@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { ROOM_COOKIE, isRoom, roomFromAcceptLanguage } from '@/config/rooms';
 
 // Railway/Fly health checks hit the origin directly, without going through Cloudflare.
 const ORIGIN_LOCK_EXEMPT = ['/api/health'];
@@ -29,8 +30,32 @@ function adminAllowed(req: NextRequest): boolean {
   return safeEqual(decoded.slice(decoded.indexOf(':') + 1), expected);
 }
 
+// Room-less entry points: send people to their last room, else the one matching their browser language.
+const ROOM_ENTRY = ['/', '/vote', '/hall'];
+const ROOM_COOKIE_MAX_AGE_S = 365 * 86400;
+
+function roomRedirect(req: NextRequest): NextResponse | null {
+  const path = req.nextUrl.pathname;
+  if (ROOM_ENTRY.includes(path)) {
+    const saved = req.cookies.get(ROOM_COOKIE)?.value;
+    const room = isRoom(saved) ? saved : roomFromAcceptLanguage(req.headers.get('accept-language'));
+    const url = req.nextUrl.clone();
+    url.pathname = `/${room}${path === '/' ? '' : path}`;
+    return NextResponse.redirect(url);
+  }
+  const first = path.split('/')[1];
+  if (isRoom(first) && req.cookies.get(ROOM_COOKIE)?.value !== first) {
+    const res = NextResponse.next();
+    res.cookies.set(ROOM_COOKIE, first, { path: '/', maxAge: ROOM_COOKIE_MAX_AGE_S, sameSite: 'lax' });
+    return res;
+  }
+  return null;
+}
+
 export function middleware(req: NextRequest) {
   if (!originAllowed(req)) return new NextResponse('Forbidden', { status: 403 });
+  const rooms = roomRedirect(req);
+  if (rooms) return rooms;
   const path = req.nextUrl.pathname;
   if ((path === '/admin' || path.startsWith('/admin/')) && !adminAllowed(req)) {
     return new NextResponse('Admins only 🔒', {

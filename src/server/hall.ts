@@ -1,5 +1,6 @@
 import 'server-only';
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
+import type { RoomId } from '@/config/rooms';
 import { db, schema } from './db/client';
 import { K } from './keys';
 import { redis } from './redis';
@@ -32,8 +33,9 @@ const videoCols = {
   flagged: v.flagged,
 };
 
-async function query(tab: HallTab): Promise<HallRow[]> {
-  const clean = and(eq(v.banned, false), eq(v.flagged, false));
+async function query(room: RoomId, tab: HallTab): Promise<HallRow[]> {
+  const inRoom = eq(p.room, room);
+  const clean = and(inRoom, eq(v.banned, false), eq(v.flagged, false));
   const base = () => db().select().from(p).innerJoin(v, eq(v.id, p.videoId));
   switch (tab) {
     case 'watched': {
@@ -81,7 +83,7 @@ async function query(tab: HallTab): Promise<HallRow[]> {
         .select({ ...videoCols, value: lasted, reason: p.endReason, at: p.startedAt })
         .from(p)
         .innerJoin(v, eq(v.id, p.videoId))
-        .where(and(eq(v.banned, false), inArray(p.endReason, ['skipped', 'reported'])))
+        .where(and(inRoom, eq(v.banned, false), inArray(p.endReason, ['skipped', 'reported'])))
         .orderBy(lasted)
         .limit(LIMIT);
       return rows.map((r) => ({
@@ -95,11 +97,11 @@ async function query(tab: HallTab): Promise<HallRow[]> {
   }
 }
 
-export async function hall(tab: HallTab): Promise<HallRow[]> {
-  const key = K.hallCache(tab);
+export async function hall(room: RoomId, tab: HallTab): Promise<HallRow[]> {
+  const key = K.hallCache(room, tab);
   const hit = await redis().get(key);
   if (hit) return JSON.parse(hit);
-  const rows = await query(tab);
+  const rows = await query(room, tab);
   await redis().set(key, JSON.stringify(rows), 'EX', CACHE_S);
   return rows;
 }

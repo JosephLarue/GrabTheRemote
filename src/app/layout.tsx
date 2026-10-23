@@ -4,8 +4,6 @@ import { APP_NAME, APP_TAGLINE } from '@/config/app';
 import { AdsScript } from '@/components/AdsScript';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
-import { LiveProvider } from '@/lib/live';
-import { PickCelebration } from '@/components/PickCelebration';
 import './globals.css';
 
 const bagel = Bagel_Fat_One({ variable: '--font-bagel', weight: '400', subsets: ['latin'] });
@@ -25,12 +23,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body className={`${bagel.variable} ${nunito.variable} antialiased`}>
-        <LiveProvider>
-          <Header />
-          <main className="mx-auto w-full max-w-6xl px-4 pb-16">{children}</main>
-          <Footer />
-          <PickCelebration />
-        </LiveProvider>
+        <Header />
+        <main className="mx-auto w-full max-w-6xl px-4 pb-16">{children}</main>
+        <Footer />
         <AdsScript />
       </body>
     </html>

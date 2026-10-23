@@ -1,5 +1,6 @@
 import 'server-only';
 import { NextResponse } from 'next/server';
+import { isRoom, type RoomId } from '@/config/rooms';
 
 export class ApiError extends Error {
   constructor(
@@ -11,6 +12,15 @@ export class ApiError extends Error {
     super(message);
   }
 }
+
+/** Validates a room id from a query param or JSON body. */
+export function roomOf(value: unknown): RoomId {
+  if (!isRoom(value)) throw new ApiError(400, 'bad_room', "That room doesn't exist 🚪");
+  return value;
+}
+
+/** Room from the `?room=` query param of a GET request. */
+export const roomFromUrl = (req: Request) => roomOf(new URL(req.url).searchParams.get('room'));
 
 export function ok(data: unknown = { ok: true }) {
   return NextResponse.json(data);

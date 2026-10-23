@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { AdSlot } from '@/components/AdSlot';
+import { isRoom } from '@/config/rooms';
 import { HALL_TABS, type HallRow, type HallTab, hall } from '@/server/hall';
 
 export const dynamic = 'force-dynamic';
@@ -22,10 +24,17 @@ const TABS: Record<HallTab, { label: string; blurb: string; unit: (n: number) =>
   },
 };
 
-export default async function HallPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
-  const { tab: raw } = await searchParams;
+export default async function HallPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ room: string }>;
+  searchParams: Promise<{ tab?: string }>;
+}) {
+  const [{ room }, { tab: raw }] = await Promise.all([params, searchParams]);
+  if (!isRoom(room)) notFound();
   const tab: HallTab = (HALL_TABS as readonly string[]).includes(raw ?? '') ? (raw as HallTab) : 'watched';
-  const rows = await hall(tab);
+  const rows = await hall(room, tab);
   const meta = TABS[tab];
 
   return (
@@ -36,7 +45,7 @@ export default async function HallPage({ searchParams }: { searchParams: Promise
         {HALL_TABS.map((t) => (
           <Link
             key={t}
-            href={t === 'watched' ? '/hall' : `/hall?tab=${t}`}
+            href={t === 'watched' ? `/${room}/hall` : `/${room}/hall?tab=${t}`}
             aria-current={t === tab ? 'page' : undefined}
             className={`btn text-sm ${t === tab ? (t === 'shame' ? 'bg-[var(--skip)]' : 'bg-[var(--report)]') + ' text-[var(--ink)]' : 'bg-[var(--remote)] text-[var(--cream)]'}`}
           >
@@ -51,7 +60,7 @@ export default async function HallPage({ searchParams }: { searchParams: Promise
         <div className="panel p-6">
           <p className="font-extrabold">Nobody&apos;s made it here yet.</p>
           <p className="mt-1 text-sm">
-            <Link href="/vote" className="font-extrabold underline decoration-[3px] underline-offset-2">
+            <Link href={`/${room}/vote`} className="font-extrabold underline decoration-[3px] underline-offset-2">
               Pick a video
             </Link>{' '}
             and it could be the first.
