@@ -3,6 +3,7 @@ import { ipHash } from '@/server/ip';
 import { K } from '@/server/keys';
 import { redis } from '@/server/redis';
 import { getNowPlaying } from '@/server/state';
+import { holdsRemote } from '@/server/steal';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,14 +12,16 @@ export const GET = handle(async (req: Request) => {
   const room = roomFromUrl(req);
   const iph = ipHash(req.headers);
   const np = await getNowPlaying(room);
-  const [voteTtl, skipped, reported] = await Promise.all([
+  const [voteTtl, skipped, reported, remote] = await Promise.all([
     redis().pttl(K.voteCd(room, iph)),
     np ? redis().sismember(K.skipVotes(np.playId), iph) : 0,
     np ? redis().sismember(K.reportVotes(np.playId), iph) : 0,
+    holdsRemote(room, iph),
   ]);
   return ok({
     voteCooldownEndsAt: voteTtl > 0 ? Date.now() + voteTtl : null,
     skipped: skipped === 1,
     reported: reported === 1,
+    remote,
   });
 });

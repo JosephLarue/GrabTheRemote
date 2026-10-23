@@ -15,6 +15,15 @@ export const K = {
   presence: (room: RoomId) => r(room, 'presence'),
   lockAdvance: (room: RoomId) => r(room, 'lock:advance'),
   hallCache: (room: RoomId, tab: string) => r(room, `hall:${tab}`),
+  /** IP hashes watching right now (score: last presence ping), so the stolen remote goes to someone here. */
+  online: (room: RoomId) => r(room, 'online'),
+  /** IP hashes that voted (score: last vote). */
+  voters: (room: RoomId) => r(room, 'voters'),
+  /** IP hash holding the stolen remote; expires with the veto. */
+  steal: (room: RoomId) => r(room, 'steal'),
+  /** When this period's remote gets stolen (ms), then whether it was drawn. */
+  stealAt: (room: RoomId, period: number) => r(room, `steal:at:${period}`),
+  stealDrawn: (room: RoomId, period: number) => r(room, `steal:drawn:${period}`),
   // Play ids are unique across rooms, so these need no room prefix.
   skipVotes: (playId: number) => `skip:${playId}`,
   reportVotes: (playId: number) => `report:${playId}`,

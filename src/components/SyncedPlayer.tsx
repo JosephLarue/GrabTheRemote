@@ -44,7 +44,8 @@ function loadYT() {
 // Survives client-side navigation; a full reload needs a new click (browser autoplay rules).
 let unmutedThisSession = false;
 
-export function SyncedPlayer({ np }: { np: NowPlaying | null }) {
+/** `overlay` sits on top of everything on the screen, the static and the mass-reported card included. */
+export function SyncedPlayer({ np, overlay }: { np: NowPlaying | null; overlay?: React.ReactNode }) {
   const { serverNow, t } = useLive();
   const host = useRef<HTMLDivElement>(null);
   const player = useRef<YTPlayer | null>(null);
@@ -154,6 +155,7 @@ export function SyncedPlayer({ np }: { np: NowPlaying | null }) {
       {!reported && (waiting || !videoId) && (
         <StaticNoise label={videoId ? t.player.changing : t.player.nothingOn} />
       )}
+      {overlay}
     </div>
   );
 }

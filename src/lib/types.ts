@@ -40,7 +40,12 @@ export type LiveSnapshot = {
   viewers: number;
   skip: { votes: number; needed: number; cooldownEndsAt: number | null };
   report: { votes: number; needed: number };
+  /** Someone stole the remote: they can veto what's playing until `endsAt`. */
+  steal: { endsAt: number } | null;
 };
+
+/** Reactions sent since the last batch: emoji → count. */
+export type ReactionBatch = Record<string, number>;
 
 export type LiveEvent =
   | { type: 'snapshot'; data: LiveSnapshot }
@@ -49,4 +54,6 @@ export type LiveEvent =
   | { type: 'theme'; data: { theme: Theme; themeEndsAt: number; pool: PoolEntry[] } }
   | { type: 'viewers'; data: number }
   | { type: 'skip'; data: LiveSnapshot['skip'] }
-  | { type: 'report'; data: LiveSnapshot['report'] };
+  | { type: 'report'; data: LiveSnapshot['report'] }
+  | { type: 'steal'; data: LiveSnapshot['steal'] }
+  | { type: 'react'; data: ReactionBatch };

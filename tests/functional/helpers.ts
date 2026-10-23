@@ -1,17 +1,21 @@
 import { eq } from 'drizzle-orm';
 import { GET as getMe } from '@/app/api/me/route';
 import { GET as getPreview } from '@/app/api/preview/route';
+import { POST as postReact } from '@/app/api/react/route';
 import { POST as postReport } from '@/app/api/report/route';
 import { POST as postSkip } from '@/app/api/skip/route';
 import { GET as getState } from '@/app/api/state/route';
+import { POST as postVeto } from '@/app/api/veto/route';
 import { POST as postVote } from '@/app/api/vote/route';
 import type { RoomId } from '@/config/rooms';
 import type { LiveSnapshot, VideoMeta } from '@/lib/types';
 import { db, schema } from '@/server/db/client';
 import { advance, withLock } from '@/server/engine';
+import { ipHash } from '@/server/ip';
 import { K } from '@/server/keys';
 import { redis } from '@/server/redis';
 import { getNowPlaying } from '@/server/state';
+import { touchOnline } from '@/server/steal';
 import { slotId } from '@/server/themes';
 
 export const CAPTCHA_OK = 'turnstile-ok';
@@ -50,10 +54,16 @@ export const skip = (room: string, { viewer = 1, token = CAPTCHA_OK }: As = {}) 
 export const report = (room: string, { viewer = 1, token = CAPTCHA_OK }: As = {}) =>
   call<ApiBody & { hidden?: boolean }>(postReport(post('/api/report', { room, token }, viewer)));
 
+export const veto = (room: string, { viewer = 1 }: As = {}) =>
+  call<ApiBody & { vetoed?: boolean }>(postVeto(post('/api/veto', { room }, viewer)));
+
+export const react = (room: string, emoji: string, { viewer = 1 }: As = {}) =>
+  call(postReact(post('/api/react', { room, emoji }, viewer)));
+
 export const state = (room: string) => call<LiveSnapshot & ApiBody>(getState(get(`/api/state?room=${room}`)));
 
 export const me = (room: string, viewer = 1) =>
-  call<{ voteCooldownEndsAt: number | null; skipped: boolean; reported: boolean }>(getMe(get(`/api/me?room=${room}`, viewer)));
+  call<{ voteCooldownEndsAt: number | null; skipped: boolean; reported: boolean; remote: boolean }>(getMe(get(`/api/me?room=${room}`, viewer)));
 
 export const preview = (room: string, url: string) =>
   call(getPreview(get(`/api/preview?room=${room}&url=${encodeURIComponent(url)}`)));
@@ -98,6 +108,12 @@ export async function videoRow(id: string) {
 export async function addViewers(room: RoomId, n: number) {
   for (let i = 0; i < n; i++) await redis().zadd(K.presence(room), Date.now(), `viewer-${i}`);
 }
+
+/** A viewer's IP hash, as the routes compute it. */
+export const iphOf = (viewer: number) => ipHash(new Headers({ 'x-forwarded-for': ip(viewer) }));
+
+/** What the SSE stream does for a viewer who has the page open. */
+export const watching = (room: RoomId, viewer: number) => touchOnline(room, iphOf(viewer));
 
 /** Pins the theme for the current slot and the next one, in case a test straddles the boundary. */
 export async function setTheme(id: string | null) {

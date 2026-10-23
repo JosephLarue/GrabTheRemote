@@ -30,7 +30,7 @@ export const blockedKeywords = pgTable('blocked_keywords', {
 });
 
 export const playSource = pgEnum('play_source', ['pool', 'fallback']);
-export const endReason = pgEnum('end_reason', ['finished', 'skipped', 'reported', 'admin']);
+export const endReason = pgEnum('end_reason', ['finished', 'skipped', 'reported', 'admin', 'vetoed']);
 
 export const plays = pgTable(
   'plays',

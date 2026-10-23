@@ -1,5 +1,5 @@
 import 'server-only';
-import { and, desc, eq, inArray, sql } from 'drizzle-orm';
+import { type SQL, and, desc, eq, inArray, sql } from 'drizzle-orm';
 import type { RoomId } from '@/config/rooms';
 import { db, schema } from './db/client';
 import { K } from './keys';
@@ -18,6 +18,9 @@ export type HallRow = {
   value: number;
   at?: string;
   reason?: string;
+  /** Hall of Shame only: the play, for its share card, and how many people pushed the button. */
+  playId?: number;
+  votes?: number;
 };
 
 const CACHE_S = 300;
@@ -77,24 +80,44 @@ async function query(room: RoomId, tab: HallTab): Promise<HallRow[]> {
         at: plays.startedAt.toISOString(),
       }));
     }
-    case 'shame': {
-      const lasted = sql<number>`extract(epoch from (${p.endedAt} - ${p.startedAt}))::int`;
-      const rows = await db()
-        .select({ ...videoCols, value: lasted, reason: p.endReason, at: p.startedAt })
-        .from(p)
-        .innerJoin(v, eq(v.id, p.videoId))
-        .where(and(inRoom, eq(v.banned, false), inArray(p.endReason, ['skipped', 'reported'])))
-        .orderBy(lasted)
-        .limit(LIMIT);
-      return rows.map((r) => ({
-        ...r,
-        hidden: r.flagged || r.reason === 'reported',
-        value: Math.max(0, r.value),
-        at: r.at.toISOString(),
-        reason: r.reason ?? undefined,
-      }));
-    }
+    case 'shame':
+      return shameRows(room, undefined, LIMIT);
   }
+}
+
+/** Plays the crowd (or the stolen remote) cut short, fastest first. */
+async function shameRows(room: RoomId, where: SQL | undefined, limit: number): Promise<HallRow[]> {
+  const lasted = sql<number>`extract(epoch from (${p.endedAt} - ${p.startedAt}))::int`;
+  const rows = await db()
+    .select({
+      ...videoCols,
+      value: lasted,
+      reason: p.endReason,
+      at: p.startedAt,
+      playId: p.id,
+      skipVotes: p.skipVotes,
+      reportVotes: p.reportVotes,
+    })
+    .from(p)
+    .innerJoin(v, eq(v.id, p.videoId))
+    .where(and(eq(p.room, room), eq(v.banned, false), inArray(p.endReason, ['skipped', 'reported', 'vetoed']), where))
+    .orderBy(lasted)
+    .limit(limit);
+  return rows.map(({ skipVotes, reportVotes, ...r }) => ({
+    ...r,
+    hidden: r.flagged || r.reason === 'reported',
+    value: Math.max(0, r.value),
+    at: r.at.toISOString(),
+    reason: r.reason ?? undefined,
+    votes: r.reason === 'reported' ? reportVotes : r.reason === 'vetoed' ? 1 : skipVotes,
+  }));
+}
+
+/** One Hall of Shame entry, for its share card. Null if that play isn't in this room's Hall of Shame. */
+export async function shameEntry(room: RoomId, playId: number): Promise<HallRow | null> {
+  if (!Number.isSafeInteger(playId) || playId <= 0) return null;
+  const [row] = await shameRows(room, eq(p.id, playId), 1);
+  return row ?? null;
 }
 
 export async function hall(room: RoomId, tab: HallTab): Promise<HallRow[]> {

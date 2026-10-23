@@ -41,6 +41,22 @@ export const META_STALE_H = 24;
 // Live state
 export const PRESENCE_WINDOW_S = 30;
 export const STATIC_TRANSITION_MS = 1200;
+/** From this many viewers, "on the couch" becomes "the couch is collapsing". */
+export const COUCH_COLLAPSE_AT = 1000;
+
+// Remote fight: the top two of the queue are this close, each with at least FIGHT_MIN_VOTES.
+export const FIGHT_MAX_GAP = 1;
+export const FIGHT_MIN_VOTES = 2;
+
+// Stolen remote: once per STEAL_EVERY_S, at a random moment, one voter who is watching gets a veto.
+export const STEAL_EVERY_S = 3600;
+export const STEAL_HOLD_S = 60;
+/** Only people who voted this recently can be picked. */
+export const STEAL_VOTER_WINDOW_S = 3600;
+
+// Couch reactions: a fixed set (nothing to moderate), batched before going out to every viewer.
+export const REACTIONS = ['😂', '💀', '🔥', '😍', '🤮', '👏'] as const;
+export const REACTION_BATCH_MS = 300;
 
 // Played when the pool is empty and the Hall of Fame has nothing yet.
 export const FALLBACK_VIDEOS = [

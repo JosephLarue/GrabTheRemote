@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AdSlot } from '@/components/AdSlot';
-import { isRoom } from '@/config/rooms';
+import { isRoom, type RoomId } from '@/config/rooms';
 import { type Dict, dict, localeOf } from '@/i18n';
+import { formatLasted, roastOf } from '@/lib/roast';
 import { HALL_TABS, type HallRow, type HallTab, hall } from '@/server/hall';
 
 export const dynamic = 'force-dynamic';
@@ -14,7 +15,7 @@ const UNITS: Record<HallTab, (t: Dict, locale: string) => (n: number) => string>
   picked: (t) => t.hall.times,
   landslide: (t) => t.hall.votes,
   peak: (t) => t.hall.viewers,
-  shame: () => (n) => (n < 60 ? `${n}s` : `${Math.floor(n / 60)}m ${n % 60}s`),
+  shame: () => formatLasted,
 };
 
 export default async function HallPage({
@@ -63,7 +64,15 @@ export default async function HallPage({
       ) : (
         <ol className="flex flex-col gap-3">
           {rows.map((r, i) => (
-            <Row key={`${r.videoId}-${r.at ?? i}`} row={r} rank={i + 1} unit={meta.unit} shame={tab === 'shame'} t={t} />
+            <Row
+              key={`${r.videoId}-${r.at ?? i}`}
+              row={r}
+              rank={i + 1}
+              unit={meta.unit}
+              shame={tab === 'shame'}
+              room={room}
+              t={t}
+            />
           ))}
         </ol>
       )}
@@ -78,14 +87,17 @@ function Row({
   rank,
   unit,
   shame,
+  room,
   t,
 }: {
   row: HallRow;
   rank: number;
   unit: (n: number) => string;
   shame: boolean;
+  room: RoomId;
   t: Dict;
 }) {
+  const cutShort = shame && (row.reason === 'skipped' || row.reason === 'vetoed');
   const podium = ['bg-[var(--report)]', 'bg-[#e6e1f5]', 'bg-[#ffb27a]'][rank - 1];
   return (
     <li className="panel flex items-center gap-3 p-2 pr-4 sm:gap-4">
@@ -124,11 +136,26 @@ function Row({
         <p className="truncate text-xs font-semibold opacity-75">
           {row.hidden ? t.hall.crowdHid : row.channelTitle}
           {shame && row.reason === 'skipped' && t.hall.skipped}
+          {shame && row.reason === 'vetoed' && t.hall.vetoed}
         </p>
+        {shame && (
+          <p className="mt-0.5 truncate text-xs font-black text-[var(--skip)]">
+            “{t.hall.roasts[roastOf(row.reason, row.value)]}”
+          </p>
+        )}
       </div>
       <span className="font-display shrink-0 text-right text-lg tabular-nums sm:text-xl">
-        {shame && row.reason === 'skipped' ? t.hall.after(unit(row.value)) : unit(row.value)}
+        {cutShort ? t.hall.after(unit(row.value)) : unit(row.value)}
       </span>
+      {shame && row.playId && (
+        <Link
+          href={`/${room}/shame/${row.playId}`}
+          className="btn shrink-0 bg-[var(--skip)] px-3 py-1 text-sm text-[var(--ink)]"
+          aria-label={t.hall.shareLabel(row.hidden ? t.hall.massReported : row.title)}
+        >
+          📸 <span className="hidden sm:inline">{t.hall.share}</span>
+        </Link>
+      )}
     </li>
   );
 }

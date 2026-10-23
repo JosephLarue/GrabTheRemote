@@ -1,3 +1,5 @@
+import type { Roast } from '@/lib/roast';
+
 // UI copy for the English room and The Jungle. Every other locale must provide the same keys (type Dict).
 export const en = {
   nav: { main: 'Main', rooms: 'Rooms', watch: 'Watch', vote: 'Vote', hall: 'Hall of Fame' },
@@ -13,7 +15,7 @@ export const en = {
     video: 'Video',
     crank: 'Click to crank it up 🔊',
     changing: 'Changing the channel…',
-    nothingOn: 'Nothing on. Go grab the remote!',
+    nothingOn: 'Dead air. Someone is clearly not doing their job.',
     massReported: 'Mass reported 🚨',
     massReportedSub: 'The crowd hid this one. Next pick coming right up.',
   },
@@ -22,6 +24,7 @@ export const en = {
     live: 'Live',
     reconnecting: 'Reconnecting',
     onCouch: 'on the couch',
+    couchCollapsing: 'the couch is collapsing',
     skip: 'Skip',
     coolsIn: (t: string) => `cools in ${t}`,
     overheating: 'Someone skipped recently. The button is overheating for everyone.',
@@ -35,6 +38,23 @@ export const en = {
     hidden: 'Hidden. Thanks for keeping the couch clean 🚨',
     skipCounted: 'Vote counted. Need more hands on the button.',
     reportCounted: 'Report counted. Thanks 🚨',
+  },
+  steal: {
+    you: '🎯 YOU have the remote',
+    someone: '🎯 Someone stole the remote!',
+    youHint: "One press kills what's playing. No vote, no cooldown. Choose wisely.",
+    someoneHint: (left: string) => `They can veto what's playing. ${left} left.`,
+    veto: 'Veto',
+    vetoed: 'Vetoed. Power corrupts 😈',
+  },
+  fight: {
+    title: '⚔️ Remote fight',
+    vs: 'vs',
+    pickSide: 'Pick a side',
+  },
+  reactions: {
+    label: 'Couch reactions',
+    send: (emoji: string) => `React ${emoji}`,
   },
   pool: {
     empty: 'Nothing queued yet.',
@@ -101,7 +121,30 @@ export const en = {
     massReported: 'Mass-reported video',
     crowdHid: 'The crowd hid it',
     skipped: ', skipped',
+    vetoed: ', vetoed',
     after: (d: string) => `after ${d}`,
+    share: 'Share',
+    shareLabel: (title: string) => `Share the shame of ${title}`,
+    roasts: {
+      ad: 'Skipped faster than a YouTube ad',
+      intro: "Didn't survive the intro",
+      minute: 'Not even a minute. Brutal.',
+      tried: 'The couch gave it a chance. Once.',
+      long: 'Made it far. Then the couch remembered it had taste.',
+      veto: 'One person grabbed the remote and chose violence',
+      reported: 'The couch called security',
+    } as Record<Roast, string>,
+  },
+  shame: {
+    skipped: (d: string, n: number) => `Skipped after ${d} by ${n} ${n === 1 ? 'person' : 'people'}`,
+    reported: (d: string, n: number) => `Mass-reported after ${d} by ${n} ${n === 1 ? 'person' : 'people'}`,
+    vetoed: (d: string) => `Vetoed after ${d} by one person with the remote`,
+    stamps: { skipped: 'Skipped', reported: 'Mass-reported', vetoed: 'Vetoed' } as Record<string, string>,
+    title: 'Hall of Shame',
+    share: 'Share the shame',
+    copied: 'Link copied 📋',
+    cta: 'Think your taste is better? Grab the remote.',
+    back: 'Back to the Hall of Shame',
   },
   /** Name of a room's language, as used inside this locale's sentences. */
   languages: { en: 'English', fr: 'French', es: 'Spanish', it: 'Italian' } as Record<string, string>,
@@ -132,6 +175,9 @@ export const en = {
       `This is the ${language} room, and this video is in another language. Try The Jungle 🌴`,
     nothing_skip: 'Nothing to skip right now 🤷',
     nothing_report: 'Nothing to report right now 🤷',
+    nothing_veto: 'Nothing to veto right now 🤷',
+    no_remote: "You don't have the remote anymore 🫳",
+    bad_reaction: 'That reaction is not on the couch 🙃',
     skip_cooldown: 'The skip button is overheating 🔥 Wait for it to cool down.',
     already_skip: 'You already smashed skip on this one 🔴',
     already_report: 'Already reported. The crowd has been notified 🚨',

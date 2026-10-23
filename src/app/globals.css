@@ -329,6 +329,91 @@ body {
   box-shadow: 0 1px 0 var(--shade);
 }
 
+/* Report: a yellow label inside caution tape, so it reads as "emergencies only" next to the big red skip. */
+.report-btn {
+  display: flex;
+  width: 100%;
+  max-width: 170px;
+  padding: 5px;
+  border: var(--line) solid var(--edge);
+  border-radius: 18px;
+  background: repeating-linear-gradient(-45deg, var(--report) 0 8px, var(--ink) 8px 16px);
+  box-shadow: 0 5px 0 var(--shade);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 80ms ease, box-shadow 80ms ease;
+}
+.report-label {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  border: 2px solid var(--edge);
+  border-radius: 12px;
+  background: var(--report);
+  color: var(--ink);
+}
+.report-siren {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.report-btn:hover:not(:disabled) .report-siren {
+  animation: wobble 0.5s ease-in-out infinite;
+}
+.report-btn:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--shade);
+}
+.report-btn:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.6) brightness(0.85);
+}
+
+/* ---------------------------------------------------------------- couch reactions */
+
+.reaction-btn {
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0;
+  line-height: 1;
+}
+@keyframes reaction-float {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  10% { opacity: 1; transform: translate(0, -10%) scale(1.1); }
+  100% { transform: translate(var(--drift, 0), -420%) scale(1); opacity: 0; }
+}
+.reaction-float {
+  animation-name: reaction-float;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.35));
+}
+
+/* ---------------------------------------------------------------- remote fight + stolen remote */
+
+@keyframes tug {
+  0%, 100% { margin-left: -3px; }
+  50% { margin-left: 3px; }
+}
+.tug {
+  animation: tug 0.35s ease-in-out infinite;
+}
+.fight {
+  border-color: var(--skip);
+}
+
+@keyframes steal-glow {
+  0%, 100% { box-shadow: var(--pop), 0 0 0 0 var(--report); }
+  50% { box-shadow: var(--pop), 0 0 0 8px var(--report); }
+}
+.steal-mine {
+  background: var(--report);
+  color: var(--ink);
+  animation: steal-glow 1s ease-in-out infinite;
+}
+
 /* ---------------------------------------------------------------- motion */
 
 @keyframes wobble {
@@ -350,8 +435,16 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .wobble,
-  .bump {
+  .bump,
+  .tug,
+  .steal-mine,
+  .report-btn:hover:not(:disabled) .report-siren {
     animation: none;
+  }
+  /* Reactions still show up, they just fade in place instead of flying. */
+  @keyframes reaction-float {
+    0%, 100% { opacity: 0; }
+    20%, 70% { opacity: 1; }
   }
   .btn,
   .remote-btn {

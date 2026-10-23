@@ -3,9 +3,15 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { RoomId } from '@/config/rooms';
 import { type Dict, dict, localeOf } from '@/i18n';
-import type { LiveEvent, LiveSnapshot } from './types';
+import type { LiveEvent, LiveSnapshot, ReactionBatch } from './types';
 
-type Me = { voteCooldownEndsAt: number | null; skipped: boolean; reported: boolean };
+type Me = {
+  voteCooldownEndsAt: number | null;
+  skipped: boolean;
+  reported: boolean;
+  /** This viewer holds the stolen remote. */
+  remote: boolean;
+};
 
 type LiveCtx = {
   room: RoomId;
@@ -17,6 +23,8 @@ type LiveCtx = {
   serverNow: () => number;
   me: Me;
   refreshMe: () => Promise<void>;
+  /** Couch reactions aren't state: listen to the batches as they come. Returns the unsubscribe. */
+  onReactions: (fn: (batch: ReactionBatch) => void) => () => void;
 };
 
 const Ctx = createContext<LiveCtx | null>(null);
@@ -37,14 +45,19 @@ function apply(s: LiveSnapshot | null, e: LiveEvent): LiveSnapshot | null {
       return { ...s, skip: e.data };
     case 'report':
       return { ...s, report: e.data };
+    case 'steal':
+      return { ...s, steal: e.data };
+    case 'react':
+      return s;
   }
 }
 
 export function LiveProvider({ room, children }: { room: RoomId; children: React.ReactNode }) {
   const [state, setState] = useState<LiveSnapshot | null>(null);
   const [connected, setConnected] = useState(false);
-  const [me, setMe] = useState<Me>({ voteCooldownEndsAt: null, skipped: false, reported: false });
+  const [me, setMe] = useState<Me>({ voteCooldownEndsAt: null, skipped: false, reported: false, remote: false });
   const offset = useRef(0);
+  const reactionListeners = useRef(new Set<(batch: ReactionBatch) => void>());
 
   // The root layout can't know the room, so the room sets the document language itself.
   useEffect(() => {
@@ -87,8 +100,9 @@ export function LiveProvider({ room, children }: { room: RoomId; children: React
       es.onmessage = (m) => {
         const e = JSON.parse(m.data) as LiveEvent;
         if (e.type === 'snapshot') onSnapshot(e.data);
-        if (e.type === 'nowplaying') refreshMe();
-        setState((s) => apply(s, e));
+        if (e.type === 'nowplaying' || e.type === 'steal') refreshMe();
+        if (e.type === 'react') reactionListeners.current.forEach((fn) => fn(e.data));
+        else setState((s) => apply(s, e));
       };
       es.onerror = () => {
         // EventSource retries on its own; poll meanwhile so the screen keeps moving.
@@ -107,8 +121,16 @@ export function LiveProvider({ room, children }: { room: RoomId; children: React
   }, [room, refreshMe]);
 
   const serverNow = useCallback(() => Date.now() + offset.current, []);
+  const onReactions = useCallback((fn: (batch: ReactionBatch) => void) => {
+    reactionListeners.current.add(fn);
+    return () => void reactionListeners.current.delete(fn);
+  }, []);
 
-  return <Ctx.Provider value={{ room, t: dict(room), state, connected, serverNow, me, refreshMe }}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={{ room, t: dict(room), state, connected, serverNow, me, refreshMe, onReactions }}>
+      {children}
+    </Ctx.Provider>
+  );
 }
 
 export function useLive() {
