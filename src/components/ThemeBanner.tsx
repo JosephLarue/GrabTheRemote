@@ -1,11 +1,12 @@
 'use client';
 
+import { THEMES_ENABLED } from '@/config/app';
 import { formatClock, useLive, useServerNow } from '@/lib/live';
 
 export function ThemeBanner() {
   const { state } = useLive();
   const now = useServerNow(1000);
-  if (!state) return null;
+  if (!state || !THEMES_ENABLED) return null;
   const left = formatClock(state.themeEndsAt - now);
   const t = state.theme;
 

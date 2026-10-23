@@ -17,6 +17,8 @@ GrabTheRemote is a single shared screen playing YouTube videos. Everybody watche
 
 ## 🎲 Theme roulette
 
+> Coming soon: themes are switched off for now (`THEMES_ENABLED` in `src/config/app.ts`).
+
 Every 15 minutes the remote *might* get possessed. Sometimes there's no rule. Sometimes it's:
 
 - ⏱️ **Under 2 minutes** — no time for your 14-minute video essay
@@ -111,10 +113,10 @@ The ticker needs a **long-running Node process** (not serverless). Run a single 
 ### Deploying (Railway or Fly.io)
 
 1. Provision Postgres and Redis, then set every variable from `.env.example`. Set `IP_HASH_SECRET` to a long random string.
-2. Build with `pnpm build`, run `pnpm db:migrate` as the pre-deploy step, and start with `pnpm start`.
-3. Put **Cloudflare** in front: proxied DNS, and lock the origin to Cloudflare IPs so `CF-Connecting-IP` can't be spoofed.
+2. Build with `pnpm build`, run `pnpm db:migrate` as the pre-deploy step, and start with `pnpm start`. Point the platform health check at `/api/health` (200 when Postgres and Redis answer, 503 otherwise).
+3. Put **Cloudflare** in front with proxied DNS, then lock the origin so `CF-Connecting-IP` can't be spoofed: set `ORIGIN_SECRET` (`openssl rand -base64 32`) and add a Cloudflare Transform Rule (Rules > Transform Rules > Modify request header) that sets `x-origin-secret: <ORIGIN_SECRET>` on every request. The middleware answers 403 to anything without it, except `/api/health`.
 4. **Ads:** set `NEXT_PUBLIC_ADS_PROVIDER=adsense` and `NEXT_PUBLIC_ADSENSE_CLIENT_ID=ca-pub-…`. Turn on the GDPR message in AdSense > Privacy & messaging. `ads.txt` is generated automatically.
-5. Fill in the contact email on `/privacy`.
+5. Fill in `LEGAL` in `src/config/app.ts` (publisher, host, contact email). It feeds `/legal` and `/privacy`.
 
 ---
 
