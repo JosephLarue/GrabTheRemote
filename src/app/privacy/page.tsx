@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { APP_NAME, VOTE_COOLDOWN_S } from '@/config/app';
+import { APP_NAME, LEGAL, VOTE_COOLDOWN_S } from '@/config/app';
 
 export const metadata: Metadata = { title: 'Privacy' };
 
@@ -9,8 +9,7 @@ export default function PrivacyPage() {
     <article className="panel mx-auto max-w-3xl p-6 sm:p-8 [&_h2]:font-display [&_h2]:mt-6 [&_h2]:text-xl [&_p]:mt-2 [&_li]:mt-1">
       <h1 className="font-display text-3xl">Privacy</h1>
       <p>
-        {APP_NAME} has no accounts. Here is everything we process and why. Contact for any request: [operator email to
-        fill in before launch].
+        {APP_NAME} has no accounts. Here is everything we process and why. Contact for any request: {LEGAL.contactEmail}.
       </p>
 
       <h2>Your IP address</h2>

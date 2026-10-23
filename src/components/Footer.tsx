@@ -8,6 +8,10 @@ export function Footer() {
         {APP_NAME} is not affiliated with YouTube or Google. Videos are embedded with the YouTube player.{' '}
         <Link href="/privacy" className="underline underline-offset-2">
           Privacy
+        </Link>{' '}
+        ·{' '}
+        <Link href="/legal" className="underline underline-offset-2">
+          Legal notice
         </Link>
       </p>
     </footer>
