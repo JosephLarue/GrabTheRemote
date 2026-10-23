@@ -24,6 +24,16 @@ export const K = {
   /** When this period's remote gets stolen (ms), then whether it was drawn. */
   stealAt: (room: RoomId, period: number) => r(room, `steal:at:${period}`),
   stealDrawn: (room: RoomId, period: number) => r(room, `steal:drawn:${period}`),
+  /** Twitch room: the stream and phase (JSON), then per round: keep/change votes, pick votes, who picked. */
+  twitch: (room: RoomId) => r(room, 'twitch'),
+  twitchDirty: (room: RoomId) => r(room, 'twitch:dirty'),
+  twitchDecide: (room: RoomId, round: number) => r(room, `twitch:decide:${round}`),
+  twitchPick: (room: RoomId, round: number) => r(room, `twitch:pick:${round}`),
+  twitchPickInfo: (room: RoomId, round: number) => r(room, `twitch:pick:info:${round}`),
+  twitchPicked: (room: RoomId, round: number) => r(room, `twitch:picked:${round}`),
+  /** Channels that played here, latest first: the pick window's suggestions. */
+  twitchRecent: (room: RoomId) => r(room, 'twitch:recent'),
+  twitchToken: 'twitch:token',
   // Play ids are unique across rooms, so these need no room prefix.
   skipVotes: (playId: number) => `skip:${playId}`,
   reportVotes: (playId: number) => `report:${playId}`,

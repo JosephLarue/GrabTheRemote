@@ -2,10 +2,12 @@
 // Themes are shared by all rooms. `lang` is the room's language (ISO 639-1); null means anything goes
 // (The Jungle). `language` is its English name, for messages. `wall` and `tv` are its wallpaper and TV
 // colours (browser theme-color, share card); the rest of its look lives in globals.css under [data-room].
-export const ROOMS = ['en', 'fr', 'es', 'it', 'jungle'] as const;
+// `kind` is what the room plays: YouTube videos the crowd queues up, or a Twitch stream the crowd keeps or changes.
+export const ROOMS = ['en', 'fr', 'es', 'it', 'jungle', 'twitch'] as const;
 export type RoomId = (typeof ROOMS)[number];
 
 type RoomInfo = {
+  kind: 'youtube' | 'twitch';
   name: string;
   emoji: string;
   lang: string | null;
@@ -15,11 +17,12 @@ type RoomInfo = {
 };
 
 export const ROOM_INFO: Record<RoomId, RoomInfo> = {
-  en: { name: 'English', emoji: '🇬🇧', lang: 'en', language: 'English', wall: '#33404f', tv: '#e03a3e' },
-  fr: { name: 'Français', emoji: '🇫🇷', lang: 'fr', language: 'French', wall: '#6e1f3f', tv: '#ff9bb3' },
-  es: { name: 'Español', emoji: '🇪🇸', lang: 'es', language: 'Spanish', wall: '#1f4fb5', tv: '#ff8a3d' },
-  it: { name: 'Italiano', emoji: '🇮🇹', lang: 'it', language: 'Italian', wall: '#b3343c', tv: '#ffe45c' },
-  jungle: { name: 'The Jungle', emoji: '🌴', lang: null, language: null, wall: '#14532d', tv: '#ff7a1a' },
+  en: { kind: 'youtube', name: 'English', emoji: '🇬🇧', lang: 'en', language: 'English', wall: '#33404f', tv: '#e03a3e' },
+  fr: { kind: 'youtube', name: 'Français', emoji: '🇫🇷', lang: 'fr', language: 'French', wall: '#6e1f3f', tv: '#ff9bb3' },
+  es: { kind: 'youtube', name: 'Español', emoji: '🇪🇸', lang: 'es', language: 'Spanish', wall: '#1f4fb5', tv: '#ff8a3d' },
+  it: { kind: 'youtube', name: 'Italiano', emoji: '🇮🇹', lang: 'it', language: 'Italian', wall: '#b3343c', tv: '#ffe45c' },
+  jungle: { kind: 'youtube', name: 'The Jungle', emoji: '🌴', lang: null, language: null, wall: '#14532d', tv: '#ff7a1a' },
+  twitch: { kind: 'twitch', name: 'Twitch', emoji: '🟣', lang: null, language: null, wall: '#1f1240', tv: '#9146ff' },
 };
 
 export const DEFAULT_ROOM: RoomId = 'en';
@@ -29,6 +32,8 @@ export const ROOM_COOKIE = 'gtr_room';
 export const ROOM_HEADER = 'x-gtr-room';
 
 export const isRoom = (s: unknown): s is RoomId => (ROOMS as readonly unknown[]).includes(s);
+
+export const isTwitchRoom = (room: RoomId) => ROOM_INFO[room].kind === 'twitch';
 
 /**
  * Language rule: a language room only refuses videos YouTube says are in another language.

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { AdSlot } from '@/components/AdSlot';
-import { isRoom, type RoomId } from '@/config/rooms';
+import { isRoom, isTwitchRoom, type RoomId } from '@/config/rooms';
 import { type Dict, dict, localeOf } from '@/i18n';
 import { formatLasted, roastOf } from '@/lib/roast';
 import { HALL_TABS, type HallRow, type HallTab, hall } from '@/server/hall';
@@ -27,6 +27,7 @@ export default async function HallPage({
 }) {
   const [{ room }, { tab: raw }] = await Promise.all([params, searchParams]);
   if (!isRoom(room)) notFound();
+  if (isTwitchRoom(room)) redirect(`/${room}`);
   const tab: HallTab = (HALL_TABS as readonly string[]).includes(raw ?? '') ? (raw as HallTab) : 'watched';
   const rows = await hall(room, tab);
   const t = dict(room);

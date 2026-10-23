@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { APP_NAME } from '@/config/app';
-import { ROOM_INFO, ROOMS, type RoomId } from '@/config/rooms';
+import { ROOM_INFO, ROOMS, type RoomId, isTwitchRoom } from '@/config/rooms';
 import { dict } from '@/i18n';
 import { useRoom } from '@/lib/use-room';
 
@@ -34,7 +34,8 @@ export function Header({ lastRoom }: { lastRoom: RoomId }) {
       </Link>
       <div className="flex flex-wrap items-center gap-3">
         <nav aria-label={t.nav.main} className="flex gap-2">
-          {NAV.map((n) => {
+          {/* A Twitch room is one page: the vote happens on screen, and there's no Hall of Fame. */}
+          {NAV.filter((n) => !(room && isTwitchRoom(room)) || n.href === '').map((n) => {
             const active = room !== null && sub.startsWith(n.href) && (n.href !== '' || sub === '');
             return (
               <Link

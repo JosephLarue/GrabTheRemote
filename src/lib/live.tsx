@@ -11,6 +11,9 @@ type Me = {
   reported: boolean;
   /** This viewer holds the stolen remote. */
   remote: boolean;
+  /** Twitch rooms: this viewer's keep/change vote and pick in the current round. */
+  decided: 'keep' | 'change' | null;
+  picked: string | null;
 };
 
 type LiveCtx = {
@@ -47,6 +50,8 @@ function apply(s: LiveSnapshot | null, e: LiveEvent): LiveSnapshot | null {
       return { ...s, report: e.data };
     case 'steal':
       return { ...s, steal: e.data };
+    case 'twitch':
+      return { ...s, twitch: e.data };
     case 'react':
       return s;
   }
@@ -55,7 +60,14 @@ function apply(s: LiveSnapshot | null, e: LiveEvent): LiveSnapshot | null {
 export function LiveProvider({ room, children }: { room: RoomId; children: React.ReactNode }) {
   const [state, setState] = useState<LiveSnapshot | null>(null);
   const [connected, setConnected] = useState(false);
-  const [me, setMe] = useState<Me>({ voteCooldownEndsAt: null, skipped: false, reported: false, remote: false });
+  const [me, setMe] = useState<Me>({
+    voteCooldownEndsAt: null,
+    skipped: false,
+    reported: false,
+    remote: false,
+    decided: null,
+    picked: null,
+  });
   const offset = useRef(0);
   const reactionListeners = useRef(new Set<(batch: ReactionBatch) => void>());
 

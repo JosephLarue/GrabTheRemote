@@ -121,6 +121,20 @@
   --muted: #c9f2d3;
 }
 
+/* Twitch: purple glitch, diagonal scan bars, Twitch-purple TV */
+:root:has([data-room="twitch"]) {
+  --wall: #1f1240;
+  --wall-pattern: #2a1957;
+  --wall-image: repeating-linear-gradient(135deg, var(--wall-pattern) 0 6px, transparent 6px 40px);
+  --wall-size: auto;
+  --tv: #9146ff;
+  --tv-dark: #6f2fe0;
+  --glow: #bf94ff;
+  --remote: #170d33;
+  --remote-hi: #2a1957;
+  --muted: #d9c8ff;
+}
+
 @media (prefers-color-scheme: dark) {
   /* lights off: same rooms, darker walls, the TV's colour for the neon shadows */
   :root:has([data-room="en"]) {
@@ -154,6 +168,14 @@
     --remote-hi: #5c1d22;
     --panel: #561a20;
     --shade: #ffe45c;
+  }
+  :root:has([data-room="twitch"]) {
+    --wall: #0e0820;
+    --wall-pattern: #160d30;
+    --remote: #120a28;
+    --remote-hi: #241549;
+    --panel: #1f1340;
+    --shade: #9146ff;
   }
   :root:has([data-room="jungle"]) {
     --wall: #082414;
@@ -414,6 +436,63 @@ body {
   animation: steal-glow 1s ease-in-out infinite;
 }
 
+/* ---------------------------------------------------------------- Twitch room */
+
+@keyframes live-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 74, 61, 0.7); }
+  50% { box-shadow: 0 0 0 8px rgba(255, 74, 61, 0); }
+}
+.live-dot {
+  display: inline-block;
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: var(--skip);
+  border: 3px solid var(--edge);
+  animation: live-pulse 1.4s ease-out infinite;
+}
+
+/* Keep-or-change: the panel sweats when it's close, the clock beats in the last seconds. */
+@keyframes close-shake {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  20% { transform: translate(-3px, 1px) rotate(-0.4deg); }
+  40% { transform: translate(3px, -1px) rotate(0.4deg); }
+  60% { transform: translate(-2px, 0) rotate(-0.2deg); }
+  80% { transform: translate(2px, 1px) rotate(0.2deg); }
+}
+@keyframes close-glow {
+  0%, 100% { box-shadow: var(--pop), 0 0 0 0 var(--skip); }
+  50% { box-shadow: var(--pop), 0 0 0 10px var(--skip); }
+}
+.close-call {
+  border-color: var(--skip);
+  animation: close-shake 0.45s ease-in-out infinite, close-glow 0.9s ease-in-out infinite;
+}
+.tug-hard {
+  animation-duration: 0.15s;
+}
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.25); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.15); }
+}
+.heartbeat {
+  display: inline-block;
+  animation: heartbeat 1s ease-in-out infinite;
+}
+@keyframes verdict-pop {
+  0% { transform: scale(0.3) rotate(-12deg); opacity: 0; }
+  60% { transform: scale(1.15) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-2deg); }
+}
+.verdict {
+  animation: verdict-pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.pick {
+  border-color: var(--glow);
+}
+
 /* ---------------------------------------------------------------- motion */
 
 @keyframes wobble {
@@ -438,6 +517,10 @@ body {
   .bump,
   .tug,
   .steal-mine,
+  .live-dot,
+  .close-call,
+  .heartbeat,
+  .verdict,
   .report-btn:hover:not(:disabled) .report-siren {
     animation: none;
   }

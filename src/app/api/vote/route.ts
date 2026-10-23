@@ -1,6 +1,6 @@
 import { VOTE_COOLDOWN_S } from '@/config/app';
 import { parseYouTubeId } from '@/lib/youtube-id';
-import { ApiError, handle, ok, roomOf } from '@/server/http';
+import { ApiError, handle, ok, youtubeRoomOf } from '@/server/http';
 import { ipHash } from '@/server/ip';
 import { K } from '@/server/keys';
 import { assertAllowed, assertFitsRoom } from '@/server/moderation';
@@ -25,7 +25,7 @@ export const POST = handle(async (req: Request) => {
   await rateLimit('vote', iph, 20, 60);
 
   const body = (await req.json().catch(() => ({}))) as { room?: string; url?: string; token?: string };
-  const room = roomOf(body.room);
+  const room = youtubeRoomOf(body.room);
   const id = parseYouTubeId(body.url ?? '');
   if (!id) throw new ApiError(400, 'bad_url', "That's not a YouTube link we recognize 🤔");
 

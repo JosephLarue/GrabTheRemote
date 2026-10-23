@@ -42,6 +42,32 @@ export type LiveSnapshot = {
   report: { votes: number; needed: number };
   /** Someone stole the remote: they can veto what's playing until `endsAt`. */
   steal: { endsAt: number } | null;
+  /** Twitch rooms only. */
+  twitch: TwitchLive | null;
+};
+
+export type TwitchChannel = {
+  login: string;
+  name: string;
+  title: string;
+  game: string;
+  /** Null when we can't ask Twitch (no API credentials). */
+  viewers: number | null;
+};
+
+/** watching → (slot over) deciding → keep: watching again; change: picking → watching the winner. */
+export type TwitchPhase = 'watching' | 'deciding' | 'picking';
+
+export type TwitchLive = {
+  channel: TwitchChannel | null;
+  phase: TwitchPhase;
+  phaseEndsAt: number;
+  round: number;
+  tally: { keep: number; change: number };
+  /** Channels voted for in this pick window, most votes first. */
+  candidates: (TwitchChannel & { votes: number })[];
+  /** Recent channels that are live, offered as one-tap picks. */
+  suggestions: TwitchChannel[];
 };
 
 /** Reactions sent since the last batch: emoji → count. */
@@ -56,4 +82,5 @@ export type LiveEvent =
   | { type: 'skip'; data: LiveSnapshot['skip'] }
   | { type: 'report'; data: LiveSnapshot['report'] }
   | { type: 'steal'; data: LiveSnapshot['steal'] }
-  | { type: 'react'; data: ReactionBatch };
+  | { type: 'react'; data: ReactionBatch }
+  | { type: 'twitch'; data: TwitchLive };

@@ -74,7 +74,7 @@ export function ReactionOverlay() {
 /** The emoji buttons under the TV. */
 export function ReactionBar() {
   const { room, t, state } = useLive();
-  const disabled = !state?.nowPlaying;
+  const disabled = !state?.nowPlaying && !state?.twitch?.channel;
 
   const react = async (emoji: string) => {
     pending[emoji] = (pending[emoji] ?? 0) + 1;

@@ -1,12 +1,13 @@
 import 'server-only';
 import { EventEmitter } from 'node:events';
 import { PRESENCE_WINDOW_S, reportThreshold, skipThreshold } from '@/config/app';
-import type { RoomId } from '@/config/rooms';
+import { isTwitchRoom, type RoomId } from '@/config/rooms';
 import type { LiveEvent, LiveSnapshot, NowPlaying } from '@/lib/types';
 import { K } from './keys';
 import { topPool } from './pool';
 import { redis, redisSub } from './redis';
 import { currentTheme, slotEndsAt, slotId, toTheme } from './themes';
+import { twitchLive } from './twitch';
 
 export const POOL_SIZE = 10;
 
@@ -61,11 +62,12 @@ export async function poolForClients(room: RoomId) {
 
 export async function snapshot(room: RoomId): Promise<LiveSnapshot> {
   const [nowPlaying, theme, viewers] = await Promise.all([getNowPlaying(room), currentTheme(), viewerCount(room)]);
-  const [pool, skip, report, steal] = await Promise.all([
+  const [pool, skip, report, steal, twitch] = await Promise.all([
     topPool(room, POOL_SIZE, theme),
     skipState(room, nowPlaying?.playId, viewers),
     reportState(nowPlaying?.playId, viewers),
     stealState(room),
+    isTwitchRoom(room) ? twitchLive(room) : null,
   ]);
   return {
     serverNow: Date.now(),
@@ -77,6 +79,7 @@ export async function snapshot(room: RoomId): Promise<LiveSnapshot> {
     skip,
     report,
     steal,
+    twitch,
   };
 }
 

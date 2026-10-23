@@ -1,6 +1,6 @@
 import 'server-only';
 import { NextResponse } from 'next/server';
-import { isRoom, type RoomId } from '@/config/rooms';
+import { isRoom, isTwitchRoom, type RoomId } from '@/config/rooms';
 
 export class ApiError extends Error {
   constructor(
@@ -17,6 +17,20 @@ export class ApiError extends Error {
 export function roomOf(value: unknown): RoomId {
   if (!isRoom(value)) throw new ApiError(400, 'bad_room', "That room doesn't exist 🚪");
   return value;
+}
+
+/** A room that plays YouTube videos: the queue, skip, report and veto routes don't apply to Twitch rooms. */
+export function youtubeRoomOf(value: unknown): RoomId {
+  const room = roomOf(value);
+  if (isTwitchRoom(room)) throw new ApiError(400, 'bad_room', 'This room plays Twitch streams 🟣');
+  return room;
+}
+
+/** A Twitch room. */
+export function twitchRoomOf(value: unknown): RoomId {
+  const room = roomOf(value);
+  if (!isTwitchRoom(room)) throw new ApiError(400, 'bad_room', "This room doesn't play Twitch streams 🚪");
+  return room;
 }
 
 /** Room from the `?room=` query param of a GET request. */

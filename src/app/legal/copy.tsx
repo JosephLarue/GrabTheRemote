@@ -35,6 +35,10 @@ export const LEGAL_NOTICE: Record<string, { title: string; body: React.ReactNode
           governed by YouTube&apos;s terms. {APP} is not affiliated with YouTube or Google. To report content, use the
           Report button on screen or write to the contact above.
         </p>
+        <p>
+          In the Twitch room, live streams are chosen by visitors and played through Twitch&apos;s player. They belong to
+          their streamers and are governed by Twitch&apos;s terms. {APP} is not affiliated with Twitch.
+        </p>
         <h2>Personal data</h2>
         <p>
           See the <PrivacyLink>privacy page</PrivacyLink>.
@@ -63,6 +67,10 @@ export const LEGAL_NOTICE: Record<string, { title: string; body: React.ReactNode
           Les vidéos sont choisies par les visiteurs et lues dans le lecteur YouTube. Elles appartiennent à leurs auteurs et
           relèvent des conditions de YouTube. {APP} n&apos;est pas affilié à YouTube ni à Google. Pour signaler un contenu,
           utilise le bouton Signaler à l&apos;écran ou écris au contact ci-dessus.
+        </p>
+        <p>
+          Dans la room Twitch, les lives sont choisis par les visiteurs et lus dans le lecteur de Twitch. Ils appartiennent
+          à leurs streamers et relèvent des conditions de Twitch. {APP} n&apos;est pas affilié à Twitch.
         </p>
         <h2>Données personnelles</h2>
         <p>
@@ -94,6 +102,10 @@ export const LEGAL_NOTICE: Record<string, { title: string; body: React.ReactNode
           rigen por las condiciones de YouTube. {APP} no está afiliado a YouTube ni a Google. Para denunciar un contenido,
           usa el botón Denunciar en pantalla o escribe al contacto de arriba.
         </p>
+        <p>
+          En la sala Twitch, los directos los eligen los visitantes y se reproducen en el reproductor de Twitch.
+          Pertenecen a sus streamers y se rigen por las condiciones de Twitch. {APP} no está afiliado a Twitch.
+        </p>
         <h2>Datos personales</h2>
         <p>
           Consulta la <PrivacyLink>página de privacidad</PrivacyLink>.
@@ -123,6 +135,10 @@ export const LEGAL_NOTICE: Record<string, { title: string; body: React.ReactNode
           I video sono scelti dai visitatori e riprodotti nel player di YouTube. Appartengono ai loro autori e sono
           regolati dai termini di YouTube. {APP} non è affiliato a YouTube né a Google. Per segnalare un contenuto, usa il
           pulsante Segnala sullo schermo o scrivi al contatto qui sopra.
+        </p>
+        <p>
+          Nella stanza Twitch, le dirette sono scelte dai visitatori e riprodotte nel player di Twitch. Appartengono ai
+          loro streamer e sono regolate dai termini di Twitch. {APP} non è affiliato a Twitch.
         </p>
         <h2>Dati personali</h2>
         <p>
