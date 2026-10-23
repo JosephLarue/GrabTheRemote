@@ -17,7 +17,8 @@ export const MAX_DURATION_S = 900;
 export const VOTE_COOLDOWN_S = 900;
 export const CANDIDATE_TTL_MIN = 60;
 
-// Themes
+// Themes. Off for now: no draw, no banner, every video is accepted.
+export const THEMES_ENABLED = false;
 export const THEME_SLOT_S = 900;
 export const P_NO_CONSTRAINT = 0.5;
 

@@ -17,6 +17,8 @@ GrabTheRemote is a single shared screen playing YouTube videos. Everybody watche
 
 ## 🎲 Theme roulette
 
+> Coming soon: themes are switched off for now (`THEMES_ENABLED` in `src/config/app.ts`).
+
 Every 15 minutes the remote *might* get possessed. Sometimes there's no rule. Sometimes it's:
 
 - ⏱️ **Under 2 minutes** — no time for your 14-minute video essay
