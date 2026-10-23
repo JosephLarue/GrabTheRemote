@@ -1,23 +1,32 @@
 // Every room is its own screen: own queue, playback, skip/report, viewers, vote cooldown and Hall of Fame.
 // Themes are shared by all rooms. `lang` is the room's language (ISO 639-1); null means anything goes
-// (The Jungle). `language` is its English name, for messages. `wall` is the room's wallpaper colour
-// (browser theme-color); the rest of its look lives in globals.css under [data-room].
+// (The Jungle). `language` is its English name, for messages. `wall` and `tv` are its wallpaper and TV
+// colours (browser theme-color, share card); the rest of its look lives in globals.css under [data-room].
 export const ROOMS = ['en', 'fr', 'es', 'it', 'jungle'] as const;
 export type RoomId = (typeof ROOMS)[number];
 
-type RoomInfo = { name: string; emoji: string; lang: string | null; language: string | null; wall: string };
+type RoomInfo = {
+  name: string;
+  emoji: string;
+  lang: string | null;
+  language: string | null;
+  wall: string;
+  tv: string;
+};
 
 export const ROOM_INFO: Record<RoomId, RoomInfo> = {
-  en: { name: 'English', emoji: '🇬🇧', lang: 'en', language: 'English', wall: '#33404f' },
-  fr: { name: 'Français', emoji: '🇫🇷', lang: 'fr', language: 'French', wall: '#6e1f3f' },
-  es: { name: 'Español', emoji: '🇪🇸', lang: 'es', language: 'Spanish', wall: '#1f4fb5' },
-  it: { name: 'Italiano', emoji: '🇮🇹', lang: 'it', language: 'Italian', wall: '#b3343c' },
-  jungle: { name: 'The Jungle', emoji: '🌴', lang: null, language: null, wall: '#14532d' },
+  en: { name: 'English', emoji: '🇬🇧', lang: 'en', language: 'English', wall: '#33404f', tv: '#e03a3e' },
+  fr: { name: 'Français', emoji: '🇫🇷', lang: 'fr', language: 'French', wall: '#6e1f3f', tv: '#ff9bb3' },
+  es: { name: 'Español', emoji: '🇪🇸', lang: 'es', language: 'Spanish', wall: '#1f4fb5', tv: '#ff8a3d' },
+  it: { name: 'Italiano', emoji: '🇮🇹', lang: 'it', language: 'Italian', wall: '#b3343c', tv: '#ffe45c' },
+  jungle: { name: 'The Jungle', emoji: '🌴', lang: null, language: null, wall: '#14532d', tv: '#ff7a1a' },
 };
 
 export const DEFAULT_ROOM: RoomId = 'en';
 /** Remembers the last room visited, so /, /vote and /hall send people back to it. */
 export const ROOM_COOKIE = 'gtr_room';
+/** Set by the middleware on every request: the URL's room, else the last room, else the browser's language. */
+export const ROOM_HEADER = 'x-gtr-room';
 
 export const isRoom = (s: unknown): s is RoomId => (ROOMS as readonly unknown[]).includes(s);
 

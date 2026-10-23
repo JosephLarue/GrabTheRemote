@@ -73,6 +73,14 @@ export const fr: Dict = {
     ruleTheme: 'Quand il y a un thème, ton choix doit le respecter.',
     ruleReport: 'Si 10 % des spectateurs signalent une vidéo, elle est cachée.',
   },
+  tagline: 'Un écran. Tout internet. Une seule télécommande.',
+  footer: {
+    notAffiliated: (app) =>
+      `${app} n'est pas affilié à YouTube ni à Google. Il utilise les services d'API YouTube ; en l'utilisant, tu acceptes les`,
+    ytTerms: "Conditions d'utilisation de YouTube",
+    privacy: 'Confidentialité',
+    legal: 'Mentions légales',
+  },
   celebration: 'Ton choix a chopé la télécommande ! 🎉',
   hall: {
     title: 'Hall of Fame',

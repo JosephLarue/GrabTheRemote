@@ -4,8 +4,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { APP_NAME } from '@/config/app';
-import { ROOM_INFO, ROOMS, isRoom } from '@/config/rooms';
+import { ROOM_INFO, ROOMS, type RoomId } from '@/config/rooms';
 import { dict } from '@/i18n';
+import { useRoom } from '@/lib/use-room';
 
 const NAV = [
   { href: '', key: 'watch' },
@@ -13,13 +14,12 @@ const NAV = [
   { href: '/hall', key: 'hall' },
 ] as const;
 
-export function Header() {
+export function Header({ lastRoom }: { lastRoom: RoomId }) {
   const path = usePathname();
-  const [, first = '', ...rest] = path.split('/');
   // Outside a room (/privacy, /legal…), links go through / and the middleware picks the room.
-  const room = isRoom(first) ? first : null;
-  const sub = room ? (rest.length ? `/${rest.join('/')}` : '') : '';
-  const t = dict(room ?? 'en');
+  const { room, ui } = useRoom(lastRoom);
+  const sub = room ? path.slice(room.length + 1) : '';
+  const t = dict(ui);
 
   return (
     <header className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-4 pt-6 pb-10">
