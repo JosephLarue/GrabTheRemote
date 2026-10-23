@@ -40,8 +40,16 @@ export default function PrivacyPage() {
 
       <h2>YouTube</h2>
       <p>
-        Videos play in the YouTube player using its privacy-enhanced mode (youtube-nocookie.com). Google&apos;s privacy
-        policy applies to the player.
+        {APP_NAME} uses YouTube API Services to look up public video details (title, channel, duration, views, category)
+        and to play videos. By using {APP_NAME}, you agree to be bound by the{' '}
+        <a href="https://www.youtube.com/t/terms" className="underline underline-offset-2" target="_blank" rel="noreferrer">
+          YouTube Terms of Service
+        </a>
+        . Videos play in the YouTube player using its privacy-enhanced mode (youtube-nocookie.com), and the{' '}
+        <a href="https://policies.google.com/privacy" className="underline underline-offset-2" target="_blank" rel="noreferrer">
+          Google Privacy Policy
+        </a>{' '}
+        applies to it. {APP_NAME} never asks for access to your Google or YouTube account.
       </p>
 
       <h2>Ads</h2>

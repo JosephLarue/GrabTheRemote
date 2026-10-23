@@ -5,7 +5,11 @@ export function Footer() {
   return (
     <footer className="mx-auto w-full max-w-6xl px-4 pb-10 text-sm font-semibold text-[var(--muted)]">
       <p>
-        {APP_NAME} is not affiliated with YouTube or Google. Videos are embedded with the YouTube player.{' '}
+        {APP_NAME} is not affiliated with YouTube or Google. It uses YouTube API Services; by using it, you agree to the{' '}
+        <a href="https://www.youtube.com/t/terms" className="underline underline-offset-2" target="_blank" rel="noreferrer">
+          YouTube Terms of Service
+        </a>
+        .{' '}
         <Link href="/privacy" className="underline underline-offset-2">
           Privacy
         </Link>{' '}
