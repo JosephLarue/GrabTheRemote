@@ -7,10 +7,17 @@ import { Remote } from '@/components/Remote';
 import { RemoteFight } from '@/components/RemoteFight';
 import { StolenRemote } from '@/components/StolenRemote';
 import { SyncedPlayer } from '@/components/SyncedPlayer';
+import { TwitchStage } from '@/components/TwitchStage';
+import { isTwitchRoom } from '@/config/rooms';
 import { ThemeBanner } from '@/components/ThemeBanner';
 import { formatClock, useLive, useServerNow } from '@/lib/live';
 
 export default function WatchPage() {
+  const { room } = useLive();
+  return isTwitchRoom(room) ? <TwitchStage /> : <YouTubeWatch />;
+}
+
+function YouTubeWatch() {
   const { state, t } = useLive();
   const now = useServerNow(500);
   const np = state?.nowPlaying ?? null;

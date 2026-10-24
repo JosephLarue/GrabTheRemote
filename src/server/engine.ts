@@ -2,7 +2,7 @@ import 'server-only';
 import { randomUUID } from 'node:crypto';
 import { and, desc, eq, ne, sql } from 'drizzle-orm';
 import { FALLBACK_VIDEOS, STATIC_TRANSITION_MS } from '@/config/app';
-import { ROOMS, type RoomId } from '@/config/rooms';
+import { ROOMS, type RoomId, isTwitchRoom } from '@/config/rooms';
 import type { NowPlaying, VideoMeta } from '@/lib/types';
 import { db, schema } from './db/client';
 import { K } from './keys';
@@ -20,6 +20,7 @@ import {
 } from './state';
 import { maybeStealRemote } from './steal';
 import { currentTheme, slotEndsAt, slotId, toTheme } from './themes';
+import { tickTwitch, twitchLive } from './twitch';
 import { getMeta, refreshStale, toCard } from './youtube';
 
 type EndReason = 'finished' | 'skipped' | 'reported' | 'admin' | 'vetoed';
@@ -144,7 +145,24 @@ const lastSlot = new Map<RoomId, number>();
 const nextAdvanceTry = new Map<RoomId, number>();
 let running = false;
 
+/** Twitch rooms: the keep/change/pick state machine, plus the viewer count. No queue, no themes. */
+async function tickTwitchRoom(room: RoomId, now: number) {
+  await withLock(
+    room,
+    async () => {
+      const changed = await tickTwitch(room, now);
+      // Votes are coalesced like the pool: routes mark dirty, at most one event per second goes out.
+      if ((await redis().getdel(K.twitchDirty(room))) || changed) {
+        await publish(room, { type: 'twitch', data: await twitchLive(room) });
+      }
+      if (tickN % 2 === 0) await publish(room, { type: 'viewers', data: await viewerCount(room) });
+    },
+    { wait: false },
+  );
+}
+
 async function tickRoom(room: RoomId, now: number) {
+  if (isTwitchRoom(room)) return tickTwitchRoom(room, now);
   await withLock(
     room,
     async () => {

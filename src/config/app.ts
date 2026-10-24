@@ -54,6 +54,19 @@ export const STEAL_HOLD_S = 60;
 /** Only people who voted this recently can be picked. */
 export const STEAL_VOTER_WINDOW_S = 3600;
 
+// Twitch room: a stream plays for a slot, then the couch votes to keep it or change it. If "change" wins, a
+// short pick window opens (random length, so nobody can time it) and the most-voted live channel takes over.
+export const TWITCH_SLOT_S = 600;
+export const TWITCH_DECIDE_S = 30;
+export const TWITCH_PICK_MIN_S = 5;
+export const TWITCH_PICK_MAX_S = 20;
+/** Keep vs change this close (each side counted) and the deciding panel starts sweating. */
+export const TWITCH_CLOSE_GAP = 1;
+/** How often the current stream is checked: offline means a pick window opens right away. */
+export const TWITCH_LIVE_CHECK_S = 60;
+/** Twitch content classification labels that keep a channel out of the room. */
+export const TWITCH_BLOCKED_LABELS = ['SexualThemes', 'Gambling', 'DrugsIntoxication', 'ViolentGraphic'];
+
 // Couch reactions: a fixed set (nothing to moderate), batched before going out to every viewer.
 export const REACTIONS = ['😂', '💀', '🔥', '😍', '🤮', '👏'] as const;
 export const REACTION_BATCH_MS = 300;

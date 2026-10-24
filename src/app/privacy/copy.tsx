@@ -12,6 +12,7 @@ const Ext = ({ href, children }: { href: string; children: React.ReactNode }) =>
 );
 const YT_TERMS = 'https://www.youtube.com/t/terms';
 const GOOGLE_PRIVACY = 'https://policies.google.com/privacy';
+const TWITCH_PRIVACY = 'https://www.twitch.tv/p/legal/privacy-notice/';
 
 export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> = {
   en: {
@@ -51,6 +52,13 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           . Videos play in the YouTube player using its privacy-enhanced mode (youtube-nocookie.com), and the{' '}
           <Ext href={GOOGLE_PRIVACY}>Google Privacy Policy</Ext> applies to it. {APP} never asks for access to your Google
           or YouTube account.
+        </p>
+        <h2>Twitch</h2>
+        <p>
+          The Twitch room plays live streams in Twitch&apos;s embedded player (player.twitch.tv), and the{' '}
+          <Ext href={TWITCH_PRIVACY}>Twitch Privacy Notice</Ext> applies to it. {APP} uses the Twitch API to check
+          whether a channel is live and to get its public details (name, stream title, category, viewer count). {APP}{' '}
+          is not affiliated with Twitch and never asks for access to your Twitch account.
         </p>
         <h2>Ads</h2>
         <p>
@@ -106,6 +114,14 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           <Ext href={GOOGLE_PRIVACY}>Règles de confidentialité de Google</Ext>. {APP} ne demande jamais l&apos;accès à ton
           compte Google ou YouTube.
         </p>
+        <h2>Twitch</h2>
+        <p>
+          La room Twitch diffuse des lives dans le lecteur intégré de Twitch (player.twitch.tv), auquel s&apos;applique
+          l&apos;<Ext href={TWITCH_PRIVACY}>Avis de confidentialité de Twitch</Ext>. {APP} utilise l&apos;API Twitch pour
+          vérifier qu&apos;une chaîne est en direct et récupérer ses informations publiques (nom, titre du live,
+          catégorie, nombre de spectateurs). {APP} n&apos;est pas affilié à Twitch et ne demande jamais l&apos;accès à ton
+          compte Twitch.
+        </p>
         <h2>Publicité</h2>
         <p>
           Quand la publicité est activée, elle est servie par Google AdSense. Les visiteurs de l&apos;EEE, du Royaume-Uni
@@ -160,6 +176,13 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           <Ext href={GOOGLE_PRIVACY}>Política de privacidad de Google</Ext>. {APP} nunca pide acceso a tu cuenta de Google
           o YouTube.
         </p>
+        <h2>Twitch</h2>
+        <p>
+          La sala Twitch emite directos en el reproductor integrado de Twitch (player.twitch.tv), al que se aplica el{' '}
+          <Ext href={TWITCH_PRIVACY}>Aviso de privacidad de Twitch</Ext>. {APP} usa la API de Twitch para comprobar si un
+          canal está en directo y obtener sus datos públicos (nombre, título del directo, categoría, número de
+          espectadores). {APP} no está afiliado a Twitch y nunca pide acceso a tu cuenta de Twitch.
+        </p>
         <h2>Publicidad</h2>
         <p>
           Cuando la publicidad está activada, la sirve Google AdSense. A los visitantes del EEE, el Reino Unido y Suiza se
@@ -213,6 +236,13 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           modalità di privacy avanzata (youtube-nocookie.com), a cui si applicano le{' '}
           <Ext href={GOOGLE_PRIVACY}>Norme sulla privacy di Google</Ext>. {APP} non chiede mai l&apos;accesso al tuo
           account Google o YouTube.
+        </p>
+        <h2>Twitch</h2>
+        <p>
+          La stanza Twitch trasmette dirette nel player integrato di Twitch (player.twitch.tv), a cui si applica l&apos;
+          <Ext href={TWITCH_PRIVACY}>Informativa sulla privacy di Twitch</Ext>. {APP} usa l&apos;API di Twitch per
+          verificare se un canale è in diretta e ottenerne i dati pubblici (nome, titolo della diretta, categoria, numero
+          di spettatori). {APP} non è affiliato a Twitch e non chiede mai l&apos;accesso al tuo account Twitch.
         </p>
         <h2>Pubblicità</h2>
         <p>

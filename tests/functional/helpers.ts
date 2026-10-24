@@ -2,6 +2,8 @@ import { eq } from 'drizzle-orm';
 import { GET as getMe } from '@/app/api/me/route';
 import { GET as getPreview } from '@/app/api/preview/route';
 import { POST as postReact } from '@/app/api/react/route';
+import { POST as postDecide } from '@/app/api/twitch/decide/route';
+import { POST as postPick } from '@/app/api/twitch/pick/route';
 import { POST as postReport } from '@/app/api/report/route';
 import { POST as postSkip } from '@/app/api/skip/route';
 import { GET as getState } from '@/app/api/state/route';
@@ -60,10 +62,23 @@ export const veto = (room: string, { viewer = 1 }: As = {}) =>
 export const react = (room: string, emoji: string, { viewer = 1 }: As = {}) =>
   call(postReact(post('/api/react', { room, emoji }, viewer)));
 
+export const decide = (room: string, choice: string, { viewer = 1, token = CAPTCHA_OK }: As = {}) =>
+  call(postDecide(post('/api/twitch/decide', { room, choice, token }, viewer)));
+
+export const pickStream = (room: string, channel: string, { viewer = 1, token = CAPTCHA_OK }: As = {}) =>
+  call(postPick(post('/api/twitch/pick', { room, channel, token }, viewer)));
+
 export const state = (room: string) => call<LiveSnapshot & ApiBody>(getState(get(`/api/state?room=${room}`)));
 
 export const me = (room: string, viewer = 1) =>
-  call<{ voteCooldownEndsAt: number | null; skipped: boolean; reported: boolean; remote: boolean }>(getMe(get(`/api/me?room=${room}`, viewer)));
+  call<{
+    voteCooldownEndsAt: number | null;
+    skipped: boolean;
+    reported: boolean;
+    remote: boolean;
+    decided: string | null;
+    picked: string | null;
+  }>(getMe(get(`/api/me?room=${room}`, viewer)));
 
 export const preview = (room: string, url: string) =>
   call(getPreview(get(`/api/preview?room=${room}&url=${encodeURIComponent(url)}`)));

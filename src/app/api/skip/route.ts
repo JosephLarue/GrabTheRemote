@@ -1,6 +1,6 @@
 import { SKIP_COOLDOWN_S, skipThreshold } from '@/config/app';
 import { advance, withLock } from '@/server/engine';
-import { ApiError, handle, ok, roomOf } from '@/server/http';
+import { ApiError, handle, ok, youtubeRoomOf } from '@/server/http';
 import { ipHash } from '@/server/ip';
 import { K } from '@/server/keys';
 import { rateLimit } from '@/server/ratelimit';
@@ -14,7 +14,7 @@ export const POST = handle(async (req: Request) => {
   const iph = ipHash(req.headers);
   await rateLimit('skip', iph, 10, 60);
   const body = (await req.json().catch(() => ({}))) as { room?: string; token?: string };
-  const room = roomOf(body.room);
+  const room = youtubeRoomOf(body.room);
 
   const np = await getNowPlaying(room);
   if (!np || np.state !== 'playing') throw new ApiError(409, 'nothing', 'Nothing to skip right now 🤷');

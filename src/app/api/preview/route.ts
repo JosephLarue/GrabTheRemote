@@ -1,5 +1,5 @@
 import { parseYouTubeId } from '@/lib/youtube-id';
-import { ApiError, handle, ok, roomFromUrl } from '@/server/http';
+import { ApiError, handle, ok, youtubeRoomOf } from '@/server/http';
 import { ipHash } from '@/server/ip';
 import { assertAllowed, assertFitsRoom } from '@/server/moderation';
 import { poolHas } from '@/server/pool';
@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 
 /** Never spends YouTube quota: cached metadata, else free oEmbed. */
 export const GET = handle(async (req: Request) => {
-  const room = roomFromUrl(req);
+  const room = youtubeRoomOf(new URL(req.url).searchParams.get('room'));
   await rateLimit('preview', ipHash(req.headers), 60, 60);
   const id = parseYouTubeId(new URL(req.url).searchParams.get('url') ?? '');
   if (!id) throw new ApiError(400, 'bad_url', "That's not a YouTube link we recognize 🤔");

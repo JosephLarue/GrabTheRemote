@@ -53,3 +53,13 @@ export async function assertAllowed(m: VideoMeta) {
   const title = m.title.toLowerCase();
   if (keywords.some((k) => title.includes(k))) reject('blocked_keyword', 'Nope, not that kind of video 🙅');
 }
+
+/** Admin bans and title keywords, for a Twitch channel. Bans are stored as `twitch:<login>`. */
+export async function streamRefusal(login: string, title: string): Promise<'banned_channel' | 'blocked_keyword' | null> {
+  const { channels, keywords } = await blocklists();
+  if (channels.has(twitchBanId(login))) return 'banned_channel';
+  const t = title.toLowerCase();
+  return keywords.some((k) => t.includes(k)) ? 'blocked_keyword' : null;
+}
+
+export const twitchBanId = (login: string) => `twitch:${login}`;
