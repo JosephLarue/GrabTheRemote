@@ -36,8 +36,9 @@ export function RoomForm({
   const fixedId = v.themes.mode === 'fixed' ? v.themes.id : CONSTRAINTS[0].id;
 
   return (
+    // Laid out by its own width (container queries): wide on /private, a single column inside the remote.
     <form
-      className="flex flex-col gap-4"
+      className="@container flex flex-col gap-4"
       onSubmit={(e) => {
         e.preventDefault();
         onSubmit(v);
@@ -67,7 +68,7 @@ export function RoomForm({
         />
       </Field>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 @md:grid-cols-2">
         <Field label={p.locale} htmlFor="room-locale">
           <select id="room-locale" value={v.locale} onChange={(e) => setV({ ...v, locale: e.target.value })} className="field">
             {PRIVATE_LOCALES.map((l) => (

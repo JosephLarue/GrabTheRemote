@@ -20,6 +20,7 @@ export const en = {
     massReportedSub: 'The crowd hid this one. Next pick coming right up.',
   },
   remote: {
+    hide: 'Hide',
     label: 'The remote',
     live: 'Live',
     reconnecting: 'Reconnecting',

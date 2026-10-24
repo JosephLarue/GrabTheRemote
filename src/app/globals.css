@@ -370,6 +370,108 @@ body {
   box-shadow: 0 1px 0 var(--shade);
 }
 
+/* The remote drawer: the room's controls slide in from the right so the TV keeps the whole screen.
+   Phones: a floating button bottom-right. Desktop: a tab sticking out of the right edge. */
+.remote-drawer {
+  position: fixed;
+  z-index: 50;
+  top: 50%;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: min(340px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.5rem 1.4rem 1.1rem;
+  /* less round than the classic remote: content scrolls inside */
+  border-radius: 36px;
+  visibility: hidden;
+  transform: translate(calc(100% + 40px), -50%);
+  transition:
+    transform 320ms cubic-bezier(0.2, 1.25, 0.4, 1),
+    visibility 0s linear 320ms;
+}
+.remote-drawer.is-open {
+  visibility: visible;
+  transform: translate(0, -50%);
+  transition: transform 320ms cubic-bezier(0.2, 1.25, 0.4, 1);
+}
+/* the infrared window at the top of the remote */
+.remote-ir {
+  width: 34px;
+  height: 14px;
+  border: var(--line) solid var(--edge);
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 40%, #7a3b3b, #1a0d0d 70%);
+}
+.remote-handle {
+  position: fixed;
+  z-index: 45;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.9rem 0.5rem 0.55rem;
+  border: var(--line) solid var(--edge);
+  border-radius: 999px;
+  background: var(--remote);
+  color: var(--cream);
+  font-weight: 800;
+  box-shadow: var(--pop), inset 3px 3px 0 var(--remote-hi);
+  cursor: pointer;
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+.remote-handle:hover {
+  transform: translateY(-3px);
+}
+.remote-handle.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+}
+/* the big red power button */
+.remote-handle-power {
+  width: 24px;
+  height: 24px;
+  border: var(--line) solid var(--edge);
+  border-radius: 50%;
+  background: var(--skip);
+  box-shadow: inset -3px -3px 0 rgba(0, 0, 0, 0.25);
+}
+@media (min-width: 1024px) {
+  .remote-handle {
+    top: 50%;
+    right: 0;
+    bottom: auto;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: 1rem 0.6rem 1rem 0.7rem;
+    border-right: 0;
+    border-radius: 28px 0 0 28px;
+    transform: translateY(-50%);
+  }
+  .remote-handle:hover {
+    transform: translate(-6px, -50%);
+  }
+  .remote-handle.is-hidden {
+    transform: translate(30px, -50%);
+  }
+  .remote-handle-label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+  /* the open remote pushes the page aside rather than covering the TV */
+  body {
+    transition: padding-right 320ms cubic-bezier(0.2, 1.25, 0.4, 1);
+  }
+  :root[data-remote-open] body {
+    padding-right: 384px;
+  }
+}
+
 /* Report: a yellow label inside caution tape, so it reads as "emergencies only" next to the big red skip. */
 .report-btn {
   display: flex;
@@ -549,7 +651,11 @@ body {
     20%, 70% { opacity: 1; }
   }
   .btn,
-  .remote-btn {
+  .remote-btn,
+  .remote-drawer,
+  .remote-drawer.is-open,
+  .remote-handle,
+  body {
     transition: none;
   }
 }

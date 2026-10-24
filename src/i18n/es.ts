@@ -19,6 +19,7 @@ export const es: Dict = {
     massReportedSub: 'El público lo ha ocultado. La próxima elección llega enseguida.',
   },
   remote: {
+    hide: 'Guardar',
     label: 'El mando',
     live: 'En directo',
     reconnecting: 'Reconectando',

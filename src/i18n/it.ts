@@ -19,6 +19,7 @@ export const it: Dict = {
     massReportedSub: 'Il pubblico ha nascosto questo video. La prossima scelta arriva subito.',
   },
   remote: {
+    hide: 'Metti via',
     label: 'Il telecomando',
     live: 'In diretta',
     reconnecting: 'Riconnessione',

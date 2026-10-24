@@ -48,18 +48,16 @@ export function OwnerPanel() {
     }
   };
 
-  // Padding, not margin: a margin would collapse into the TV's and the antennas would poke through.
+  // Lives in the remote, under the crowd's buttons: the streamer's own row of keys.
   return (
-    <div className="pb-6">
-      <section aria-label={p.panel} className="panel owner-panel flex flex-col gap-4 p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-display text-2xl">🎙️ {p.panel}</h2>
-          {me.password && <ChatCard id={room} password={me.password} t={t} />}
-        </div>
-        <div className="flex flex-wrap gap-2">
+    <div>
+      <section aria-label={p.panel} className="flex flex-col gap-4 border-t-[3px] border-dashed border-[var(--remote-hi)] pt-5">
+        <h2 className="font-display text-xl">🎙️ {p.panel}</h2>
+        {me.password && <ChatCard id={room} password={me.password} t={t} compact />}
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
-            className="btn bg-[var(--report)] text-[var(--ink)]"
+            className="btn bg-[var(--report)] px-3 text-sm text-[var(--ink)]"
             disabled={busy || !np || np.state !== 'playing'}
             onClick={() => call('/api/rooms/control', { action: paused ? 'resume' : 'pause' })}
           >
@@ -67,7 +65,7 @@ export function OwnerPanel() {
           </button>
           <button
             type="button"
-            className="btn bg-[var(--skip)] text-[var(--ink)]"
+            className="btn bg-[var(--skip)] px-3 text-sm text-[var(--ink)]"
             disabled={busy || !np}
             onClick={() => call('/api/rooms/control', { action: 'skip' })}
           >
@@ -76,14 +74,14 @@ export function OwnerPanel() {
           <button
             type="button"
             aria-expanded={editing}
-            className="btn bg-[var(--glow)] text-[var(--ink)]"
+            className="btn bg-[var(--glow)] px-3 text-sm text-[var(--ink)]"
             onClick={() => setEditing((e) => !e)}
           >
             {p.settings}
           </button>
           <button
             type="button"
-            className="btn ml-auto bg-[var(--ink)] text-[var(--cream)]"
+            className="btn bg-[var(--ink)] px-3 text-sm text-[var(--cream)]"
             disabled={busy}
             onClick={close}
           >

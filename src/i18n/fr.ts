@@ -19,6 +19,7 @@ export const fr: Dict = {
     massReportedSub: 'La foule a caché celle-ci. Le prochain choix arrive.',
   },
   remote: {
+    hide: 'Ranger',
     label: 'La télécommande',
     live: 'En direct',
     reconnecting: 'Reconnexion',

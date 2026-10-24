@@ -76,7 +76,11 @@ function Join({ locale }: { locale: string }) {
         autoCapitalize="characters"
         className="field font-display tracking-widest uppercase"
       />
-      <button type="submit" className="btn bg-[var(--glow)] text-[var(--ink)]" disabled={busy || !id || password.trim().length < 4}>
+      <button
+        type="submit"
+        className="btn bg-[var(--glow)] text-[var(--ink)]"
+        disabled={busy || !id || password.trim().length < 4}
+      >
         {busy ? t.private.joining : t.private.join}
       </button>
       <p role="status" aria-live="polite" className="min-h-5 text-sm font-bold text-[var(--skip)]">
@@ -138,11 +142,19 @@ function Ready({ locale, created }: { locale: string; created: Created }) {
       <div className="flex flex-col gap-2">
         <p className="text-sm font-bold">{t.private.ownerLink}</p>
         <div className="flex gap-2">
-          <input readOnly value={ownerLink} className="field min-w-0 flex-1 text-xs" onFocus={(e) => e.target.select()} />
+          <input
+            readOnly
+            value={ownerLink}
+            className="field min-w-0 flex-1 text-xs"
+            onFocus={(e) => e.target.select()}
+          />
           <CopyButton text={ownerLink} label={t.private.copy} copied={t.private.copied} />
         </div>
       </div>
-      <Link href={`/${created.id}`} className="btn font-display self-start bg-[var(--skip)] px-6 py-3 text-xl text-[var(--ink)]">
+      <Link
+        href={`/${created.id}`}
+        className="btn font-display self-start bg-[var(--skip)] px-6 py-3 text-xl text-[var(--ink)]"
+      >
         {t.private.enter}
       </Link>
     </section>
@@ -150,16 +162,29 @@ function Ready({ locale, created }: { locale: string; created: Created }) {
 }
 
 /** Big and readable: made to be shown on stream. */
-export function ChatCard({ id, password, t }: { id: string; password: string; t: ReturnType<typeof dictFor> }) {
+export function ChatCard({
+  id,
+  password,
+  t,
+  compact,
+}: {
+  id: string;
+  password: string;
+  t: ReturnType<typeof dictFor>;
+  /** Stacked and smaller, for the remote drawer. */
+  compact?: boolean;
+}) {
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className={compact ? 'flex flex-col gap-2' : 'flex flex-wrap gap-3'}>
       {[
         [t.private.idTag, id],
         [t.private.passwordTag, password],
       ].map(([label, value]) => (
         <div key={label} className="sticker flex items-center gap-3 bg-[var(--report)] text-[var(--ink)]">
           <span className="text-xs font-extrabold uppercase">{label}</span>
-          <span className="font-display text-2xl tracking-wider sm:text-3xl">{value}</span>
+          <span className={`font-display tracking-wider ${compact ? 'flex-1 text-xl' : 'text-2xl sm:text-3xl'}`}>
+            {value}
+          </span>
           <CopyButton text={value} label={t.private.copy} copied={t.private.copied} small />
         </div>
       ))}
