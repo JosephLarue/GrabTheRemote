@@ -34,6 +34,10 @@ export const K = {
   /** Channels that played here, latest first: the pick window's suggestions. */
   twitchRecent: (room: RoomId) => r(room, 'twitch:recent'),
   twitchToken: 'twitch:token',
+  /** Private room: settings, password and owner key hash (JSON). Expires after a day with nobody watching. */
+  privateRoom: (room: RoomId) => `private:${room}`,
+  /** Ids of every private room, so the ticker knows what to run. */
+  privateRooms: 'private:rooms',
   // Play ids are unique across rooms, so these need no room prefix.
   skipVotes: (playId: number) => `skip:${playId}`,
   reportVotes: (playId: number) => `report:${playId}`,

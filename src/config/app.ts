@@ -67,6 +67,14 @@ export const TWITCH_LIVE_CHECK_S = 60;
 /** Twitch content classification labels that keep a channel out of the room. */
 export const TWITCH_BLOCKED_LABELS = ['SexualThemes', 'Gambling', 'DrugsIntoxication', 'ViolentGraphic'];
 
+// Private rooms: made by streamers, entered with an ID and a password, gone after a day with nobody watching.
+export const PRIVATE_IDLE_TTL_S = 24 * 3600;
+/** What a streamer can pick from. */
+export const PRIVATE_MAX_DURATIONS_MIN = [1, 3, 5, 10, 15, 30, 60];
+export const PRIVATE_VOTE_COOLDOWNS_S = [30, 60, 120, 300, 900];
+export const PRIVATE_LOCALES = ['en', 'fr', 'es', 'it'];
+export const PRIVATE_LANGS = ['en', 'fr', 'es', 'it'];
+
 // Couch reactions: a fixed set (nothing to moderate), batched before going out to every viewer.
 export const REACTIONS = ['😂', '💀', '🔥', '😍', '🤮', '👏'] as const;
 export const REACTION_BATCH_MS = 300;

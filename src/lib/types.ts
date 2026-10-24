@@ -1,3 +1,5 @@
+import type { PublicRoomId } from '@/config/rooms';
+
 export type VideoMeta = {
   id: string;
   title: string;
@@ -27,6 +29,8 @@ export type NowPlaying = {
   startedAt: number;
   endsAt: number;
   state: 'playing' | 'reported_card';
+  /** Private rooms: the streamer paused everyone's screen at this moment. Resuming shifts startedAt/endsAt. */
+  pausedAt?: number | null;
 };
 
 export type Theme = { id: string; label: string; emoji: string } | null;
@@ -44,6 +48,35 @@ export type LiveSnapshot = {
   steal: { endsAt: number } | null;
   /** Twitch rooms only. */
   twitch: TwitchLive | null;
+  /** The room's rules, themes and look. Public rooms get the site defaults. */
+  room: RoomSettings;
+};
+
+/** House rules. Public rooms use the site defaults; a private room's streamer picks their own. */
+export type RoomRules = {
+  /** Longest video allowed. */
+  maxDurationS: number;
+  /** How often each viewer can vote. */
+  voteCooldownS: number;
+  /** ISO 639-1; null takes any language. */
+  lang: string | null;
+  skip: boolean;
+  report: boolean;
+};
+
+/** roulette: the site-wide theme of the moment. fixed: one theme all session. none: anything goes. */
+export type ThemeMode = { mode: 'roulette' } | { mode: 'none' } | { mode: 'fixed'; id: string };
+
+export type RoomSettings = {
+  /** Shown as the room's title. Public rooms: their own name. */
+  name: string;
+  private: boolean;
+  /** UI language. */
+  locale: string;
+  /** The public room whose look (wallpaper, TV colours) this room wears. */
+  decor: PublicRoomId;
+  rules: RoomRules;
+  themes: ThemeMode;
 };
 
 export type TwitchChannel = {
@@ -83,4 +116,6 @@ export type LiveEvent =
   | { type: 'report'; data: LiveSnapshot['report'] }
   | { type: 'steal'; data: LiveSnapshot['steal'] }
   | { type: 'react'; data: ReactionBatch }
-  | { type: 'twitch'; data: TwitchLive };
+  | { type: 'twitch'; data: TwitchLive }
+  | { type: 'room'; data: RoomSettings }
+  | { type: 'closed'; data: null };

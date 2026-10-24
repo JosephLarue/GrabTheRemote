@@ -1,17 +1,17 @@
 import { parseYouTubeId } from '@/lib/youtube-id';
-import { ApiError, handle, ok, youtubeRoomOf } from '@/server/http';
+import { ApiError, handle, ok, openRoom } from '@/server/http';
 import { ipHash } from '@/server/ip';
 import { assertAllowed, assertFitsRoom } from '@/server/moderation';
 import { poolHas } from '@/server/pool';
 import { rateLimit } from '@/server/ratelimit';
-import { currentTheme } from '@/server/themes';
+import { themeFor } from '@/server/room-settings';
 import { preview } from '@/server/youtube';
 
 export const dynamic = 'force-dynamic';
 
 /** Never spends YouTube quota: cached metadata, else free oEmbed. */
 export const GET = handle(async (req: Request) => {
-  const room = youtubeRoomOf(new URL(req.url).searchParams.get('room'));
+  const { room, settings } = await openRoom(req, new URL(req.url).searchParams.get('room'), { kind: 'youtube' });
   await rateLimit('preview', ipHash(req.headers), 60, 60);
   const id = parseYouTubeId(new URL(req.url).searchParams.get('url') ?? '');
   if (!id) throw new ApiError(400, 'bad_url', "That's not a YouTube link we recognize 🤔");
@@ -28,13 +28,13 @@ export const GET = handle(async (req: Request) => {
   let matchesTheme: boolean | null = null;
   if (p.meta) {
     try {
-      await assertAllowed(p.meta);
-      assertFitsRoom(room, p.meta);
+      await assertAllowed(p.meta, settings.rules);
+      assertFitsRoom(settings.rules, p.meta);
     } catch (e) {
       problem = e instanceof ApiError ? e.message : null;
       problemCode = e instanceof ApiError ? e.code : null;
     }
-    const theme = await currentTheme();
+    const theme = await themeFor(room, settings);
     matchesTheme = theme ? theme.check(p.meta) : true;
   }
   return ok({ video: p.video, inPool: await poolHas(room, id), problem, problemCode, matchesTheme });

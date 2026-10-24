@@ -1,9 +1,11 @@
 'use client';
 
 import { AdSlot } from '@/components/AdSlot';
+import { OwnerPanel } from '@/components/OwnerPanel';
 import { ReactionBar, ReactionOverlay } from '@/components/CouchReactions';
 import { PoolBars } from '@/components/PoolBars';
 import { Remote } from '@/components/Remote';
+import { RemoteDrawer } from '@/components/RemoteDrawer';
 import { RemoteFight } from '@/components/RemoteFight';
 import { StolenRemote } from '@/components/StolenRemote';
 import { SyncedPlayer } from '@/components/SyncedPlayer';
@@ -18,15 +20,18 @@ export default function WatchPage() {
 }
 
 function YouTubeWatch() {
-  const { state, t } = useLive();
+  const { state, t, settings } = useLive();
   const now = useServerNow(500);
   const np = state?.nowPlaying ?? null;
-  const left = np ? np.endsAt - now : 0;
+  // Paused: the clock stops where the streamer stopped it.
+  const left = np ? np.endsAt - (np.pausedAt ?? now) : 0;
 
   return (
-    // Mobile order: TV, remote, queue, ad. Desktop: TV + queue left, remote + ad right.
-    <div className="grid gap-x-8 gap-y-6 lg:grid-cols-[1fr_220px]">
-      <section aria-label={t.watch.nowPlaying} className="min-w-0 lg:col-start-1 lg:row-start-1">
+    // The TV gets the whole width; every control is in the remote drawer. The veto banner stays out in the
+    // open (it only lasts a minute), and the queue sits under the TV with the ad beside it.
+    <div className="flex flex-col gap-6">
+      <section aria-label={t.watch.nowPlaying} className="min-w-0">
+        {settings.private && <h1 className="font-display mb-4 truncate text-3xl sm:text-4xl">🔒 {settings.name}</h1>}
         <StolenRemote />
         <div className="tv mt-12">
           <SyncedPlayer np={np} overlay={<ReactionOverlay />} />
@@ -54,25 +59,22 @@ function YouTubeWatch() {
         </div>
       </section>
 
-      <div className="flex flex-col gap-6 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:pt-12">
+      <div className="grid gap-x-8 gap-y-6 lg:grid-cols-[1fr_300px]">
+        <section aria-label={t.watch.queue} className="flex min-w-0 flex-col gap-5">
+          <ThemeBanner />
+          <RemoteFight />
+          <div>
+            <h2 className="font-display mb-3 text-2xl">{t.watch.upNext}</h2>
+            <PoolBars pool={state?.pool ?? []} />
+          </div>
+        </section>
+        <AdSlot slot="watch-rail" />
+      </div>
+
+      <RemoteDrawer>
         <Remote />
-        <div className="hidden lg:block">
-          <AdSlot slot="watch-rail" />
-        </div>
-      </div>
-
-      <section aria-label={t.watch.queue} className="flex min-w-0 flex-col gap-5 lg:col-start-1 lg:row-start-2">
-        <ThemeBanner />
-        <RemoteFight />
-        <div>
-          <h2 className="font-display mb-3 text-2xl">{t.watch.upNext}</h2>
-          <PoolBars pool={state?.pool ?? []} />
-        </div>
-      </section>
-
-      <div className="lg:hidden">
-        <AdSlot slot="watch-mobile" />
-      </div>
+        <OwnerPanel />
+      </RemoteDrawer>
     </div>
   );
 }

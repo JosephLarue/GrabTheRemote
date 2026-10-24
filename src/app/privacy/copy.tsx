@@ -45,6 +45,12 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           when one of them plays, and a cookie remembering the last room you visited. Neither leaves your device for any
           other purpose.
         </p>
+        <h2>Private rooms</h2>
+        <p>
+          A private room keeps its name, settings and password until a day passes with nobody watching, or its streamer
+          closes it. Entering the password (or creating the room) sets a cookie for that room only, so you don&apos;t
+          have to type it again; it lasts 7 days and holds no personal data.
+        </p>
         <h2>YouTube</h2>
         <p>
           {APP} uses YouTube API Services to look up public video details (title, channel, duration, views, category) and
@@ -104,6 +110,12 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           Nous gardons dans le stockage local de ton navigateur une courte liste des vidéos pour lesquelles tu as voté,
           uniquement pour afficher des confettis quand l&apos;une d&apos;elles passe, ainsi qu&apos;un cookie qui retient la
           dernière room visitée. Ni l&apos;un ni l&apos;autre ne sert à autre chose.
+        </p>
+        <h2>Rooms privées</h2>
+        <p>
+          Une room privée garde son nom, ses réglages et son mot de passe jusqu&apos;à ce qu&apos;une journée passe sans
+          personne devant, ou que son streamer la ferme. Entrer le mot de passe (ou créer la room) dépose un cookie propre
+          à cette room, pour ne pas avoir à le retaper ; il dure 7 jours et ne contient aucune donnée personnelle.
         </p>
         <h2>YouTube</h2>
         <p>
@@ -167,6 +179,12 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           mostrar confeti cuando uno de ellos se reproduce, y una cookie que recuerda la última sala que visitaste. Ninguno
           de los dos se usa para nada más.
         </p>
+        <h2>Salas privadas</h2>
+        <p>
+          Una sala privada guarda su nombre, sus ajustes y su contraseña hasta que pasa un día sin nadie viéndola, o su
+          streamer la cierra. Introducir la contraseña (o crear la sala) deja una cookie solo para esa sala, para no tener
+          que volver a escribirla; dura 7 días y no contiene datos personales.
+        </p>
         <h2>YouTube</h2>
         <p>
           {APP} usa los servicios de API de YouTube para consultar datos públicos de los vídeos (título, canal, duración,
@@ -227,6 +245,12 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           Conserviamo nella memoria locale del tuo browser un breve elenco dei video per cui hai votato, solo per mostrare
           i coriandoli quando uno di questi va in onda, e un cookie che ricorda l&apos;ultima stanza visitata. Nessuno dei
           due serve ad altro.
+        </p>
+        <h2>Stanze private</h2>
+        <p>
+          Una stanza privata conserva nome, impostazioni e password finché non passa un giorno senza nessuno davanti, o il
+          suo streamer la chiude. Inserire la password (o creare la stanza) imposta un cookie solo per quella stanza, così
+          non devi riscriverla; dura 7 giorni e non contiene dati personali.
         </p>
         <h2>YouTube</h2>
         <p>

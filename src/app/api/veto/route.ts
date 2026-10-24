@@ -1,5 +1,5 @@
 import { advance, withLock } from '@/server/engine';
-import { ApiError, handle, ok, youtubeRoomOf } from '@/server/http';
+import { ApiError, handle, ok, openRoom } from '@/server/http';
 import { ipHash } from '@/server/ip';
 import { rateLimit } from '@/server/ratelimit';
 import { getNowPlaying, publish } from '@/server/state';
@@ -15,7 +15,7 @@ export const POST = handle(async (req: Request) => {
   const iph = ipHash(req.headers);
   await rateLimit('veto', iph, 10, 60);
   const body = (await req.json().catch(() => ({}))) as { room?: string };
-  const room = youtubeRoomOf(body.room);
+  const { room } = await openRoom(req, body.room, { kind: 'youtube' });
   if (!(await holdsRemote(room, iph))) throw noRemote();
 
   const outcome = await withLock(room, async () => {
