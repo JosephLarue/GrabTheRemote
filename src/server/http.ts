@@ -1,6 +1,9 @@
 import 'server-only';
 import { NextResponse } from 'next/server';
 import { isRoom, isTwitchRoom, type RoomId } from '@/config/rooms';
+import type { RoomSettings } from '@/lib/types';
+import { type Access, accessOf, requestCookie } from './private-rooms';
+import { roomSettings } from './room-settings';
 
 export class ApiError extends Error {
   constructor(
@@ -31,6 +34,24 @@ export function twitchRoomOf(value: unknown): RoomId {
   const room = roomOf(value);
   if (!isTwitchRoom(room)) throw new ApiError(400, 'bad_room', "This room doesn't play Twitch streams 🚪");
   return room;
+}
+
+/**
+ * A room the caller may use: it exists, and for a private room they entered its password (or own it).
+ * `kind` narrows to YouTube or Twitch rooms; `owner` requires the streamer who made the room.
+ */
+export async function openRoom(
+  req: Request,
+  value: unknown,
+  opts: { kind?: 'youtube' | 'twitch'; owner?: boolean } = {},
+): Promise<{ room: RoomId; settings: RoomSettings; access: Access }> {
+  const room = opts.kind === 'youtube' ? youtubeRoomOf(value) : opts.kind === 'twitch' ? twitchRoomOf(value) : roomOf(value);
+  const access = await accessOf(room, requestCookie(req));
+  const settings = access.exists ? await roomSettings(room) : null;
+  if (!settings) throw new ApiError(404, 'room_gone', 'This room is closed 🚪');
+  if (!access.enter) throw new ApiError(403, 'locked', 'This room is private. Enter its password first 🔒');
+  if (opts.owner && !access.owner) throw new ApiError(403, 'not_owner', 'Only the streamer can do that 🎙️');
+  return { room, settings, access };
 }
 
 /** Room from the `?room=` query param of a GET request. */

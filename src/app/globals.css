@@ -260,6 +260,25 @@ body {
   font-weight: 800;
 }
 
+/* Text inputs and selects, same look as the vote form's link field. */
+.field {
+  width: 100%;
+  border: var(--line) solid var(--edge);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 700;
+  padding: 0.55rem 0.9rem;
+  box-shadow: inset 3px 3px 0 rgba(0, 0, 0, 0.12);
+  outline: none;
+}
+.field::placeholder {
+  color: color-mix(in srgb, var(--ink) 40%, transparent);
+}
+.field:focus-visible {
+  box-shadow: 0 0 0 4px var(--glow);
+}
+
 /* ---------------------------------------------------------------- the TV */
 
 .tv {

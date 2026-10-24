@@ -3,13 +3,13 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { COUCH_COLLAPSE_AT } from '@/config/app';
-import { errorText, localeOf } from '@/i18n';
+import { errorText } from '@/i18n';
 import { post } from '@/lib/api';
 import { formatClock, useLive, useServerNow } from '@/lib/live';
 import { useTurnstile } from '@/lib/turnstile';
 
 export function Remote() {
-  const { room, t, state, connected, me, refreshMe } = useLive();
+  const { room, t, settings, state, connected, me, refreshMe } = useLive();
   const now = useServerNow(1000);
   const { ref: captchaRef, getToken } = useTurnstile();
   const [busy, setBusy] = useState<'skip' | 'report' | null>(null);
@@ -58,51 +58,54 @@ export function Remote() {
         <div
           className={`rounded-xl border-[3px] border-[var(--edge)] px-3 py-1 text-center text-[var(--ink)] shadow-[inset_3px_3px_0_rgba(0,0,0,0.15)] ${collapsing ? 'wobble bg-[var(--report)]' : 'bg-[#9fe8c8]'}`}
         >
-          <span className="font-display text-2xl tabular-nums">{viewers?.toLocaleString(localeOf(room)) ?? '–'}</span>
-          <span className="ml-1 text-sm font-extrabold">{collapsing ? t.remote.couchCollapsing : t.remote.onCouch}</span>
+          <span className="font-display text-2xl tabular-nums">{viewers?.toLocaleString(settings.locale) ?? '–'}</span>
+          <span className="ml-1 text-sm font-extrabold">
+            {collapsing ? t.remote.couchCollapsing : t.remote.onCouch}
+          </span>
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-2">
-        <button
-          type="button"
-          className="btn remote-btn font-display bg-[var(--skip)] text-xl text-[var(--ink)] sm:text-2xl"
-          disabled={!playing || busy !== null || me.skipped || skipCd > 0}
-          onClick={() => press('skip')}
-        >
-          {t.remote.skip}
-          <span className="font-sans text-xs font-extrabold">
-            {skipCd > 0 ? t.remote.coolsIn(formatClock(skipCd)) : `${skip?.votes ?? 0}/${skip?.needed ?? 3}`}
-          </span>
-        </button>
-        <p className="max-w-[12rem] text-center text-xs font-bold text-[var(--muted)]">
-          {skipCd > 0
-            ? t.remote.overheating
-            : me.skipped
-              ? t.remote.youSkipped
-              : t.remote.halfRoom}
-        </p>
-      </div>
-
-      <div className="flex flex-col items-center gap-2">
-        {/* Caution tape around a yellow label: reads as "for emergencies", not as a second skip button. */}
-        <button
-          type="button"
-          className="report-btn"
-          disabled={!playing || busy !== null || me.reported}
-          onClick={() => press('report')}
-        >
-          <span className="report-label">
-            <span aria-hidden className="report-siren">
-              🚨
+      {/* A private room's streamer can turn either button off. */}
+      {settings.rules.skip && (
+        <div className="flex flex-col items-center gap-2">
+          <button
+            type="button"
+            className="btn remote-btn font-display bg-[var(--skip)] text-xl text-[var(--ink)] sm:text-2xl"
+            disabled={!playing || busy !== null || me.skipped || skipCd > 0}
+            onClick={() => press('skip')}
+          >
+            {t.remote.skip}
+            <span className="font-sans text-xs font-extrabold">
+              {skipCd > 0 ? t.remote.coolsIn(formatClock(skipCd)) : `${skip?.votes ?? 0}/${skip?.needed ?? 3}`}
             </span>
-            <span className="font-display text-base uppercase">{t.remote.report}</span>
-          </span>
-        </button>
-        <p className="text-center text-xs font-bold text-[var(--muted)]">
-          {me.reported ? t.remote.reported : t.remote.toHide(report?.votes ?? 0, report?.needed ?? 3)}
-        </p>
-      </div>
+          </button>
+          <p className="max-w-[12rem] text-center text-xs font-bold text-[var(--muted)]">
+            {skipCd > 0 ? t.remote.overheating : me.skipped ? t.remote.youSkipped : t.remote.halfRoom}
+          </p>
+        </div>
+      )}
+
+      {settings.rules.report && (
+        <div className="flex flex-col items-center gap-2">
+          {/* Caution tape around a yellow label: reads as "for emergencies", not as a second skip button. */}
+          <button
+            type="button"
+            className="report-btn"
+            disabled={!playing || busy !== null || me.reported}
+            onClick={() => press('report')}
+          >
+            <span className="report-label">
+              <span aria-hidden className="report-siren">
+                🚨
+              </span>
+              <span className="font-display text-base uppercase">{t.remote.report}</span>
+            </span>
+          </button>
+          <p className="text-center text-xs font-bold text-[var(--muted)]">
+            {me.reported ? t.remote.reported : t.remote.toHide(report?.votes ?? 0, report?.needed ?? 3)}
+          </p>
+        </div>
+      )}
 
       <Link href={`/${room}/vote`} className="btn whitespace-nowrap bg-[var(--glow)] text-[var(--ink)]">
         {t.remote.pickNext}

@@ -2,8 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { RoomId } from '@/config/rooms';
-import { type Dict, dict, localeOf } from '@/i18n';
-import type { LiveEvent, LiveSnapshot, ReactionBatch } from './types';
+import { type Dict, dictFor } from '@/i18n';
+import type { LiveEvent, LiveSnapshot, ReactionBatch, RoomSettings } from './types';
 
 type Me = {
   voteCooldownEndsAt: number | null;
@@ -14,12 +14,17 @@ type Me = {
   /** Twitch rooms: this viewer's keep/change vote and pick in the current round. */
   decided: 'keep' | 'change' | null;
   picked: string | null;
+  /** Private rooms: this viewer is the streamer who made the room, and the password to show their chat. */
+  owner: boolean;
+  password: string | null;
 };
 
 type LiveCtx = {
   room: RoomId;
   /** UI copy in the room's language. */
   t: Dict;
+  /** Rules, themes and look; live, since a private room's streamer can change them. */
+  settings: RoomSettings;
   state: LiveSnapshot | null;
   connected: boolean;
   /** Server time in ms: Date.now() corrected by the offset measured at connect. */
@@ -52,12 +57,24 @@ function apply(s: LiveSnapshot | null, e: LiveEvent): LiveSnapshot | null {
       return { ...s, steal: e.data };
     case 'twitch':
       return { ...s, twitch: e.data };
+    case 'room':
+      return { ...s, room: e.data };
+    case 'closed':
+      return s;
     case 'react':
       return s;
   }
 }
 
-export function LiveProvider({ room, children }: { room: RoomId; children: React.ReactNode }) {
+export function LiveProvider({
+  room,
+  settings: initial,
+  children,
+}: {
+  room: RoomId;
+  settings: RoomSettings;
+  children: React.ReactNode;
+}) {
   const [state, setState] = useState<LiveSnapshot | null>(null);
   const [connected, setConnected] = useState(false);
   const [me, setMe] = useState<Me>({
@@ -67,14 +84,18 @@ export function LiveProvider({ room, children }: { room: RoomId; children: React
     remote: false,
     decided: null,
     picked: null,
+    owner: false,
+    password: null,
   });
   const offset = useRef(0);
   const reactionListeners = useRef(new Set<(batch: ReactionBatch) => void>());
 
+  const settings = state?.room ?? initial;
+
   // The root layout can't know the room, so the room sets the document language itself.
   useEffect(() => {
-    document.documentElement.lang = localeOf(room);
-  }, [room]);
+    document.documentElement.lang = settings.locale;
+  }, [settings.locale]);
 
   const refreshMe = useCallback(async () => {
     const res = await fetch(`/api/me?room=${room}`, { cache: 'no-store' }).catch(() => null);
@@ -94,6 +115,8 @@ export function LiveProvider({ room, children }: { room: RoomId; children: React
       if (poll) return;
       poll = setInterval(async () => {
         const res = await fetch(`/api/state?room=${room}`, { cache: 'no-store' }).catch(() => null);
+        // Closed, or the password changed: the server-rendered page shows what happened.
+        if (res?.status === 403 || res?.status === 404) window.location.reload();
         if (!res?.ok) return;
         const snap = (await res.json()) as LiveSnapshot;
         onSnapshot(snap);
@@ -112,6 +135,7 @@ export function LiveProvider({ room, children }: { room: RoomId; children: React
       es.onmessage = (m) => {
         const e = JSON.parse(m.data) as LiveEvent;
         if (e.type === 'snapshot') onSnapshot(e.data);
+        if (e.type === 'closed') window.location.reload();
         if (e.type === 'nowplaying' || e.type === 'steal') refreshMe();
         if (e.type === 'react') reactionListeners.current.forEach((fn) => fn(e.data));
         else setState((s) => apply(s, e));
@@ -139,8 +163,11 @@ export function LiveProvider({ room, children }: { room: RoomId; children: React
   }, []);
 
   return (
-    <Ctx.Provider value={{ room, t: dict(room), state, connected, serverNow, me, refreshMe, onReactions }}>
-      {children}
+    <Ctx.Provider value={{ room, t: dictFor(settings.locale), settings, state, connected, serverNow, me, refreshMe, onReactions }}>
+      {/* The room's look ([data-room] in globals.css): a private room wears the decor its streamer picked. */}
+      <div data-room={settings.decor} className="contents">
+        {children}
+      </div>
     </Ctx.Provider>
   );
 }

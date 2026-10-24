@@ -11,6 +11,7 @@ type YTPlayer = {
   getCurrentTime: () => number;
   getPlayerState: () => number;
   playVideo: () => void;
+  pauseVideo: () => void;
   stopVideo: () => void;
   mute: () => void;
   unMute: () => void;
@@ -78,13 +79,19 @@ export function SyncedPlayer({ np, overlay }: { np: NowPlaying | null; overlay?:
     };
   }, []);
 
+  const playId = np?.playId;
   const videoId = np?.video.id;
   const startedAt = np?.startedAt;
   const reported = np?.state === 'reported_card';
+  const pausedAt = np?.pausedAt ?? null;
+  // Resuming a pause shifts startedAt: that must not reload the video, so the load reads it from here.
+  const startedAtRef = useRef(startedAt);
+  startedAtRef.current = startedAt;
 
-  // Load the current video at the right offset; wait out the static transition first.
+  // Load the current video (once per play) at the right offset; wait out the static transition first.
   useEffect(() => {
     const p = player.current;
+    const startedAt = startedAtRef.current;
     if (!ready || !p) return;
     if (!videoId || startedAt === undefined || reported) {
       p.stopVideo();
@@ -103,22 +110,30 @@ export function SyncedPlayer({ np, overlay }: { np: NowPlaying | null; overlay?:
     }
     const t = setTimeout(start, delay);
     return () => clearTimeout(t);
-  }, [ready, videoId, startedAt, reported, serverNow]);
+  }, [ready, playId, videoId, reported, serverNow]);
 
-  // Everyone stays on the same frame: correct drift and undo accidental pauses.
+  // Everyone stays on the same frame: correct drift and undo accidental pauses. When the streamer pauses a
+  // private room, everyone freezes on the frame they paused at instead.
   useEffect(() => {
     if (!ready || !videoId || startedAt === undefined || reported) return;
-    const t = setInterval(() => {
+    const sync = () => {
       const p = player.current;
       if (!p) return;
-      const expected = (serverNow() - startedAt) / 1000;
+      const expected = ((pausedAt ?? serverNow()) - startedAt) / 1000;
       if (expected < 0) return;
       const st = p.getPlayerState();
+      if (pausedAt) {
+        if (st === PLAYING) p.pauseVideo();
+        if (Math.abs(p.getCurrentTime() - expected) > DRIFT_S) p.seekTo(expected, true);
+        return;
+      }
       if (st === PAUSED) p.playVideo();
       if (st === PLAYING && Math.abs(p.getCurrentTime() - expected) > DRIFT_S) p.seekTo(expected, true);
-    }, 5000);
+    };
+    sync();
+    const t = setInterval(sync, pausedAt ? 1000 : 5000);
     return () => clearInterval(t);
-  }, [ready, videoId, startedAt, reported, serverNow]);
+  }, [ready, videoId, startedAt, reported, pausedAt, serverNow]);
 
   const crankItUp = () => {
     const p = player.current;
@@ -151,6 +166,13 @@ export function SyncedPlayer({ np, overlay }: { np: NowPlaying | null; overlay?:
         )}
       </button>
 
+      {pausedAt && !reported && (
+        <div className="pointer-events-none absolute inset-x-0 top-4 z-30 grid place-items-center">
+          <span className="font-display sticker bg-[var(--report)] px-4 py-2 text-xl text-[var(--ink)] sm:text-2xl">
+            {t.private.paused}
+          </span>
+        </div>
+      )}
       {reported && <MassReportedCard />}
       {!reported && (waiting || !videoId) && (
         <StaticNoise label={videoId ? t.player.changing : t.player.nothingOn} />

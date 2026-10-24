@@ -6,7 +6,8 @@ import type { LiveEvent, LiveSnapshot, NowPlaying } from '@/lib/types';
 import { K } from './keys';
 import { topPool } from './pool';
 import { redis, redisSub } from './redis';
-import { currentTheme, slotEndsAt, slotId, toTheme } from './themes';
+import { publicSettings, roomSettings, themeFor } from './room-settings';
+import { slotEndsAt, slotId, toTheme } from './themes';
 import { twitchLive } from './twitch';
 
 export const POOL_SIZE = 10;
@@ -57,11 +58,13 @@ export async function stealState(room: RoomId): Promise<LiveSnapshot['steal']> {
 }
 
 export async function poolForClients(room: RoomId) {
-  return topPool(room, POOL_SIZE, await currentTheme());
+  return topPool(room, POOL_SIZE, await themeFor(room));
 }
 
 export async function snapshot(room: RoomId): Promise<LiveSnapshot> {
-  const [nowPlaying, theme, viewers] = await Promise.all([getNowPlaying(room), currentTheme(), viewerCount(room)]);
+  // Routes check the room exists first; the fallback only covers a private room closing mid-request.
+  const settings = (await roomSettings(room)) ?? publicSettings('en');
+  const [nowPlaying, theme, viewers] = await Promise.all([getNowPlaying(room), themeFor(room, settings), viewerCount(room)]);
   const [pool, skip, report, steal, twitch] = await Promise.all([
     topPool(room, POOL_SIZE, theme),
     skipState(room, nowPlaying?.playId, viewers),
@@ -80,6 +83,7 @@ export async function snapshot(room: RoomId): Promise<LiveSnapshot> {
     report,
     steal,
     twitch,
+    room: settings,
   };
 }
 

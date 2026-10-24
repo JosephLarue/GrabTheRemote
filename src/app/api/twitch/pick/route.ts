@@ -1,5 +1,5 @@
 import { parseTwitchLogin } from '@/lib/twitch';
-import { ApiError, handle, ok, twitchRoomOf } from '@/server/http';
+import { ApiError, handle, ok, openRoom } from '@/server/http';
 import { ipHash } from '@/server/ip';
 import { rateLimit } from '@/server/ratelimit';
 import { verifyTurnstile } from '@/server/turnstile';
@@ -23,7 +23,7 @@ export const POST = handle(async (req: Request) => {
   const iph = ipHash(req.headers);
   await rateLimit('twitch-pick', iph, 20, 60);
   const body = (await req.json().catch(() => ({}))) as { room?: string; channel?: string; token?: string };
-  const room = twitchRoomOf(body.room);
+  const { room } = await openRoom(req, body.room, { kind: 'twitch' });
   const login = parseTwitchLogin(body.channel ?? '');
   if (!login) throw new ApiError(400, 'bad_channel', "That's not a Twitch channel we recognize 🤔");
   await verifyTurnstile(body.token, req.headers);

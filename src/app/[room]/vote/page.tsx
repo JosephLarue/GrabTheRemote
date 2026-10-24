@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { AdSlot } from '@/components/AdSlot';
-import { errorText, roomLanguage } from '@/i18n';
+import { errorText, languageName } from '@/i18n';
 import { PoolBars } from '@/components/PoolBars';
 import { ThemeBanner } from '@/components/ThemeBanner';
 import { post, rememberPick } from '@/lib/api';
@@ -21,11 +21,12 @@ type PreviewRes = {
 type PreviewState = { status: 'idle' | 'loading' } | { status: 'ok'; data: PreviewRes } | { status: 'error'; message: string };
 
 export default function VotePage() {
-  const { room, t, state, me, refreshMe } = useLive();
+  const { room, t, settings, state, me, refreshMe } = useLive();
+  const { rules } = settings;
   const theme = state?.theme;
   const fail = useCallback(
-    (err: { error: string; message: string }) => errorText(t, err, { room, theme }),
-    [t, room, theme],
+    (err: { error: string; message: string }) => errorText(t, err, { room, theme, rules }),
+    [t, room, theme, rules],
   );
   const now = useServerNow(1000);
   const { ref: captchaRef, getToken } = useTurnstile();
@@ -91,7 +92,7 @@ export default function VotePage() {
       <div className="flex min-w-0 flex-col gap-6">
         <section className="panel p-5 sm:p-7">
           <h1 className="font-display text-3xl sm:text-4xl">{t.vote.title}</h1>
-          <p className="mt-2 max-w-prose font-semibold">{t.vote.intro}</p>
+          <p className="mt-2 max-w-prose font-semibold">{t.vote.intro(t.duration(rules.voteCooldownS))}</p>
 
           <form
             className="mt-5 flex flex-col gap-3 sm:flex-row"
@@ -190,11 +191,11 @@ export default function VotePage() {
         <div className="panel p-5">
           <h2 className="font-display text-xl">{t.vote.rules}</h2>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold">
-            <li>{t.vote.ruleEmbeddable}</li>
+            <li>{t.vote.ruleEmbeddable(t.duration(rules.maxDurationS))}</li>
             <li>{t.vote.ruleAge}</li>
-            <li>{t.vote.ruleLanguage(roomLanguage(room, t))}</li>
-            <li>{t.vote.ruleTheme}</li>
-            <li>{t.vote.ruleReport}</li>
+            <li>{t.vote.ruleLanguage(languageName(rules.lang, t))}</li>
+            {settings.themes.mode !== 'none' && <li>{t.vote.ruleTheme}</li>}
+            {rules.report && <li>{t.vote.ruleReport}</li>}
           </ul>
         </div>
         <AdSlot slot="vote-rail" />

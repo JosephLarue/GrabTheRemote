@@ -23,6 +23,14 @@ Language rooms only refuse a video when YouTube says it's in another language; v
 
 Landing on `/` takes you back to your last room, or to the one matching your browser language. The interface speaks the room's language (English in The Jungle); `/privacy`, `/legal` and `/admin` stay in English.
 
+## 🔒 Private rooms (for streamers)
+
+Doing react content? Go to `/private` and make your own room. You get an **ID** and a **password** to show your chat, plus a secret owner link to run the room from another device.
+
+You set the rules: **max video length**, **one vote every** 30 s to 15 min, the **video language**, whether the **skip** and **report** buttons exist, and the **themes** (the roulette, no theme, or one theme all session). Pick the page language and the room's look (any public room's decor). Change any of it live.
+
+During the stream you can **pause** everyone's screen, **skip** what's playing, or **close** the room. Your chat votes like in any other room. A room disappears after a day with nobody watching.
+
 ## 🎲 Theme roulette
 
 Every 15 minutes the remote *might* get possessed. Sometimes there's no rule. Sometimes it's:

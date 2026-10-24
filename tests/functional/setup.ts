@@ -3,7 +3,7 @@ import { afterAll, beforeEach, vi } from 'vitest';
 import { db } from '@/server/db/client';
 import { invalidateBlocklists } from '@/server/moderation';
 import { redis } from '@/server/redis';
-import { CAPTCHA_OK, setTheme } from './helpers';
+import { CAPTCHA_OK, clearCookies, setTheme } from './helpers';
 import { testUrls } from './urls';
 
 // env() is read lazily, so this runs before any server module touches it. No YouTube key: no quota spent.
@@ -37,6 +37,7 @@ beforeEach(async () => {
     sql`truncate plays, videos, banned_channels, blocked_keywords, theme_slots restart identity cascade`,
   );
   invalidateBlocklists();
+  clearCookies();
   // Themes are random; tests that need one set it explicitly.
   await setTheme(null);
 });

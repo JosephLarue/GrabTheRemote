@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { APP_NAME } from '@/config/app';
-import { ROOM_INFO, ROOMS, type RoomId, isTwitchRoom } from '@/config/rooms';
+import { ROOM_INFO, ROOMS, type RoomId, isPublicRoom, isTwitchRoom } from '@/config/rooms';
 import { dict } from '@/i18n';
 import { useRoom } from '@/lib/use-room';
 
@@ -62,6 +62,15 @@ export function Header({ lastRoom }: { lastRoom: RoomId }) {
               {ROOM_INFO[r].emoji}
             </Link>
           ))}
+          <Link
+            href="/private"
+            title={t.private.nav}
+            aria-label={t.private.nav}
+            aria-current={path === '/private' || (room && !isPublicRoom(room)) ? 'page' : undefined}
+            className={`grid h-10 w-10 place-items-center rounded-full border-[3px] border-[var(--edge)] text-lg ${path === '/private' || (room && !isPublicRoom(room)) ? 'bg-[var(--glow)] shadow-[var(--pop)]' : 'bg-white opacity-70 hover:opacity-100'}`}
+          >
+            🔒
+          </Link>
         </nav>
       </div>
     </header>

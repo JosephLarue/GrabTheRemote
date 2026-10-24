@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { APP_NAME } from '@/config/app';
-import { ROOM_INFO, isRoom } from '@/config/rooms';
+import { ROOM_INFO, isPublicRoom } from '@/config/rooms';
 import { dict, shameHeadline } from '@/i18n';
 import { roastOf } from '@/lib/roast';
 import { SHARE_CARD_SIZE } from '@/lib/share-card';
@@ -13,7 +13,8 @@ export const contentType = 'image/png';
 
 export default async function ShameOgImage({ params }: { params: Promise<{ room: string; playId: string }> }) {
   const { room, playId } = await params;
-  if (!isRoom(room)) notFound();
+  // Private rooms' plays stay private: their shame pages are behind the password, and so is this card.
+  if (!isPublicRoom(room)) notFound();
   const row = await shameEntry(room, Number(playId));
   if (!row) notFound();
   const t = dict(room);

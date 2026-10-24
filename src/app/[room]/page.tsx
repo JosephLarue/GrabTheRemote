@@ -1,6 +1,7 @@
 'use client';
 
 import { AdSlot } from '@/components/AdSlot';
+import { OwnerPanel } from '@/components/OwnerPanel';
 import { ReactionBar, ReactionOverlay } from '@/components/CouchReactions';
 import { PoolBars } from '@/components/PoolBars';
 import { Remote } from '@/components/Remote';
@@ -18,15 +19,18 @@ export default function WatchPage() {
 }
 
 function YouTubeWatch() {
-  const { state, t } = useLive();
+  const { state, t, settings } = useLive();
   const now = useServerNow(500);
   const np = state?.nowPlaying ?? null;
-  const left = np ? np.endsAt - now : 0;
+  // Paused: the clock stops where the streamer stopped it.
+  const left = np ? np.endsAt - (np.pausedAt ?? now) : 0;
 
   return (
     // Mobile order: TV, remote, queue, ad. Desktop: TV + queue left, remote + ad right.
     <div className="grid gap-x-8 gap-y-6 lg:grid-cols-[1fr_220px]">
       <section aria-label={t.watch.nowPlaying} className="min-w-0 lg:col-start-1 lg:row-start-1">
+        {settings.private && <h1 className="font-display mb-4 truncate text-3xl sm:text-4xl">🔒 {settings.name}</h1>}
+        <OwnerPanel />
         <StolenRemote />
         <div className="tv mt-12">
           <SyncedPlayer np={np} overlay={<ReactionOverlay />} />

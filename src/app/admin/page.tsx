@@ -1,7 +1,7 @@
 import { desc, eq } from 'drizzle-orm';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { DEFAULT_ROOM, ROOM_INFO, ROOMS, isRoom, isTwitchRoom } from '@/config/rooms';
+import { DEFAULT_ROOM, ROOM_INFO, ROOMS, isPublicRoom, isTwitchRoom } from '@/config/rooms';
 import { twitchUrl } from '@/lib/twitch';
 import { twitchConfigured } from '@/server/twitch-api';
 import { CONSTRAINTS } from '@/config/constraints';
@@ -36,7 +36,7 @@ const btn = 'btn px-3 py-1 text-xs';
 
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ room?: string }> }) {
   const { room: raw } = await searchParams;
-  const room = isRoom(raw) ? raw : DEFAULT_ROOM;
+  const room = isPublicRoom(raw) ? raw : DEFAULT_ROOM;
   const [snap, ids, quota, flagged, banned, channels, keywords, weights, recent, roomViewers] = await Promise.all([
     snapshot(room),
     poolIds(room),
