@@ -1,8 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import type { PoolEntry } from '@/lib/types';
 import { formatClock, useLive } from '@/lib/live';
+import { openVote } from './VoteBox';
 
 const BAR_COLORS = ['var(--glow)', 'var(--tv)', 'var(--report)', 'var(--mint)', '#ff9b4a'];
 
@@ -17,7 +17,7 @@ export function PoolBars({
   onPlusOne?: (id: string) => void;
   plusOneDisabled?: boolean;
 }) {
-  const { room, t } = useLive();
+  const { t } = useLive();
   const top = pool.slice(0, limit);
   const max = Math.max(1, ...top.map((p) => p.votes));
 
@@ -27,9 +27,9 @@ export function PoolBars({
         <p className="font-extrabold">{t.pool.empty}</p>
         <p className="mt-1 text-sm">
           {t.pool.emptyHint}{' '}
-          <Link href={`/${room}/vote`} className="font-extrabold underline decoration-[3px] underline-offset-2">
+          <button type="button" onClick={openVote} className="font-extrabold underline decoration-[3px] underline-offset-2">
             {t.pool.pickVideo}
-          </Link>
+          </button>
         </p>
       </div>
     );

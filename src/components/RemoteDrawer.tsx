@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { COUCH_COLLAPSE_AT } from '@/config/app';
 import { useLive } from '@/lib/live';
+import { VOTE_HASH, onOpenVote } from './VoteBox';
 
 const OPEN_KEY = 'gtr:remote-open';
 
 /**
- * The room's controls live in a remote that slides in from the right, so the TV gets the whole screen.
- * Closed by default; desktop remembers if it was left open. The tab sticking out shows the live light and
- * the couch count, so nothing important hides behind it.
+ * The room's controls live in a remote that slides in from the left (the chat has the TV's right), so the TV
+ * gets the screen. Closed by default; desktop remembers if it was left open. The tab sticking out shows the live
+ * light and the couch count, so nothing important hides behind it.
  */
 export function RemoteDrawer({ children }: { children: React.ReactNode }) {
   const { t } = useLive();
@@ -34,6 +35,20 @@ export function RemoteDrawer({ children }: { children: React.ReactNode }) {
     document.documentElement.toggleAttribute('data-remote-open', open);
     return () => document.documentElement.removeAttribute('data-remote-open');
   }, [open]);
+
+  // "Pick a video" anywhere (or a link to /<room>#vote) opens the remote on the link box.
+  useEffect(() => {
+    const toVote = () => {
+      toggle(true);
+      // The drawer is inert until it re-renders open.
+      setTimeout(() => document.getElementById('vote-url')?.focus({ preventScroll: true }), 60);
+    };
+    if (window.location.hash === VOTE_HASH) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+      toVote();
+    }
+    return onOpenVote(toVote);
+  }, [toggle]);
 
   useEffect(() => {
     if (!open) return;
@@ -68,15 +83,15 @@ export function RemoteDrawer({ children }: { children: React.ReactNode }) {
         className={`remote remote-drawer ${open ? 'is-open' : ''}`}
       >
         <div className="flex items-center justify-between gap-3">
-          <span aria-hidden className="remote-ir" />
           <button
             type="button"
             onClick={() => toggle(false)}
             className="btn bg-[var(--remote-hi)] px-3 py-1 text-sm text-[var(--cream)]"
             aria-label={t.remote.hide}
           >
-            {t.remote.hide} ▸
+            ◂ {t.remote.hide}
           </button>
+          <span aria-hidden className="remote-ir" />
         </div>
         <div className="flex items-center justify-between gap-3">
           <LiveLight />

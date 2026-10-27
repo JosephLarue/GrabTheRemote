@@ -2,7 +2,7 @@ import type { Roast } from '@/lib/roast';
 
 // UI copy for the English room and The Jungle. Every other locale must provide the same keys (type Dict).
 export const en = {
-  nav: { main: 'Main', rooms: 'Rooms', watch: 'Watch', vote: 'Vote', hall: 'Hall of Fame' },
+  nav: { main: 'Main', rooms: 'Rooms', watch: 'Watch', hall: 'Hall of Fame' },
   watch: {
     nowPlaying: 'Now playing',
     nothingOnScreen: 'Nothing on the screen',
@@ -34,7 +34,6 @@ export const en = {
     report: 'Report',
     reported: 'Reported.',
     toHide: (votes: number, needed: number) => `${votes}/${needed} to hide it`,
-    pickNext: "Pick what's next",
     skipped: 'Skipped! The crowd has spoken 🔴',
     hidden: 'Hidden. Thanks for keeping the couch clean 🚨',
     skipCounted: 'Vote counted. Need more hands on the button.',
@@ -56,6 +55,20 @@ export const en = {
   reactions: {
     label: 'Couch reactions',
     send: (emoji: string) => `React ${emoji}`,
+  },
+  cinema: {
+    enter: 'Full screen',
+    exit: 'Exit full screen',
+    hideChat: 'Hide the chat',
+    showChat: 'Show the chat',
+    newMessages: (n: number) => (n === 1 ? '1 new message' : `${n} new messages`),
+  },
+  chat: {
+    title: 'Couch chat',
+    you: "You're",
+    placeholder: 'Say something to the couch…',
+    send: 'Send',
+    empty: 'Quiet couch. Say hi 👋',
   },
   pool: {
     empty: 'Nothing queued yet.',
@@ -82,7 +95,6 @@ export const en = {
     inQueue: 'Already in the queue. Your vote adds +1.',
     looksGood: 'Looks good. Grab it!',
     counted: "Vote counted! You'll get confetti if it makes it to the screen 🎉",
-    queue: 'The queue',
     rules: 'House rules',
     ruleEmbeddable: (max: string) => `Embeddable YouTube videos only, ${max} max.`,
     ruleAge: 'No age-restricted videos.',
@@ -244,6 +256,10 @@ export const en = {
     nothing_veto: 'Nothing to veto right now 🤷',
     no_remote: "You don't have the remote anymore 🫳",
     bad_reaction: 'That reaction is not on the couch 🙃',
+    bad_seed: 'Your couch nickname got lost. Reload the page 🛋️',
+    bad_chat: 'Say something, but keep it under 200 characters 💬',
+    chat_link: 'No links on the couch. Paste videos in the vote box 🔗',
+    chat_blocked: 'Keep it couch-friendly 🙅',
     skip_cooldown: 'The skip button is overheating 🔥 Wait for it to cool down.',
     already_skip: 'You already smashed skip on this one 🔴',
     already_report: 'Already reported. The crowd has been notified 🚨',

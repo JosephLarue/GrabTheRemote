@@ -370,13 +370,13 @@ body {
   box-shadow: 0 1px 0 var(--shade);
 }
 
-/* The remote drawer: the room's controls slide in from the right so the TV keeps the whole screen.
-   Phones: a floating button bottom-right. Desktop: a tab sticking out of the right edge. */
+/* The remote drawer: the room's controls slide in from the left so the TV keeps the whole screen (the chat
+   sits on its right). Phones: a floating button bottom-left. Desktop: a tab sticking out of the left edge. */
 .remote-drawer {
   position: fixed;
   z-index: 50;
   top: 50%;
-  right: 12px;
+  left: 12px;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -388,7 +388,7 @@ body {
   /* less round than the classic remote: content scrolls inside */
   border-radius: 36px;
   visibility: hidden;
-  transform: translate(calc(100% + 40px), -50%);
+  transform: translate(calc(-100% - 40px), -50%);
   transition:
     transform 320ms cubic-bezier(0.2, 1.25, 0.4, 1),
     visibility 0s linear 320ms;
@@ -409,7 +409,7 @@ body {
 .remote-handle {
   position: fixed;
   z-index: 45;
-  right: 16px;
+  left: 16px;
   bottom: 16px;
   display: flex;
   align-items: center;
@@ -444,20 +444,20 @@ body {
 @media (min-width: 1024px) {
   .remote-handle {
     top: 50%;
-    right: 0;
+    left: 0;
     bottom: auto;
     flex-direction: column;
     gap: 0.9rem;
-    padding: 1rem 0.6rem 1rem 0.7rem;
-    border-right: 0;
-    border-radius: 28px 0 0 28px;
+    padding: 1rem 0.7rem 1rem 0.6rem;
+    border-left: 0;
+    border-radius: 0 28px 28px 0;
     transform: translateY(-50%);
   }
   .remote-handle:hover {
-    transform: translate(-6px, -50%);
+    transform: translate(6px, -50%);
   }
   .remote-handle.is-hidden {
-    transform: translate(30px, -50%);
+    transform: translate(-30px, -50%);
   }
   .remote-handle-label {
     writing-mode: vertical-rl;
@@ -465,10 +465,102 @@ body {
   }
   /* the open remote pushes the page aside rather than covering the TV */
   body {
-    transition: padding-right 320ms cubic-bezier(0.2, 1.25, 0.4, 1);
+    transition: padding-left 320ms cubic-bezier(0.2, 1.25, 0.4, 1);
   }
   :root[data-remote-open] body {
-    padding-right: 384px;
+    padding-left: 384px;
+  }
+}
+
+/* ---------------------------------------------------------------- cinema (full screen, chat kept) */
+
+/* The stage covers the window (and goes full screen when the browser lets it): the TV takes all the room it can,
+   the chat sits on its right, under it on a portrait screen. Everything marked .cinema-hide steps aside. */
+.cinema.is-cinema {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  grid-template-columns: minmax(0, 1fr) min(360px, 38%);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px;
+  background-color: var(--wall);
+  background-image: var(--wall-image);
+  background-size: var(--wall-size);
+}
+:root[data-cinema] {
+  overflow: hidden;
+}
+.is-cinema .cinema-hide,
+.is-cinema .tv-knob,
+.is-cinema .tv::before,
+.is-cinema .tv::after {
+  display: none;
+}
+.is-cinema .cinema-col,
+.is-cinema .cinema-grow {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.is-cinema .cinema-grow {
+  flex: 1;
+}
+.is-cinema .tv {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: 0;
+  padding: 10px;
+  border-radius: 24px;
+}
+.is-cinema .tv-screen {
+  flex: 1;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+.is-cinema .chat-rail {
+  position: static;
+  align-self: stretch;
+  min-height: 0;
+}
+.is-cinema .chat-panel {
+  height: 100%;
+}
+.is-cinema .chat-list {
+  height: 0;
+  min-height: 0;
+  flex: 1;
+}
+/* Chat folded away: the TV gets the whole screen (the TV's chat button brings it back). */
+.cinema.is-cinema.chat-folded {
+  grid-template-columns: minmax(0, 1fr);
+}
+.is-cinema.chat-folded .chat-rail {
+  display: none;
+}
+@media (max-aspect-ratio: 1/1) {
+  .cinema.is-cinema {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    padding: 8px;
+    /* the remote's button floats at the bottom: keep it off the chat's input */
+    padding-bottom: 76px;
+    gap: 8px;
+  }
+  .is-cinema .cinema-grow,
+  .is-cinema .tv {
+    flex: none;
+  }
+  .is-cinema .tv-screen {
+    flex: none;
+    aspect-ratio: 16 / 9;
+  }
+  /* no chat underneath: the TV sits in the middle of the screen */
+  .cinema.is-cinema.chat-folded {
+    grid-template-rows: auto;
+    align-content: center;
   }
 }
 
@@ -499,8 +591,7 @@ body {
   color: var(--ink);
 }
 .report-siren {
-  font-size: 1.15rem;
-  line-height: 1;
+  transform-origin: 20% 90%;
 }
 .report-btn:hover:not(:disabled) .report-siren {
   animation: wobble 0.5s ease-in-out infinite;
@@ -516,9 +607,12 @@ body {
 
 /* ---------------------------------------------------------------- couch reactions */
 
+/* One row of six above the chat's input: they share the width, round as long as there's room. */
 .reaction-btn {
-  width: 3.25rem;
-  height: 3.25rem;
+  width: 100%;
+  max-width: 3.25rem;
+  aspect-ratio: 1;
+  justify-self: center;
   padding: 0;
   line-height: 1;
 }

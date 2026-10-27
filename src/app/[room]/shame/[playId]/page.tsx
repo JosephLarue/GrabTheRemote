@@ -70,7 +70,7 @@ export default async function ShamePage({ params }: { params: Params }) {
       <ShareButton title={headline} text={`${headline}. ${roast}.`} label={t.shame.share} copied={t.shame.copied} />
 
       <div className="flex flex-wrap justify-center gap-3">
-        <Link href={`/${room}/vote`} className="btn bg-[var(--glow)] text-[var(--ink)]">
+        <Link href={`/${room}#vote`} className="btn bg-[var(--glow)] text-[var(--ink)]">
           {t.shame.cta}
         </Link>
         <Link href={`/${room}/hall?tab=shame`} className="btn bg-[var(--remote)] text-[var(--cream)]">

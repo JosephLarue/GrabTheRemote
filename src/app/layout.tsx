@@ -24,10 +24,12 @@ export const viewport: Viewport = { themeColor: '#6c4df6' };
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const room = await lastRoom();
   return (
-    <html lang={localeOf(room)}>
-      <body className={`${bagel.variable} ${nunito.variable} antialiased`}>
+    // Extensions (LanguageTool, Grammarly…) stamp attributes on <html> before React hydrates: one level only.
+    <html lang={localeOf(room)} suppressHydrationWarning>
+      {/* Column with a growing main: the footer sits at the bottom of the window even when the page is short. */}
+      <body className={`${bagel.variable} ${nunito.variable} flex flex-col antialiased`}>
         <Header lastRoom={room} />
-        <main className="mx-auto w-full max-w-6xl px-4 pb-16">{children}</main>
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-16">{children}</main>
         <Footer lastRoom={room} />
         <AdsScript />
       </body>

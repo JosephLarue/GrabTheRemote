@@ -56,7 +56,7 @@ export default async function HallPage({
         <div className="panel p-6">
           <p className="font-extrabold">{t.hall.empty}</p>
           <p className="mt-1 text-sm">
-            <Link href={`/${room}/vote`} className="font-extrabold underline decoration-[3px] underline-offset-2">
+            <Link href={`/${room}#vote`} className="font-extrabold underline decoration-[3px] underline-offset-2">
               {t.hall.emptyPick}
             </Link>{' '}
             {t.hall.emptyRest}

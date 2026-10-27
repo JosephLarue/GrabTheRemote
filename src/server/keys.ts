@@ -14,6 +14,8 @@ export const K = {
   skipCd: (room: RoomId) => r(room, 'skip:cd'),
   presence: (room: RoomId) => r(room, 'presence'),
   lockAdvance: (room: RoomId) => r(room, 'lock:advance'),
+  /** Last chat messages (JSON), newest first; expires an hour after the last one. */
+  chat: (room: RoomId) => r(room, 'chat'),
   hallCache: (room: RoomId, tab: string) => r(room, `hall:${tab}`),
   /** IP hashes watching right now (score: last presence ping), so the stolen remote goes to someone here. */
   online: (room: RoomId) => r(room, 'online'),

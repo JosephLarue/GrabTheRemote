@@ -1,7 +1,7 @@
 import type { Dict } from './en';
 
 export const fr: Dict = {
-  nav: { main: 'Principal', rooms: 'Rooms', watch: 'Regarder', vote: 'Voter', hall: 'Hall of Fame' },
+  nav: { main: 'Principal', rooms: 'Rooms', watch: 'Regarder', hall: 'Hall of Fame' },
   watch: {
     nowPlaying: "À l'écran",
     nothingOnScreen: "Rien à l'écran",
@@ -33,7 +33,6 @@ export const fr: Dict = {
     report: 'Signaler',
     reported: 'Signalée.',
     toHide: (votes, needed) => `${votes}/${needed} pour la cacher`,
-    pickNext: 'Choisir la suite',
     skipped: 'Zappée ! La foule a parlé 🔴',
     hidden: 'Cachée. Merci de garder le canapé propre 🚨',
     skipCounted: 'Vote compté. Il faut plus de mains sur le bouton.',
@@ -55,6 +54,20 @@ export const fr: Dict = {
   reactions: {
     label: 'Réactions du canapé',
     send: (emoji) => `Réagir ${emoji}`,
+  },
+  cinema: {
+    enter: 'Plein écran',
+    exit: 'Quitter le plein écran',
+    hideChat: 'Masquer le chat',
+    showChat: 'Afficher le chat',
+    newMessages: (n) => (n === 1 ? '1 nouveau message' : `${n} nouveaux messages`),
+  },
+  chat: {
+    title: 'Le chat du canapé',
+    you: 'Tu es',
+    placeholder: 'Dis un truc au canapé…',
+    send: 'Envoyer',
+    empty: 'Canapé silencieux. Dis bonjour 👋',
   },
   pool: {
     empty: 'Rien dans la file pour le moment.',
@@ -81,7 +94,6 @@ export const fr: Dict = {
     inQueue: 'Déjà dans la file. Ton vote ajoute +1.',
     looksGood: "Ça a l'air bon. Chope-la !",
     counted: "Vote compté ! Tu auras des confettis si elle arrive à l'écran 🎉",
-    queue: 'La file',
     rules: 'Règles de la maison',
     ruleEmbeddable: (max) => `Vidéos YouTube intégrables uniquement, ${max} max.`,
     ruleAge: "Pas de vidéos soumises à une limite d'âge.",
@@ -240,6 +252,10 @@ export const fr: Dict = {
     nothing_veto: 'Rien à veto pour le moment 🤷',
     no_remote: "Tu n'as plus la télécommande 🫳",
     bad_reaction: "Cette réaction n'est pas sur le canapé 🙃",
+    bad_seed: 'Ton pseudo de canapé s’est perdu. Recharge la page 🛋️',
+    bad_chat: 'Dis quelque chose, mais en moins de 200 caractères 💬',
+    chat_link: 'Pas de liens sur le canapé. Les vidéos, c’est dans la case de vote 🔗',
+    chat_blocked: 'On reste correct sur le canapé 🙅',
     skip_cooldown: "Le bouton zapper surchauffe 🔥 Attends qu'il refroidisse.",
     already_skip: 'Tu as déjà écrasé le bouton zapper sur celle-ci 🔴',
     already_report: 'Déjà signalée. La foule est prévenue 🚨',

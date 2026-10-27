@@ -4,7 +4,9 @@ import { localeOf } from '@/i18n';
 import { tw } from '@/i18n/twitch';
 import { useLive } from '@/lib/live';
 import { twitchUrl } from '@/lib/twitch';
-import { ReactionBar, ReactionOverlay } from './CouchReactions';
+import { ChatUnfoldButton, CinemaButton, CinemaStage } from './Cinema';
+import { CHAT_RAIL, CouchChat, WITH_CHAT } from './CouchChat';
+import { ReactionOverlay } from './CouchReactions';
 import { RemoteDrawer } from './RemoteDrawer';
 import { StaticNoise } from './StaticNoise';
 import { TwitchPlayer } from './TwitchPlayer';
@@ -17,11 +19,11 @@ export function TwitchStage() {
   const locale = localeOf(room);
 
   return (
-    // Like the YouTube rooms: the stream gets the whole width, the controls live in the remote drawer.
-    <div className="flex flex-col gap-6">
-      <section className="flex min-w-0 flex-col gap-5">
+    // Like the YouTube rooms: the stream and its vote, the chat on the right, the controls in the remote drawer.
+    <CinemaStage className={WITH_CHAT}>
+      <section className="cinema-col cinema-grow flex min-w-0 flex-col gap-5">
         {/* The room's title is the streamer, linking to their channel: the room exists to send people there. */}
-        <div className="min-w-0">
+        <div className="cinema-hide min-w-0">
           {channel ? (
             <h1 className="font-display text-3xl sm:text-5xl">
               <a
@@ -56,14 +58,18 @@ export function TwitchStage() {
               {channel?.viewers != null && tw.onTwitch(channel.viewers.toLocaleString(locale))}
             </p>
             <div className="flex shrink-0 items-center gap-3">
+              <ChatUnfoldButton />
+              <CinemaButton />
               <span aria-hidden className="tv-knob" />
               <span aria-hidden className="tv-knob hidden bg-[var(--glow)] sm:block" />
             </div>
           </div>
         </div>
-        <ReactionBar />
         <TwitchVote />
       </section>
+      <div className={CHAT_RAIL}>
+        <CouchChat />
+      </div>
 
       <RemoteDrawer>
         {channel && (
@@ -77,6 +83,6 @@ export function TwitchStage() {
           </a>
         )}
       </RemoteDrawer>
-    </div>
+    </CinemaStage>
   );
 }
