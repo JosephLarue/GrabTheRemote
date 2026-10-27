@@ -186,16 +186,17 @@ function Pick({ live, left }: { live: TwitchLive; left: number }) {
           <p className="mb-2 text-sm font-extrabold">{tw.candidates}</p>
           <ol className="flex flex-col gap-2">
             {live.candidates.map((c) => (
-              <li key={c.login} className="flex items-center gap-3">
+              <li key={c.login} className="flex items-center gap-2 sm:gap-3">
                 <ChannelLabel channel={c} />
-                <div className="h-3 flex-1 overflow-hidden rounded-full border-2 border-[var(--edge)] bg-[var(--ink)]/10">
+                {/* The bar is a bonus: phones keep the name, the count and the +1. */}
+                <div className="hidden h-3 flex-1 overflow-hidden rounded-full border-2 border-[var(--edge)] bg-[var(--ink)]/10 sm:block">
                   <div
                     key={c.votes}
                     className="bump h-full origin-left rounded-full bg-[var(--glow)] transition-[width] duration-500"
                     style={{ width: `${(c.votes / max) * 100}%` }}
                   />
                 </div>
-                <span className="font-display w-16 shrink-0 text-right tabular-nums">{tw.votes(c.votes)}</span>
+                <span className="font-display shrink-0 text-right whitespace-nowrap tabular-nums">{tw.votes(c.votes)}</span>
                 <button
                   type="button"
                   className={`btn shrink-0 bg-[var(--glow)] px-3 py-1 text-[var(--ink)] ${me.picked === c.login ? 'ring-4 ring-[var(--report)]' : ''}`}
@@ -243,7 +244,7 @@ function Pick({ live, left }: { live: TwitchLive; left: number }) {
 
 function ChannelLabel({ channel }: { channel: TwitchChannel }) {
   return (
-    <p className="w-40 min-w-0 shrink-0 truncate font-extrabold sm:w-56" title={channel.title || undefined}>
+    <p className="min-w-0 flex-1 truncate font-extrabold sm:w-56 sm:flex-none" title={channel.title || undefined}>
       {channel.name}
       {channel.game && <span className="ml-1 text-xs font-semibold opacity-75">{channel.game}</span>}
     </p>

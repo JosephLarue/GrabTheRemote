@@ -33,7 +33,7 @@ function YouTubeWatch() {
       <section aria-label={t.watch.nowPlaying} className="min-w-0">
         {settings.private && <h1 className="font-display mb-4 truncate text-3xl sm:text-4xl">🔒 {settings.name}</h1>}
         <StolenRemote />
-        <div className="tv mt-12">
+        <div className="tv tv-stage mt-12">
           <SyncedPlayer np={np} overlay={<ReactionOverlay />} />
           <div className="mt-3 flex items-center justify-between gap-3 px-1 text-[var(--ink)]">
             <div className="min-w-0">

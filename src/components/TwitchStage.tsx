@@ -49,7 +49,7 @@ export function TwitchStage() {
           )}
         </div>
 
-        <div className="tv mt-12">
+        <div className="tv tv-stage mt-12">
           <TwitchPlayer login={channel?.login ?? null} overlay={channel ? <ReactionOverlay /> : <StaticNoise label={tw.offAirSub} />} />
           <div className="mt-3 flex items-center justify-between gap-3 px-1 text-[var(--ink)]">
             <p className="truncate text-sm font-black">

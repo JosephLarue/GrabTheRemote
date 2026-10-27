@@ -24,8 +24,10 @@ export const viewport: Viewport = { themeColor: '#6c4df6' };
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const room = await lastRoom();
   return (
-    <html lang={localeOf(room)}>
-      <body className={`${bagel.variable} ${nunito.variable} antialiased`}>
+    // Browser extensions (LanguageTool, ColorZilla…) stamp attributes on <html> and <body> before React loads.
+    // This only silences attribute mismatches on these two tags, not on anything inside them.
+    <html lang={localeOf(room)} suppressHydrationWarning>
+      <body className={`${bagel.variable} ${nunito.variable} antialiased`} suppressHydrationWarning>
         <Header lastRoom={room} />
         <main className="mx-auto w-full max-w-6xl px-4 pb-16">{children}</main>
         <Footer lastRoom={room} />

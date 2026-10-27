@@ -180,9 +180,13 @@ export function ChatCard({
         [t.private.idTag, id],
         [t.private.passwordTag, password],
       ].map(([label, value]) => (
-        <div key={label} className="sticker flex items-center gap-3 bg-[var(--report)] text-[var(--ink)]">
-          <span className="text-xs font-extrabold uppercase">{label}</span>
-          <span className={`font-display tracking-wider ${compact ? 'flex-1 text-xl' : 'text-2xl sm:text-3xl'}`}>
+        <div
+          key={label}
+          className={`sticker items-center gap-x-3 bg-[var(--report)] text-[var(--ink)] ${compact ? 'grid grid-cols-[1fr_auto]' : 'flex'}`}
+        >
+          {/* Compact (in the remote): the label on its own line, the value and Copy under it. */}
+          <span className={`text-xs font-extrabold uppercase ${compact ? 'col-span-2' : ''}`}>{label}</span>
+          <span className={`font-display min-w-0 tracking-wider ${compact ? 'truncate text-xl' : 'text-2xl sm:text-3xl'}`}>
             {value}
           </span>
           <CopyButton text={value} label={t.private.copy} copied={t.private.copied} small />
