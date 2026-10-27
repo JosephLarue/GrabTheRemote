@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { isRoom } from '@/config/rooms';
+import { ApiError, openRoom } from '@/server/http';
+import { ipHash } from '@/server/ip';
 import { bus, dropPresence, snapshot, touchPresence } from '@/server/state';
+import { touchOnline } from '@/server/steal';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -9,9 +11,16 @@ const PRESENCE_EVERY_MS = 10_000;
 const HEARTBEAT_EVERY_MS = 15_000;
 
 export async function GET(req: Request) {
-  const room = new URL(req.url).searchParams.get('room');
-  if (!isRoom(room)) return Response.json({ error: 'bad_room', message: "That room doesn't exist 🚪" }, { status: 400 });
+  let room;
+  try {
+    ({ room } = await openRoom(req, new URL(req.url).searchParams.get('room')));
+  } catch (e) {
+    if (e instanceof ApiError) return Response.json({ error: e.code, message: e.message }, { status: e.status });
+    throw e;
+  }
   const clientId = randomUUID();
+  const iph = ipHash(req.headers);
+  const ping = () => Promise.all([touchPresence(room, clientId), touchOnline(room, iph)]);
   const enc = new TextEncoder();
   let cleanup = () => {};
 
@@ -26,11 +35,11 @@ export async function GET(req: Request) {
       };
       const onEvent = (msg: string) => send(`data: ${msg}\n\n`);
 
-      await touchPresence(room, clientId);
+      await ping();
       send(`retry: 3000\ndata: ${JSON.stringify({ type: 'snapshot', data: await snapshot(room) })}\n\n`);
       bus().on(room, onEvent);
 
-      const presence = setInterval(() => touchPresence(room, clientId).catch(() => {}), PRESENCE_EVERY_MS);
+      const presence = setInterval(() => ping().catch(() => {}), PRESENCE_EVERY_MS);
       const heartbeat = setInterval(() => send(': ping\n\n'), HEARTBEAT_EVERY_MS);
 
       cleanup = () => {

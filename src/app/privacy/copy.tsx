@@ -1,4 +1,4 @@
-import { APP_NAME as APP, LEGAL, VOTE_COOLDOWN_S } from '@/config/app';
+import { APP_NAME as APP, CHAT_HISTORY, CHAT_TTL_S, LEGAL, VOTE_COOLDOWN_S } from '@/config/app';
 
 // Plain-language summary, one version per UI language. Have every version reviewed before launch
 // (GDPR: operator based in France).
@@ -12,6 +12,7 @@ const Ext = ({ href, children }: { href: string; children: React.ReactNode }) =>
 );
 const YT_TERMS = 'https://www.youtube.com/t/terms';
 const GOOGLE_PRIVACY = 'https://policies.google.com/privacy';
+const TWITCH_PRIVACY = 'https://www.twitch.tv/p/legal/privacy-notice/';
 
 export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> = {
   en: {
@@ -44,6 +45,19 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           when one of them plays, and a cookie remembering the last room you visited. Neither leaves your device for any
           other purpose.
         </p>
+        <h2>Private rooms</h2>
+        <p>
+          A private room keeps its name, settings and password until a day passes with nobody watching, or its streamer
+          closes it. Entering the password (or creating the room) sets a cookie for that room only, so you don&apos;t
+          have to type it again; it lasts 7 days and holds no personal data.
+        </p>
+        <h2>Couch chat</h2>
+        <p>
+          The chat needs no account: your browser tab makes up a random code, which picks a funny nickname for you until
+          you close the tab. Your messages are shown to everyone in the room with that nickname. We keep only the last{' '}
+          {CHAT_HISTORY} messages of each room, for at most {CHAT_TTL_S / 3600} hour after the last one, and never link
+          them to you or your IP address.
+        </p>
         <h2>YouTube</h2>
         <p>
           {APP} uses YouTube API Services to look up public video details (title, channel, duration, views, category) and
@@ -51,6 +65,13 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           . Videos play in the YouTube player using its privacy-enhanced mode (youtube-nocookie.com), and the{' '}
           <Ext href={GOOGLE_PRIVACY}>Google Privacy Policy</Ext> applies to it. {APP} never asks for access to your Google
           or YouTube account.
+        </p>
+        <h2>Twitch</h2>
+        <p>
+          The Twitch room plays live streams in Twitch&apos;s embedded player (player.twitch.tv), and the{' '}
+          <Ext href={TWITCH_PRIVACY}>Twitch Privacy Notice</Ext> applies to it. {APP} uses the Twitch API to check
+          whether a channel is live and to get its public details (name, stream title, category, viewer count). {APP}{' '}
+          is not affiliated with Twitch and never asks for access to your Twitch account.
         </p>
         <h2>Ads</h2>
         <p>
@@ -97,6 +118,19 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           uniquement pour afficher des confettis quand l&apos;une d&apos;elles passe, ainsi qu&apos;un cookie qui retient la
           dernière room visitée. Ni l&apos;un ni l&apos;autre ne sert à autre chose.
         </p>
+        <h2>Rooms privées</h2>
+        <p>
+          Une room privée garde son nom, ses réglages et son mot de passe jusqu&apos;à ce qu&apos;une journée passe sans
+          personne devant, ou que son streamer la ferme. Entrer le mot de passe (ou créer la room) dépose un cookie propre
+          à cette room, pour ne pas avoir à le retaper ; il dure 7 jours et ne contient aucune donnée personnelle.
+        </p>
+        <h2>Chat du canapé</h2>
+        <p>
+          Le chat ne demande aucun compte : ton onglet invente un code au hasard, qui te donne un pseudo rigolo
+          jusqu&apos;à ce que tu fermes l&apos;onglet. Tes messages sont visibles par toute la room sous ce pseudo. Nous ne
+          gardons que les {CHAT_HISTORY} derniers messages de chaque room, au plus {CHAT_TTL_S / 3600} heure après le
+          dernier, sans jamais les relier à toi ni à ton adresse IP.
+        </p>
         <h2>YouTube</h2>
         <p>
           {APP} utilise les services d&apos;API YouTube pour récupérer les informations publiques des vidéos (titre,
@@ -105,6 +139,14 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           en mode de confidentialité renforcée (youtube-nocookie.com), auquel s&apos;appliquent les{' '}
           <Ext href={GOOGLE_PRIVACY}>Règles de confidentialité de Google</Ext>. {APP} ne demande jamais l&apos;accès à ton
           compte Google ou YouTube.
+        </p>
+        <h2>Twitch</h2>
+        <p>
+          La room Twitch diffuse des lives dans le lecteur intégré de Twitch (player.twitch.tv), auquel s&apos;applique
+          l&apos;<Ext href={TWITCH_PRIVACY}>Avis de confidentialité de Twitch</Ext>. {APP} utilise l&apos;API Twitch pour
+          vérifier qu&apos;une chaîne est en direct et récupérer ses informations publiques (nom, titre du live,
+          catégorie, nombre de spectateurs). {APP} n&apos;est pas affilié à Twitch et ne demande jamais l&apos;accès à ton
+          compte Twitch.
         </p>
         <h2>Publicité</h2>
         <p>
@@ -151,6 +193,19 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           mostrar confeti cuando uno de ellos se reproduce, y una cookie que recuerda la última sala que visitaste. Ninguno
           de los dos se usa para nada más.
         </p>
+        <h2>Salas privadas</h2>
+        <p>
+          Una sala privada guarda su nombre, sus ajustes y su contraseña hasta que pasa un día sin nadie viéndola, o su
+          streamer la cierra. Introducir la contraseña (o crear la sala) deja una cookie solo para esa sala, para no tener
+          que volver a escribirla; dura 7 días y no contiene datos personales.
+        </p>
+        <h2>Chat del sofá</h2>
+        <p>
+          El chat no necesita cuenta: tu pestaña se inventa un código al azar, que te da un apodo divertido hasta que
+          cierres la pestaña. Todos en la sala ven tus mensajes con ese apodo. Solo guardamos los últimos {CHAT_HISTORY}{' '}
+          mensajes de cada sala, como mucho {CHAT_TTL_S / 3600} hora después del último, y nunca los vinculamos contigo
+          ni con tu dirección IP.
+        </p>
         <h2>YouTube</h2>
         <p>
           {APP} usa los servicios de API de YouTube para consultar datos públicos de los vídeos (título, canal, duración,
@@ -159,6 +214,13 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           YouTube en modo de privacidad mejorada (youtube-nocookie.com), al que se aplica la{' '}
           <Ext href={GOOGLE_PRIVACY}>Política de privacidad de Google</Ext>. {APP} nunca pide acceso a tu cuenta de Google
           o YouTube.
+        </p>
+        <h2>Twitch</h2>
+        <p>
+          La sala Twitch emite directos en el reproductor integrado de Twitch (player.twitch.tv), al que se aplica el{' '}
+          <Ext href={TWITCH_PRIVACY}>Aviso de privacidad de Twitch</Ext>. {APP} usa la API de Twitch para comprobar si un
+          canal está en directo y obtener sus datos públicos (nombre, título del directo, categoría, número de
+          espectadores). {APP} no está afiliado a Twitch y nunca pide acceso a tu cuenta de Twitch.
         </p>
         <h2>Publicidad</h2>
         <p>
@@ -205,6 +267,19 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           i coriandoli quando uno di questi va in onda, e un cookie che ricorda l&apos;ultima stanza visitata. Nessuno dei
           due serve ad altro.
         </p>
+        <h2>Stanze private</h2>
+        <p>
+          Una stanza privata conserva nome, impostazioni e password finché non passa un giorno senza nessuno davanti, o il
+          suo streamer la chiude. Inserire la password (o creare la stanza) imposta un cookie solo per quella stanza, così
+          non devi riscriverla; dura 7 giorni e non contiene dati personali.
+        </p>
+        <h2>Chat del divano</h2>
+        <p>
+          La chat non richiede alcun account: la tua scheda inventa un codice a caso, che ti assegna un soprannome buffo
+          finché non chiudi la scheda. Tutti nella stanza vedono i tuoi messaggi con quel soprannome. Conserviamo solo gli
+          ultimi {CHAT_HISTORY} messaggi di ogni stanza, al massimo per {CHAT_TTL_S / 3600} ora dopo l&apos;ultimo, e non li
+          colleghiamo mai a te né al tuo indirizzo IP.
+        </p>
         <h2>YouTube</h2>
         <p>
           {APP} usa i servizi API di YouTube per recuperare i dati pubblici dei video (titolo, canale, durata,
@@ -213,6 +288,13 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           modalità di privacy avanzata (youtube-nocookie.com), a cui si applicano le{' '}
           <Ext href={GOOGLE_PRIVACY}>Norme sulla privacy di Google</Ext>. {APP} non chiede mai l&apos;accesso al tuo
           account Google o YouTube.
+        </p>
+        <h2>Twitch</h2>
+        <p>
+          La stanza Twitch trasmette dirette nel player integrato di Twitch (player.twitch.tv), a cui si applica l&apos;
+          <Ext href={TWITCH_PRIVACY}>Informativa sulla privacy di Twitch</Ext>. {APP} usa l&apos;API di Twitch per
+          verificare se un canale è in diretta e ottenerne i dati pubblici (nome, titolo della diretta, categoria, numero
+          di spettatori). {APP} non è affiliato a Twitch e non chiede mai l&apos;accesso al tuo account Twitch.
         </p>
         <h2>Pubblicità</h2>
         <p>

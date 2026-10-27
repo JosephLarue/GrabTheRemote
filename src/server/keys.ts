@@ -14,7 +14,32 @@ export const K = {
   skipCd: (room: RoomId) => r(room, 'skip:cd'),
   presence: (room: RoomId) => r(room, 'presence'),
   lockAdvance: (room: RoomId) => r(room, 'lock:advance'),
+  /** Last chat messages (JSON), newest first; expires an hour after the last one. */
+  chat: (room: RoomId) => r(room, 'chat'),
   hallCache: (room: RoomId, tab: string) => r(room, `hall:${tab}`),
+  /** IP hashes watching right now (score: last presence ping), so the stolen remote goes to someone here. */
+  online: (room: RoomId) => r(room, 'online'),
+  /** IP hashes that voted (score: last vote). */
+  voters: (room: RoomId) => r(room, 'voters'),
+  /** IP hash holding the stolen remote; expires with the veto. */
+  steal: (room: RoomId) => r(room, 'steal'),
+  /** When this period's remote gets stolen (ms), then whether it was drawn. */
+  stealAt: (room: RoomId, period: number) => r(room, `steal:at:${period}`),
+  stealDrawn: (room: RoomId, period: number) => r(room, `steal:drawn:${period}`),
+  /** Twitch room: the stream and phase (JSON), then per round: keep/change votes, pick votes, who picked. */
+  twitch: (room: RoomId) => r(room, 'twitch'),
+  twitchDirty: (room: RoomId) => r(room, 'twitch:dirty'),
+  twitchDecide: (room: RoomId, round: number) => r(room, `twitch:decide:${round}`),
+  twitchPick: (room: RoomId, round: number) => r(room, `twitch:pick:${round}`),
+  twitchPickInfo: (room: RoomId, round: number) => r(room, `twitch:pick:info:${round}`),
+  twitchPicked: (room: RoomId, round: number) => r(room, `twitch:picked:${round}`),
+  /** Channels that played here, latest first: the pick window's suggestions. */
+  twitchRecent: (room: RoomId) => r(room, 'twitch:recent'),
+  twitchToken: 'twitch:token',
+  /** Private room: settings, password and owner key hash (JSON). Expires after a day with nobody watching. */
+  privateRoom: (room: RoomId) => `private:${room}`,
+  /** Ids of every private room, so the ticker knows what to run. */
+  privateRooms: 'private:rooms',
   // Play ids are unique across rooms, so these need no room prefix.
   skipVotes: (playId: number) => `skip:${playId}`,
   reportVotes: (playId: number) => `report:${playId}`,

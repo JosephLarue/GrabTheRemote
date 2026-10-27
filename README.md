@@ -23,6 +23,14 @@ Language rooms only refuse a video when YouTube says it's in another language; v
 
 Landing on `/` takes you back to your last room, or to the one matching your browser language. The interface speaks the room's language (English in The Jungle); `/privacy`, `/legal` and `/admin` stay in English.
 
+## 🔒 Private rooms (for streamers)
+
+Doing react content? Go to `/private` and make your own room. You get an **ID** and a **password** to show your chat, plus a secret owner link to run the room from another device.
+
+You set the rules: **max video length**, **one vote every** 30 s to 15 min, the **video language**, whether the **skip** and **report** buttons exist, and the **themes** (the roulette, no theme, or one theme all session). Pick the page language and the room's look (any public room's decor). Change any of it live.
+
+During the stream you can **pause** everyone's screen, **skip** what's playing, or **close** the room. Your chat votes like in any other room. A room disappears after a day with nobody watching.
+
 ## 🎲 Theme roulette
 
 Every 15 minutes the remote *might* get possessed. Sometimes there's no rule. Sometimes it's:
@@ -48,13 +56,25 @@ But careful: once a skip passes, the button **overheats for 30 minutes**, for th
 
 Something nasty on screen? Hit **REPORT**. If 10% of viewers agree, the video gets yanked and replaced with a big *MASS REPORTED* card, and the next pick takes over. The crowd is the bouncer.
 
-## 🏆 Hall of Fame (and Shame)
+## 🎯 The stolen remote
+
+Once an hour, at a random moment, the remote gets stolen. One random person who voted recently and is watching right now gets **🎯 YOU have the remote** and a **VETO** button for 60 seconds: one press kills what's playing. No vote, no cooldown. Everyone else just sees the countdown and sweats.
+
+## ⚔️ Remote fight
+
+When the top two videos in the queue are neck and neck, a **REMOTE FIGHT** banner shows up with a live tug-of-war bar. Pick a side.
+
+## 😂 Couch reactions
+
+😂 💀 🔥 😍 🤮 👏 float up over the TV for everyone, live. A fixed set of emojis and no chat, so there's nothing to moderate.
+
+
 
 - **Most watched** — the crowd's all-time favorites
 - **Most picked** — the videos that keep coming back
 - **Biggest landslide** — the most votes for a single pick
 - **Peak crowd** — the biggest audience ever in the room
-- **Hall of Shame** — fastest skips and mass-reported disasters. Legends, in their own way.
+- **Hall of Shame** — fastest skips, vetoes and mass-reported disasters, each with its own roast ("Skipped faster than a YouTube ad"). Legends, in their own way. Every entry has a **📸 Share** card: *"Skipped after 4s by 600 people."*
 
 ## 🔊 "Why is it muted?!"
 
@@ -122,7 +142,7 @@ The ticker needs a **long-running Node process** (not serverless). Run a single 
 
 ### Deploying (Railway or Fly.io)
 
-1. Provision Postgres and Redis, then set every variable from `.env.example`. Set `IP_HASH_SECRET` to a long random string and `NEXT_PUBLIC_SITE_URL` to the public URL (e.g. `https://grabtheremote.com`), otherwise social previews point to localhost.
+1. Provision Postgres and Redis, then set every variable from `.env.example`. Set `IP_HASH_SECRET` to a long random string and `NEXT_PUBLIC_SITE_URL` to the public URL (e.g. `https://grab-the-remote.com`), otherwise social previews point to localhost.
 2. Build with `pnpm build`, run `pnpm db:migrate` as the pre-deploy step, and start with `pnpm start`. Point the platform health check at `/api/health` (200 when Postgres and Redis answer, 503 otherwise).
 3. Put **Cloudflare** in front with proxied DNS, then lock the origin so `CF-Connecting-IP` can't be spoofed: set `ORIGIN_SECRET` (`openssl rand -base64 32`) and add a Cloudflare Transform Rule (Rules > Transform Rules > Modify request header) that sets `x-origin-secret: <ORIGIN_SECRET>` on every request. The middleware answers 403 to anything without it, except `/api/health`.
 4. **Ads:** set `NEXT_PUBLIC_ADS_PROVIDER=adsense` and `NEXT_PUBLIC_ADSENSE_CLIENT_ID=ca-pub-…`. Turn on the GDPR message in AdSense > Privacy & messaging. `ads.txt` is generated automatically.

@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { ROOM_COOKIE, ROOM_HEADER, isRoom, roomFromAcceptLanguage } from '@/config/rooms';
+import { ROOM_COOKIE, ROOM_HEADER, isPublicRoom, roomFromAcceptLanguage } from '@/config/rooms';
 
 // Railway/Fly health checks hit the origin directly, without going through Cloudflare.
 const ORIGIN_LOCK_EXEMPT = ['/api/health'];
@@ -37,18 +37,19 @@ const ROOM_COOKIE_MAX_AGE_S = 365 * 86400;
 function rooms(req: NextRequest): NextResponse {
   const path = req.nextUrl.pathname;
   const saved = req.cookies.get(ROOM_COOKIE)?.value;
-  const fallback = isRoom(saved) ? saved : roomFromAcceptLanguage(req.headers.get('accept-language'));
+  const fallback = isPublicRoom(saved) ? saved : roomFromAcceptLanguage(req.headers.get('accept-language'));
   if (ROOM_ENTRY.includes(path)) {
     const url = req.nextUrl.clone();
     url.pathname = `/${fallback}${path === '/' ? '' : path}`;
     return NextResponse.redirect(url);
   }
-  // Pages outside a room (/privacy, /legal) follow the last room visited.
+  // Pages outside a room (/privacy, /legal) follow the last room visited. Only public rooms are remembered:
+  // a private one may be gone (or locked) by the next visit.
   const first = path.split('/')[1];
   const headers = new Headers(req.headers);
-  headers.set(ROOM_HEADER, isRoom(first) ? first : fallback);
+  headers.set(ROOM_HEADER, isPublicRoom(first) ? first : fallback);
   const res = NextResponse.next({ request: { headers } });
-  if (isRoom(first) && saved !== first) {
+  if (isPublicRoom(first) && saved !== first) {
     res.cookies.set(ROOM_COOKIE, first, { path: '/', maxAge: ROOM_COOKIE_MAX_AGE_S, sameSite: 'lax' });
   }
   return res;

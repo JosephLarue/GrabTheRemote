@@ -41,6 +41,48 @@ export const META_STALE_H = 24;
 // Live state
 export const PRESENCE_WINDOW_S = 30;
 export const STATIC_TRANSITION_MS = 1200;
+/** From this many viewers, "on the couch" becomes "the couch is collapsing". */
+export const COUCH_COLLAPSE_AT = 1000;
+
+// Remote fight: the top two of the queue are this close, each with at least FIGHT_MIN_VOTES.
+export const FIGHT_MAX_GAP = 1;
+export const FIGHT_MIN_VOTES = 2;
+
+// Stolen remote: once per STEAL_EVERY_S, at a random moment, one voter who is watching gets a veto.
+export const STEAL_EVERY_S = 3600;
+export const STEAL_HOLD_S = 60;
+/** Only people who voted this recently can be picked. */
+export const STEAL_VOTER_WINDOW_S = 3600;
+
+// Twitch room: a stream plays for a slot, then the couch votes to keep it or change it. If "change" wins, a
+// short pick window opens (random length, so nobody can time it) and the most-voted live channel takes over.
+export const TWITCH_SLOT_S = 600;
+export const TWITCH_DECIDE_S = 30;
+export const TWITCH_PICK_MIN_S = 5;
+export const TWITCH_PICK_MAX_S = 20;
+/** Keep vs change this close (each side counted) and the deciding panel starts sweating. */
+export const TWITCH_CLOSE_GAP = 1;
+/** How often the current stream is checked: offline means a pick window opens right away. */
+export const TWITCH_LIVE_CHECK_S = 60;
+/** Twitch content classification labels that keep a channel out of the room. */
+export const TWITCH_BLOCKED_LABELS = ['SexualThemes', 'Gambling', 'DrugsIntoxication', 'ViolentGraphic'];
+
+// Private rooms: made by streamers, entered with an ID and a password, gone after a day with nobody watching.
+export const PRIVATE_IDLE_TTL_S = 24 * 3600;
+/** What a streamer can pick from. */
+export const PRIVATE_MAX_DURATIONS_MIN = [1, 3, 5, 10, 15, 30, 60];
+export const PRIVATE_VOTE_COOLDOWNS_S = [30, 60, 120, 300, 900];
+export const PRIVATE_LOCALES = ['en', 'fr', 'es', 'it'];
+export const PRIVATE_LANGS = ['en', 'fr', 'es', 'it'];
+
+// Couch reactions: a fixed set (nothing to moderate), batched before going out to every viewer.
+export const REACTIONS = ['😂', '💀', '🔥', '😍', '🤮', '👏'] as const;
+export const REACTION_BATCH_MS = 300;
+
+// Couch chat: no accounts, a random nickname per tab. Only the last few messages are kept, and not for long.
+export const CHAT_MAX_LENGTH = 200;
+export const CHAT_HISTORY = 50;
+export const CHAT_TTL_S = 3600;
 
 // Played when the pool is empty and the Hall of Fame has nothing yet.
 export const FALLBACK_VIDEOS = [

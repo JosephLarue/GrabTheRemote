@@ -1,0 +1,1 @@
+ALTER TYPE "public"."end_reason" ADD VALUE 'vetoed';

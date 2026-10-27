@@ -121,6 +121,20 @@
   --muted: #c9f2d3;
 }
 
+/* Twitch: purple glitch, diagonal scan bars, Twitch-purple TV */
+:root:has([data-room="twitch"]) {
+  --wall: #1f1240;
+  --wall-pattern: #2a1957;
+  --wall-image: repeating-linear-gradient(135deg, var(--wall-pattern) 0 6px, transparent 6px 40px);
+  --wall-size: auto;
+  --tv: #9146ff;
+  --tv-dark: #6f2fe0;
+  --glow: #bf94ff;
+  --remote: #170d33;
+  --remote-hi: #2a1957;
+  --muted: #d9c8ff;
+}
+
 @media (prefers-color-scheme: dark) {
   /* lights off: same rooms, darker walls, the TV's colour for the neon shadows */
   :root:has([data-room="en"]) {
@@ -154,6 +168,14 @@
     --remote-hi: #5c1d22;
     --panel: #561a20;
     --shade: #ffe45c;
+  }
+  :root:has([data-room="twitch"]) {
+    --wall: #0e0820;
+    --wall-pattern: #160d30;
+    --remote: #120a28;
+    --remote-hi: #241549;
+    --panel: #1f1340;
+    --shade: #9146ff;
   }
   :root:has([data-room="jungle"]) {
     --wall: #082414;
@@ -236,6 +258,25 @@ body {
   box-shadow: var(--pop-sm);
   padding: 0.35rem 0.8rem;
   font-weight: 800;
+}
+
+/* Text inputs and selects, same look as the vote form's link field. */
+.field {
+  width: 100%;
+  border: var(--line) solid var(--edge);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 700;
+  padding: 0.55rem 0.9rem;
+  box-shadow: inset 3px 3px 0 rgba(0, 0, 0, 0.12);
+  outline: none;
+}
+.field::placeholder {
+  color: color-mix(in srgb, var(--ink) 40%, transparent);
+}
+.field:focus-visible {
+  box-shadow: 0 0 0 4px var(--glow);
 }
 
 /* ---------------------------------------------------------------- the TV */
@@ -329,6 +370,344 @@ body {
   box-shadow: 0 1px 0 var(--shade);
 }
 
+/* The remote drawer: the room's controls slide in from the left so the TV keeps the whole screen (the chat
+   sits on its right). Phones: a floating button bottom-left. Desktop: a tab sticking out of the left edge. */
+.remote-drawer {
+  position: fixed;
+  z-index: 50;
+  top: 50%;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: min(340px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.5rem 1.4rem 1.1rem;
+  /* less round than the classic remote: content scrolls inside */
+  border-radius: 36px;
+  visibility: hidden;
+  transform: translate(calc(-100% - 40px), -50%);
+  transition:
+    transform 320ms cubic-bezier(0.2, 1.25, 0.4, 1),
+    visibility 0s linear 320ms;
+}
+.remote-drawer.is-open {
+  visibility: visible;
+  transform: translate(0, -50%);
+  transition: transform 320ms cubic-bezier(0.2, 1.25, 0.4, 1);
+}
+/* the infrared window at the top of the remote */
+.remote-ir {
+  width: 34px;
+  height: 14px;
+  border: var(--line) solid var(--edge);
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 40%, #7a3b3b, #1a0d0d 70%);
+}
+.remote-handle {
+  position: fixed;
+  z-index: 45;
+  left: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.9rem 0.5rem 0.55rem;
+  border: var(--line) solid var(--edge);
+  border-radius: 999px;
+  background: var(--remote);
+  color: var(--cream);
+  font-weight: 800;
+  box-shadow: var(--pop), inset 3px 3px 0 var(--remote-hi);
+  cursor: pointer;
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+.remote-handle:hover {
+  transform: translateY(-3px);
+}
+.remote-handle.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+}
+/* the big red power button */
+.remote-handle-power {
+  width: 24px;
+  height: 24px;
+  border: var(--line) solid var(--edge);
+  border-radius: 50%;
+  background: var(--skip);
+  box-shadow: inset -3px -3px 0 rgba(0, 0, 0, 0.25);
+}
+@media (min-width: 1024px) {
+  .remote-handle {
+    top: 50%;
+    left: 0;
+    bottom: auto;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: 1rem 0.7rem 1rem 0.6rem;
+    border-left: 0;
+    border-radius: 0 28px 28px 0;
+    transform: translateY(-50%);
+  }
+  .remote-handle:hover {
+    transform: translate(6px, -50%);
+  }
+  .remote-handle.is-hidden {
+    transform: translate(-30px, -50%);
+  }
+  .remote-handle-label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+  /* the open remote pushes the page aside rather than covering the TV */
+  body {
+    transition: padding-left 320ms cubic-bezier(0.2, 1.25, 0.4, 1);
+  }
+  :root[data-remote-open] body {
+    padding-left: 384px;
+  }
+}
+
+/* ---------------------------------------------------------------- cinema (full screen, chat kept) */
+
+/* The stage covers the window (and goes full screen when the browser lets it): the TV takes all the room it can,
+   the chat sits on its right, under it on a portrait screen. Everything marked .cinema-hide steps aside. */
+.cinema.is-cinema {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  grid-template-columns: minmax(0, 1fr) min(360px, 38%);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px;
+  background-color: var(--wall);
+  background-image: var(--wall-image);
+  background-size: var(--wall-size);
+}
+:root[data-cinema] {
+  overflow: hidden;
+}
+.is-cinema .cinema-hide,
+.is-cinema .tv-knob,
+.is-cinema .tv::before,
+.is-cinema .tv::after {
+  display: none;
+}
+.is-cinema .cinema-col,
+.is-cinema .cinema-grow {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.is-cinema .cinema-grow {
+  flex: 1;
+}
+.is-cinema .tv {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: 0;
+  padding: 10px;
+  border-radius: 24px;
+}
+.is-cinema .tv-screen {
+  flex: 1;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+.is-cinema .chat-rail {
+  position: static;
+  align-self: stretch;
+  min-height: 0;
+}
+.is-cinema .chat-panel {
+  height: 100%;
+}
+.is-cinema .chat-list {
+  height: 0;
+  min-height: 0;
+  flex: 1;
+}
+/* Chat folded away: the TV gets the whole screen (the TV's chat button brings it back). */
+.cinema.is-cinema.chat-folded {
+  grid-template-columns: minmax(0, 1fr);
+}
+.is-cinema.chat-folded .chat-rail {
+  display: none;
+}
+@media (max-aspect-ratio: 1/1) {
+  .cinema.is-cinema {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    padding: 8px;
+    /* the remote's button floats at the bottom: keep it off the chat's input */
+    padding-bottom: 76px;
+    gap: 8px;
+  }
+  .is-cinema .cinema-grow,
+  .is-cinema .tv {
+    flex: none;
+  }
+  .is-cinema .tv-screen {
+    flex: none;
+    aspect-ratio: 16 / 9;
+  }
+  /* no chat underneath: the TV sits in the middle of the screen */
+  .cinema.is-cinema.chat-folded {
+    grid-template-rows: auto;
+    align-content: center;
+  }
+}
+
+/* Report: a yellow label inside caution tape, so it reads as "emergencies only" next to the big red skip. */
+.report-btn {
+  display: flex;
+  width: 100%;
+  max-width: 170px;
+  padding: 5px;
+  border: var(--line) solid var(--edge);
+  border-radius: 18px;
+  background: repeating-linear-gradient(-45deg, var(--report) 0 8px, var(--ink) 8px 16px);
+  box-shadow: 0 5px 0 var(--shade);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 80ms ease, box-shadow 80ms ease;
+}
+.report-label {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  border: 2px solid var(--edge);
+  border-radius: 12px;
+  background: var(--report);
+  color: var(--ink);
+}
+.report-siren {
+  transform-origin: 20% 90%;
+}
+.report-btn:hover:not(:disabled) .report-siren {
+  animation: wobble 0.5s ease-in-out infinite;
+}
+.report-btn:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--shade);
+}
+.report-btn:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.6) brightness(0.85);
+}
+
+/* ---------------------------------------------------------------- couch reactions */
+
+/* One row of six above the chat's input: they share the width, round as long as there's room. */
+.reaction-btn {
+  width: 100%;
+  max-width: 3.25rem;
+  aspect-ratio: 1;
+  justify-self: center;
+  padding: 0;
+  line-height: 1;
+}
+@keyframes reaction-float {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  10% { opacity: 1; transform: translate(0, -10%) scale(1.1); }
+  100% { transform: translate(var(--drift, 0), -420%) scale(1); opacity: 0; }
+}
+.reaction-float {
+  animation-name: reaction-float;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.35));
+}
+
+/* ---------------------------------------------------------------- remote fight + stolen remote */
+
+@keyframes tug {
+  0%, 100% { margin-left: -3px; }
+  50% { margin-left: 3px; }
+}
+.tug {
+  animation: tug 0.35s ease-in-out infinite;
+}
+.fight {
+  border-color: var(--skip);
+}
+
+@keyframes steal-glow {
+  0%, 100% { box-shadow: var(--pop), 0 0 0 0 var(--report); }
+  50% { box-shadow: var(--pop), 0 0 0 8px var(--report); }
+}
+.steal-mine {
+  background: var(--report);
+  color: var(--ink);
+  animation: steal-glow 1s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------------- Twitch room */
+
+@keyframes live-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 74, 61, 0.7); }
+  50% { box-shadow: 0 0 0 8px rgba(255, 74, 61, 0); }
+}
+.live-dot {
+  display: inline-block;
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: var(--skip);
+  border: 3px solid var(--edge);
+  animation: live-pulse 1.4s ease-out infinite;
+}
+
+/* Keep-or-change: the panel sweats when it's close, the clock beats in the last seconds. */
+@keyframes close-shake {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  20% { transform: translate(-3px, 1px) rotate(-0.4deg); }
+  40% { transform: translate(3px, -1px) rotate(0.4deg); }
+  60% { transform: translate(-2px, 0) rotate(-0.2deg); }
+  80% { transform: translate(2px, 1px) rotate(0.2deg); }
+}
+@keyframes close-glow {
+  0%, 100% { box-shadow: var(--pop), 0 0 0 0 var(--skip); }
+  50% { box-shadow: var(--pop), 0 0 0 10px var(--skip); }
+}
+.close-call {
+  border-color: var(--skip);
+  animation: close-shake 0.45s ease-in-out infinite, close-glow 0.9s ease-in-out infinite;
+}
+.tug-hard {
+  animation-duration: 0.15s;
+}
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.25); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.15); }
+}
+.heartbeat {
+  display: inline-block;
+  animation: heartbeat 1s ease-in-out infinite;
+}
+@keyframes verdict-pop {
+  0% { transform: scale(0.3) rotate(-12deg); opacity: 0; }
+  60% { transform: scale(1.15) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-2deg); }
+}
+.verdict {
+  animation: verdict-pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.pick {
+  border-color: var(--glow);
+}
+
 /* ---------------------------------------------------------------- motion */
 
 @keyframes wobble {
@@ -350,11 +729,27 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .wobble,
-  .bump {
+  .bump,
+  .tug,
+  .steal-mine,
+  .live-dot,
+  .close-call,
+  .heartbeat,
+  .verdict,
+  .report-btn:hover:not(:disabled) .report-siren {
     animation: none;
   }
+  /* Reactions still show up, they just fade in place instead of flying. */
+  @keyframes reaction-float {
+    0%, 100% { opacity: 0; }
+    20%, 70% { opacity: 1; }
+  }
   .btn,
-  .remote-btn {
+  .remote-btn,
+  .remote-drawer,
+  .remote-drawer.is-open,
+  .remote-handle,
+  body {
     transition: none;
   }
 }

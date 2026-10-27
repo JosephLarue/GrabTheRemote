@@ -4,13 +4,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { APP_NAME } from '@/config/app';
-import { ROOM_INFO, ROOMS, type RoomId } from '@/config/rooms';
+import { ROOM_INFO, ROOMS, type RoomId, isPublicRoom, isTwitchRoom } from '@/config/rooms';
 import { dict } from '@/i18n';
 import { useRoom } from '@/lib/use-room';
 
+// No vote page: voting happens in the watch page's remote.
 const NAV = [
   { href: '', key: 'watch' },
-  { href: '/vote', key: 'vote' },
   { href: '/hall', key: 'hall' },
 ] as const;
 
@@ -34,7 +34,8 @@ export function Header({ lastRoom }: { lastRoom: RoomId }) {
       </Link>
       <div className="flex flex-wrap items-center gap-3">
         <nav aria-label={t.nav.main} className="flex gap-2">
-          {NAV.map((n) => {
+          {/* A Twitch room is one page: there's no Hall of Fame. */}
+          {NAV.filter((n) => !(room && isTwitchRoom(room)) || n.href === '').map((n) => {
             const active = room !== null && sub.startsWith(n.href) && (n.href !== '' || sub === '');
             return (
               <Link
@@ -61,6 +62,15 @@ export function Header({ lastRoom }: { lastRoom: RoomId }) {
               {ROOM_INFO[r].emoji}
             </Link>
           ))}
+          <Link
+            href="/private"
+            title={t.private.nav}
+            aria-label={t.private.nav}
+            aria-current={path === '/private' || (room && !isPublicRoom(room)) ? 'page' : undefined}
+            className={`grid h-10 w-10 place-items-center rounded-full border-[3px] border-[var(--edge)] text-lg ${path === '/private' || (room && !isPublicRoom(room)) ? 'bg-[var(--glow)] shadow-[var(--pop)]' : 'bg-white opacity-70 hover:opacity-100'}`}
+          >
+            🔒
+          </Link>
         </nav>
       </div>
     </header>

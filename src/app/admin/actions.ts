@@ -2,14 +2,17 @@
 
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { DEFAULT_ROOM, ROOMS, isRoom, type RoomId } from '@/config/rooms';
+import { DEFAULT_ROOM, ROOMS, isRoom, isTwitchRoom, type RoomId } from '@/config/rooms';
+import { parseTwitchLogin } from '@/lib/twitch';
 import { db, schema } from '@/server/db/client';
 import { advance, withLock } from '@/server/engine';
 import { K } from '@/server/keys';
-import { invalidateBlocklists } from '@/server/moderation';
+import { invalidateBlocklists, twitchBanId } from '@/server/moderation';
 import { removeCandidate } from '@/server/pool';
 import { redis } from '@/server/redis';
-import { getNowPlaying, markPoolDirty } from '@/server/state';
+import { getNowPlaying, markPoolDirty, publish } from '@/server/state';
+import { forceChange, startChannel, twitchLive } from '@/server/twitch';
+import { checkLive } from '@/server/twitch-api';
 import { invalidateMeta } from '@/server/youtube';
 
 // Every action here is reachable only through /admin, which middleware guards with basic auth.
@@ -102,5 +105,46 @@ export async function setThemeWeights(f: FormData) {
     .filter(([k]) => k.startsWith('w:'))
     .map(([k, v]) => [k.slice(2), String(Math.max(0, Number(v) || 0))] as const);
   if (entries.length) await redis().hset(K.themeWeights, Object.fromEntries(entries));
+  done();
+}
+
+// ---------------------------------------------------------------- Twitch rooms
+
+const publishTwitch = async (room: RoomId) => publish(room, { type: 'twitch', data: await twitchLive(room) });
+
+/** Puts a channel on screen for a fresh slot, live or not: an offline pin opens a pick window at the next check. */
+export async function pinTwitchChannel(f: FormData) {
+  const room = roomOf(f);
+  const login = parseTwitchLogin(str(f, 'channel'));
+  if (!isTwitchRoom(room) || !login) return;
+  const check = (await checkLive([login]).catch(() => null))?.get(login);
+  const channel = check?.status === 'live' ? check.channel : { login, name: login, title: '', game: '', viewers: null };
+  await withLock(room, () => startChannel(room, channel));
+  await publishTwitch(room);
+  done();
+}
+
+export async function forceTwitchChange(f: FormData) {
+  const room = roomOf(f);
+  if (!isTwitchRoom(room)) return;
+  await withLock(room, () => forceChange(room));
+  await publishTwitch(room);
+  done();
+}
+
+/** Bans a channel from every Twitch room, and votes it off wherever it is on screen. */
+export async function banTwitchChannel(f: FormData) {
+  const login = parseTwitchLogin(str(f, 'channel'));
+  if (!login) return;
+  await db()
+    .insert(schema.bannedChannels)
+    .values({ channelId: twitchBanId(login), reason: str(f, 'reason') || null })
+    .onConflictDoNothing();
+  invalidateBlocklists();
+  for (const room of ROOMS.filter(isTwitchRoom)) {
+    if ((await twitchLive(room)).channel?.login !== login) continue;
+    await withLock(room, () => forceChange(room));
+    await publishTwitch(room);
+  }
   done();
 }

@@ -1,12 +1,14 @@
 import 'server-only';
 import { EventEmitter } from 'node:events';
 import { PRESENCE_WINDOW_S, reportThreshold, skipThreshold } from '@/config/app';
-import type { RoomId } from '@/config/rooms';
+import { isTwitchRoom, type RoomId } from '@/config/rooms';
 import type { LiveEvent, LiveSnapshot, NowPlaying } from '@/lib/types';
 import { K } from './keys';
 import { topPool } from './pool';
 import { redis, redisSub } from './redis';
-import { currentTheme, slotEndsAt, slotId, toTheme } from './themes';
+import { publicSettings, roomSettings, themeFor } from './room-settings';
+import { slotEndsAt, slotId, toTheme } from './themes';
+import { twitchLive } from './twitch';
 
 export const POOL_SIZE = 10;
 
@@ -50,16 +52,25 @@ export async function reportState(playId: number | undefined, viewers: number): 
   return { votes, needed: reportThreshold(viewers) };
 }
 
+export async function stealState(room: RoomId): Promise<LiveSnapshot['steal']> {
+  const pttl = await redis().pttl(K.steal(room));
+  return pttl > 0 ? { endsAt: Date.now() + pttl } : null;
+}
+
 export async function poolForClients(room: RoomId) {
-  return topPool(room, POOL_SIZE, await currentTheme());
+  return topPool(room, POOL_SIZE, await themeFor(room));
 }
 
 export async function snapshot(room: RoomId): Promise<LiveSnapshot> {
-  const [nowPlaying, theme, viewers] = await Promise.all([getNowPlaying(room), currentTheme(), viewerCount(room)]);
-  const [pool, skip, report] = await Promise.all([
+  // Routes check the room exists first; the fallback only covers a private room closing mid-request.
+  const settings = (await roomSettings(room)) ?? publicSettings('en');
+  const [nowPlaying, theme, viewers] = await Promise.all([getNowPlaying(room), themeFor(room, settings), viewerCount(room)]);
+  const [pool, skip, report, steal, twitch] = await Promise.all([
     topPool(room, POOL_SIZE, theme),
     skipState(room, nowPlaying?.playId, viewers),
     reportState(nowPlaying?.playId, viewers),
+    stealState(room),
+    isTwitchRoom(room) ? twitchLive(room) : null,
   ]);
   return {
     serverNow: Date.now(),
@@ -70,6 +81,9 @@ export async function snapshot(room: RoomId): Promise<LiveSnapshot> {
     viewers,
     skip,
     report,
+    steal,
+    twitch,
+    room: settings,
   };
 }
 

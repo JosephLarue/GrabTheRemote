@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SKIP_COOLDOWN_S } from '@/config/app';
+import { hall, shameEntry } from '@/server/hall';
 import { getNowPlaying } from '@/server/state';
 import { addViewers, me, playNext, playsOf, seedVideo, skip, state, vid, vote } from './helpers';
 
@@ -57,6 +58,19 @@ describe('POST /api/skip', () => {
     await playing('en');
     expect(await skip('en', { token: 'bot' })).toMatchObject({ status: 403, body: { error: 'captcha' } });
     expect((await state('en')).body.skip.votes).toBe(0);
+  });
+
+  it('lands in the Hall of Shame with its own share card', async () => {
+    const { a } = await playing('en');
+    for (let v = 1; v <= 3; v++) await skip('en', { viewer: v });
+    const [play] = await playsOf(a);
+
+    const row = { videoId: a, playId: play.id, reason: 'skipped', votes: 3, hidden: false };
+    expect(await hall('en', 'shame')).toEqual([expect.objectContaining(row)]);
+    expect(await shameEntry('en', play.id)).toMatchObject(row);
+    expect(await shameEntry('fr', play.id)).toBeNull();
+    expect(await shameEntry('en', play.id + 1)).toBeNull();
+    expect(await shameEntry('en', Number('nope'))).toBeNull();
   });
 
   it('keeps the skip cooldown inside its room', async () => {

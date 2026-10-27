@@ -1,9 +1,11 @@
 import { desc, eq } from 'drizzle-orm';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { DEFAULT_ROOM, ROOM_INFO, ROOMS, isRoom } from '@/config/rooms';
+import { DEFAULT_ROOM, ROOM_INFO, ROOMS, isPublicRoom, isTwitchRoom } from '@/config/rooms';
+import { twitchUrl } from '@/lib/twitch';
+import { twitchConfigured } from '@/server/twitch-api';
 import { CONSTRAINTS } from '@/config/constraints';
-import { YT_QUOTA_HARD, YT_QUOTA_SOFT } from '@/config/app';
+import { TWITCH_SLOT_S, YT_QUOTA_HARD, YT_QUOTA_SOFT } from '@/config/app';
 import { db, schema } from '@/server/db/client';
 import { K } from '@/server/keys';
 import { poolIds } from '@/server/pool';
@@ -14,8 +16,11 @@ import { getMeta, quotaUsed } from '@/server/youtube';
 import {
   addKeyword,
   banChannel,
+  banTwitchChannel,
   banVideo,
   clearFlag,
+  forceTwitchChange,
+  pinTwitchChannel,
   dropCandidate,
   forceSkip,
   removeKeyword,
@@ -31,7 +36,7 @@ const btn = 'btn px-3 py-1 text-xs';
 
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ room?: string }> }) {
   const { room: raw } = await searchParams;
-  const room = isRoom(raw) ? raw : DEFAULT_ROOM;
+  const room = isPublicRoom(raw) ? raw : DEFAULT_ROOM;
   const [snap, ids, quota, flagged, banned, channels, keywords, weights, recent, roomViewers] = await Promise.all([
     snapshot(room),
     poolIds(room),
@@ -89,6 +94,8 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
         />
         <Stat label="Theme" value={snap.theme ? `${snap.theme.emoji} ${snap.theme.label}` : 'None'} />
       </section>
+
+      {isTwitchRoom(room) && snap.twitch && <TwitchPanel room={room} live={snap.twitch} />}
 
       <Panel title="Now playing">
         {np ? (
@@ -296,5 +303,49 @@ function Stat({ label, value, warn }: { label: string; value: React.ReactNode; w
       <p className="text-xs font-bold">{label}</p>
       <p className="font-display mt-1 text-2xl">{value}</p>
     </div>
+  );
+}
+
+function TwitchPanel({ room, live }: { room: string; live: NonNullable<Awaited<ReturnType<typeof snapshot>>['twitch']> }) {
+  const c = live.channel;
+  return (
+    <Panel title="Twitch stream">
+      {!twitchConfigured() && (
+        <p className="mb-3 text-sm font-bold">
+          No TWITCH_CLIENT_ID / TWITCH_CLIENT_SECRET: any channel name is accepted and counted as live.
+        </p>
+      )}
+      {c ? (
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <p className="min-w-0 flex-1 font-extrabold">
+            <a href={twitchUrl(c.login)} target="_blank" rel="noopener noreferrer" className="underline">
+              {c.name}
+            </a>{' '}
+            <span className="font-semibold opacity-70">
+              ({live.phase}, round {live.round}, keep {live.tally.keep} / change {live.tally.change})
+            </span>
+          </p>
+          <form action={forceTwitchChange}>
+            <input type="hidden" name="room" value={room} />
+            <button className={`${btn} bg-[var(--skip)] text-[var(--ink)]`}>Open a pick now</button>
+          </form>
+          <form action={banTwitchChannel}>
+            <input type="hidden" name="channel" value={c.login} />
+            <input type="hidden" name="reason" value="banned while on screen" />
+            <button className={`${btn} bg-[var(--ink)] text-[var(--cream)]`}>Ban channel</button>
+          </form>
+        </div>
+      ) : (
+        <p className="mb-4">Off air: pin a channel to start the room.</p>
+      )}
+      <form action={pinTwitchChannel} className="flex flex-wrap gap-2">
+        <input type="hidden" name="room" value={room} />
+        <input name="channel" placeholder="Channel name or twitch.tv link" className={input} required />
+        <button className={`${btn} bg-[var(--glow)] text-[var(--ink)]`}>Put on screen</button>
+      </form>
+      <p className="mt-2 text-xs">
+        Starts a fresh {TWITCH_SLOT_S / 60}-minute slot. Bans show up under Banned channels as twitch:&lt;name&gt;.
+      </p>
+    </Panel>
   );
 }

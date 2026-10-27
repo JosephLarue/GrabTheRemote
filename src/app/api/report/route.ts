@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { REPORT_CARD_S, reportThreshold } from '@/config/app';
 import { db, schema } from '@/server/db/client';
 import { closePlay, withLock } from '@/server/engine';
-import { ApiError, handle, ok, roomOf } from '@/server/http';
+import { ApiError, handle, ok, openRoom } from '@/server/http';
 import { ipHash } from '@/server/ip';
 import { K } from '@/server/keys';
 import { removeCandidate } from '@/server/pool';
@@ -18,7 +18,8 @@ export const POST = handle(async (req: Request) => {
   const iph = ipHash(req.headers);
   await rateLimit('report', iph, 10, 60);
   const body = (await req.json().catch(() => ({}))) as { room?: string; token?: string };
-  const room = roomOf(body.room);
+  const { room, settings } = await openRoom(req, body.room, { kind: 'youtube' });
+  if (!settings.rules.report) throw new ApiError(403, 'report_off', 'The streamer turned reports off in this room 🚨');
 
   const np = await getNowPlaying(room);
   if (!np || np.state !== 'playing') throw new ApiError(409, 'nothing', 'Nothing to report right now 🤷');
