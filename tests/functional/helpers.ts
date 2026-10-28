@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm';
+import { GET as getChat, POST as postChat } from '@/app/api/chat/route';
 import { GET as getMe } from '@/app/api/me/route';
 import { GET as getPreview } from '@/app/api/preview/route';
 import { POST as postReact } from '@/app/api/react/route';
@@ -15,7 +16,7 @@ import { GET as getState } from '@/app/api/state/route';
 import { POST as postVeto } from '@/app/api/veto/route';
 import { POST as postVote } from '@/app/api/vote/route';
 import type { RoomId } from '@/config/rooms';
-import type { LiveSnapshot, VideoMeta } from '@/lib/types';
+import type { ChatMessage, LiveSnapshot, VideoMeta } from '@/lib/types';
 import { db, schema } from '@/server/db/client';
 import { advance, withLock } from '@/server/engine';
 import { ipHash } from '@/server/ip';
@@ -92,6 +93,12 @@ export const veto = (room: string, { viewer = 1 }: As = {}) =>
 
 export const react = (room: string, emoji: string, { viewer = 1 }: As = {}) =>
   call(postReact(post('/api/react', { room, emoji }, viewer)));
+
+export const chat = (room: string, text: unknown, { viewer = 1, seed = `seed-of-viewer-${viewer}` }: As & { seed?: unknown } = {}) =>
+  call<ApiBody & { message: ChatMessage }>(postChat(post('/api/chat', { room, seed, text }, viewer)));
+
+export const chatHistory = (room: string, viewer = 1) =>
+  call<ApiBody & { messages: ChatMessage[] }>(getChat(get(`/api/chat?room=${room}`, viewer)));
 
 export const decide = (room: string, choice: string, { viewer = 1, token = CAPTCHA_OK }: As = {}) =>
   call(postDecide(post('/api/twitch/decide', { room, choice, token }, viewer)));

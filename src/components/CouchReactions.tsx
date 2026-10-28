@@ -71,7 +71,7 @@ export function ReactionOverlay() {
   );
 }
 
-/** The emoji buttons under the TV. */
+/** The emoji buttons, one tight row above the chat's input. */
 export function ReactionBar() {
   const { room, t, state } = useLive();
   const disabled = !state?.nowPlaying && !state?.twitch?.channel;
@@ -85,12 +85,16 @@ export function ReactionBar() {
   };
 
   return (
-    <div role="group" aria-label={t.reactions.label} className="flex flex-wrap justify-center gap-2">
+    <div
+      role="group"
+      aria-label={t.reactions.label}
+      className="grid grid-cols-6 gap-1.5"
+    >
       {REACTIONS.map((emoji) => (
         <button
           key={emoji}
           type="button"
-          className="btn reaction-btn bg-[var(--panel)] text-2xl"
+          className="btn reaction-btn bg-[var(--panel)] text-xl"
           disabled={disabled}
           onClick={() => react(emoji)}
           aria-label={t.reactions.send(emoji)}

@@ -8,9 +8,9 @@ import { ROOM_INFO, ROOMS, type RoomId, isPublicRoom, isTwitchRoom } from '@/con
 import { dict } from '@/i18n';
 import { useRoom } from '@/lib/use-room';
 
+// No vote page: voting happens in the watch page's remote.
 const NAV = [
   { href: '', key: 'watch' },
-  { href: '/vote', key: 'vote' },
   { href: '/hall', key: 'hall' },
 ] as const;
 
@@ -34,7 +34,7 @@ export function Header({ lastRoom }: { lastRoom: RoomId }) {
       </Link>
       <div className="flex flex-wrap items-center gap-3">
         <nav aria-label={t.nav.main} className="flex gap-2">
-          {/* A Twitch room is one page: the vote happens on screen, and there's no Hall of Fame. */}
+          {/* A Twitch room is one page: there's no Hall of Fame. */}
           {NAV.filter((n) => !(room && isTwitchRoom(room)) || n.href === '').map((n) => {
             const active = room !== null && sub.startsWith(n.href) && (n.href !== '' || sub === '');
             return (

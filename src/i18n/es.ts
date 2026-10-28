@@ -1,7 +1,7 @@
 import type { Dict } from './en';
 
 export const es: Dict = {
-  nav: { main: 'Principal', rooms: 'Salas', watch: 'Ver', vote: 'Votar', hall: 'Hall of Fame' },
+  nav: { main: 'Principal', rooms: 'Salas', watch: 'Ver', hall: 'Hall of Fame' },
   watch: {
     nowPlaying: 'En pantalla',
     nothingOnScreen: 'Nada en pantalla',
@@ -33,7 +33,6 @@ export const es: Dict = {
     report: 'Denunciar',
     reported: 'Denunciado.',
     toHide: (votes, needed) => `${votes}/${needed} para ocultarlo`,
-    pickNext: 'Elegir lo siguiente',
     skipped: '¡Saltado! El público ha hablado 🔴',
     hidden: 'Oculto. Gracias por mantener limpio el sofá 🚨',
     skipCounted: 'Voto contado. Hacen falta más manos en el botón.',
@@ -55,6 +54,20 @@ export const es: Dict = {
   reactions: {
     label: 'Reacciones del sofá',
     send: (emoji) => `Reaccionar ${emoji}`,
+  },
+  cinema: {
+    enter: 'Pantalla completa',
+    exit: 'Salir de pantalla completa',
+    hideChat: 'Ocultar el chat',
+    showChat: 'Mostrar el chat',
+    newMessages: (n) => (n === 1 ? '1 mensaje nuevo' : `${n} mensajes nuevos`),
+  },
+  chat: {
+    title: 'Chat del sofá',
+    you: 'Eres',
+    placeholder: 'Dile algo al sofá…',
+    send: 'Enviar',
+    empty: 'Sofá en silencio. Saluda 👋',
   },
   pool: {
     empty: 'Todavía no hay nada en la cola.',
@@ -81,7 +94,6 @@ export const es: Dict = {
     inQueue: 'Ya está en la cola. Tu voto suma +1.',
     looksGood: '¡Pinta bien! Píllalo.',
     counted: '¡Voto contado! Habrá confeti si llega a la pantalla 🎉',
-    queue: 'La cola',
     rules: 'Normas de la casa',
     ruleEmbeddable: (max) => `Solo vídeos de YouTube insertables, ${max} como máximo.`,
     ruleAge: 'Nada de vídeos con restricción de edad.',
@@ -240,6 +252,10 @@ export const es: Dict = {
     nothing_veto: 'Ahora no hay nada que vetar 🤷',
     no_remote: 'Ya no tienes el mando 🫳',
     bad_reaction: 'Esa reacción no está en el sofá 🙃',
+    bad_seed: 'Se perdió tu apodo del sofá. Recarga la página 🛋️',
+    bad_chat: 'Di algo, pero en menos de 200 caracteres 💬',
+    chat_link: 'Nada de enlaces en el sofá. Los vídeos van en la casilla de voto 🔗',
+    chat_blocked: 'Mantén el sofá limpio 🙅',
     skip_cooldown: 'El botón de saltar se está recalentando 🔥 Espera a que se enfríe.',
     already_skip: 'Ya le diste a saltar en este 🔴',
     already_report: 'Ya denunciado. El público está avisado 🚨',

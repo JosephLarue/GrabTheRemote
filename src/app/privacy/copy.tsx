@@ -1,4 +1,4 @@
-import { APP_NAME as APP, LEGAL, VOTE_COOLDOWN_S } from '@/config/app';
+import { APP_NAME as APP, CHAT_HISTORY, CHAT_TTL_S, LEGAL, VOTE_COOLDOWN_S } from '@/config/app';
 
 // Plain-language summary, one version per UI language. Have every version reviewed before launch
 // (GDPR: operator based in France).
@@ -50,6 +50,13 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           A private room keeps its name, settings and password until a day passes with nobody watching, or its streamer
           closes it. Entering the password (or creating the room) sets a cookie for that room only, so you don&apos;t
           have to type it again; it lasts 7 days and holds no personal data.
+        </p>
+        <h2>Couch chat</h2>
+        <p>
+          The chat needs no account: your browser tab makes up a random code, which picks a funny nickname for you until
+          you close the tab. Your messages are shown to everyone in the room with that nickname. We keep only the last{' '}
+          {CHAT_HISTORY} messages of each room, for at most {CHAT_TTL_S / 3600} hour after the last one, and never link
+          them to you or your IP address.
         </p>
         <h2>YouTube</h2>
         <p>
@@ -116,6 +123,13 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           Une room privée garde son nom, ses réglages et son mot de passe jusqu&apos;à ce qu&apos;une journée passe sans
           personne devant, ou que son streamer la ferme. Entrer le mot de passe (ou créer la room) dépose un cookie propre
           à cette room, pour ne pas avoir à le retaper ; il dure 7 jours et ne contient aucune donnée personnelle.
+        </p>
+        <h2>Chat du canapé</h2>
+        <p>
+          Le chat ne demande aucun compte : ton onglet invente un code au hasard, qui te donne un pseudo rigolo
+          jusqu&apos;à ce que tu fermes l&apos;onglet. Tes messages sont visibles par toute la room sous ce pseudo. Nous ne
+          gardons que les {CHAT_HISTORY} derniers messages de chaque room, au plus {CHAT_TTL_S / 3600} heure après le
+          dernier, sans jamais les relier à toi ni à ton adresse IP.
         </p>
         <h2>YouTube</h2>
         <p>
@@ -185,6 +199,13 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           streamer la cierra. Introducir la contraseña (o crear la sala) deja una cookie solo para esa sala, para no tener
           que volver a escribirla; dura 7 días y no contiene datos personales.
         </p>
+        <h2>Chat del sofá</h2>
+        <p>
+          El chat no necesita cuenta: tu pestaña se inventa un código al azar, que te da un apodo divertido hasta que
+          cierres la pestaña. Todos en la sala ven tus mensajes con ese apodo. Solo guardamos los últimos {CHAT_HISTORY}{' '}
+          mensajes de cada sala, como mucho {CHAT_TTL_S / 3600} hora después del último, y nunca los vinculamos contigo
+          ni con tu dirección IP.
+        </p>
         <h2>YouTube</h2>
         <p>
           {APP} usa los servicios de API de YouTube para consultar datos públicos de los vídeos (título, canal, duración,
@@ -251,6 +272,13 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           Una stanza privata conserva nome, impostazioni e password finché non passa un giorno senza nessuno davanti, o il
           suo streamer la chiude. Inserire la password (o creare la stanza) imposta un cookie solo per quella stanza, così
           non devi riscriverla; dura 7 giorni e non contiene dati personali.
+        </p>
+        <h2>Chat del divano</h2>
+        <p>
+          La chat non richiede alcun account: la tua scheda inventa un codice a caso, che ti assegna un soprannome buffo
+          finché non chiudi la scheda. Tutti nella stanza vedono i tuoi messaggi con quel soprannome. Conserviamo solo gli
+          ultimi {CHAT_HISTORY} messaggi di ogni stanza, al massimo per {CHAT_TTL_S / 3600} ora dopo l&apos;ultimo, e non li
+          colleghiamo mai a te né al tuo indirizzo IP.
         </p>
         <h2>YouTube</h2>
         <p>

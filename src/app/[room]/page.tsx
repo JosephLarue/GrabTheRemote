@@ -1,8 +1,10 @@
 'use client';
 
 import { AdSlot } from '@/components/AdSlot';
+import { ChatUnfoldButton, CinemaButton, CinemaStage } from '@/components/Cinema';
+import { CHAT_RAIL, CouchChat, WITH_CHAT } from '@/components/CouchChat';
 import { OwnerPanel } from '@/components/OwnerPanel';
-import { ReactionBar, ReactionOverlay } from '@/components/CouchReactions';
+import { ReactionOverlay } from '@/components/CouchReactions';
 import { PoolBars } from '@/components/PoolBars';
 import { Remote } from '@/components/Remote';
 import { RemoteDrawer } from '@/components/RemoteDrawer';
@@ -10,8 +12,8 @@ import { RemoteFight } from '@/components/RemoteFight';
 import { StolenRemote } from '@/components/StolenRemote';
 import { SyncedPlayer } from '@/components/SyncedPlayer';
 import { TwitchStage } from '@/components/TwitchStage';
+import { VoteForm, VoteProvider, useVote } from '@/components/VoteBox';
 import { isTwitchRoom } from '@/config/rooms';
-import { ThemeBanner } from '@/components/ThemeBanner';
 import { formatClock, useLive, useServerNow } from '@/lib/live';
 
 export default function WatchPage() {
@@ -20,7 +22,16 @@ export default function WatchPage() {
 }
 
 function YouTubeWatch() {
+  return (
+    <VoteProvider>
+      <YouTubeStage />
+    </VoteProvider>
+  );
+}
+
+function YouTubeStage() {
   const { state, t, settings } = useLive();
+  const { vote, busy, cooldown, msg } = useVote();
   const now = useServerNow(500);
   const np = state?.nowPlaying ?? null;
   // Paused: the clock stops where the streamer stopped it.
@@ -48,33 +59,54 @@ function YouTubeWatch() {
                   <span className="block text-[11px] font-extrabold">{t.watch.nextPickIn}</span>
                   <span className="font-display text-2xl tabular-nums sm:text-3xl">{formatClock(left)}</span>
                 </p>
-              )}
-              <span aria-hidden className="tv-knob" />
-              <span aria-hidden className="tv-knob hidden bg-[var(--glow)] sm:block" />
+                <p className="truncate text-xs font-bold opacity-80">{np?.video.channelTitle}</p>
+              </div>
+              <div className="flex shrink-0 items-center gap-3">
+                {np && np.state === 'playing' && (
+                  <p className={`text-right ${left < 10_000 ? 'wobble' : ''}`}>
+                    <span className="block text-[11px] font-extrabold">{t.watch.nextPickIn}</span>
+                    <span className="font-display text-2xl tabular-nums sm:text-3xl">{formatClock(left)}</span>
+                  </p>
+                )}
+                <ChatUnfoldButton />
+                <CinemaButton />
+                <span aria-hidden className="tv-knob" />
+                <span aria-hidden className="tv-knob hidden bg-[var(--glow)] sm:block" />
+              </div>
             </div>
           </div>
-        </div>
-        <div className="mt-5">
-          <ReactionBar />
-        </div>
-      </section>
+        </section>
 
-      <div className="grid gap-x-8 gap-y-6 lg:grid-cols-[1fr_300px]">
-        <section aria-label={t.watch.queue} className="flex min-w-0 flex-col gap-5">
-          <ThemeBanner />
+        <section aria-label={t.watch.queue} className="cinema-hide flex min-w-0 flex-col gap-5">
           <RemoteFight />
           <div>
             <h2 className="font-display mb-3 text-2xl">{t.watch.upNext}</h2>
-            <PoolBars pool={state?.pool ?? []} />
+            <PoolBars
+              pool={state?.pool ?? []}
+              onPlusOne={(id) => vote(id)}
+              plusOneDisabled={busy || cooldown > 0}
+            />
+            {msg && (
+              <p role="status" className={`mt-3 font-extrabold ${msg.ok ? 'text-[var(--mint)]' : 'text-[var(--skip)]'}`}>
+                {msg.text}
+              </p>
+            )}
           </div>
         </section>
-        <AdSlot slot="watch-rail" />
+      </div>
+
+      <div className={CHAT_RAIL}>
+        <CouchChat />
+        <div className="cinema-hide">
+          <AdSlot slot="watch-rail" />
+        </div>
       </div>
 
       <RemoteDrawer>
+        <VoteForm />
         <Remote />
         <OwnerPanel />
       </RemoteDrawer>
-    </div>
+    </CinemaStage>
   );
 }

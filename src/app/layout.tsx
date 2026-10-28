@@ -29,7 +29,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     <html lang={localeOf(room)} suppressHydrationWarning>
       <body className={`${bagel.variable} ${nunito.variable} antialiased`} suppressHydrationWarning>
         <Header lastRoom={room} />
-        <main className="mx-auto w-full max-w-6xl px-4 pb-16">{children}</main>
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-16">{children}</main>
         <Footer lastRoom={room} />
         <AdsScript />
       </body>

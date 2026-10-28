@@ -77,6 +77,7 @@ export async function forgetPrivateRoom(room: RoomId) {
     K.presence(room),
     K.online(room),
     K.voters(room),
+    K.chat(room),
   );
   await redis().srem(K.privateRooms, room);
 }

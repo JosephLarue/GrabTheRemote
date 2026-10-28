@@ -79,6 +79,11 @@ export const PRIVATE_LANGS = ['en', 'fr', 'es', 'it'];
 export const REACTIONS = ['😂', '💀', '🔥', '😍', '🤮', '👏'] as const;
 export const REACTION_BATCH_MS = 300;
 
+// Couch chat: no accounts, a random nickname per tab. Only the last few messages are kept, and not for long.
+export const CHAT_MAX_LENGTH = 200;
+export const CHAT_HISTORY = 50;
+export const CHAT_TTL_S = 3600;
+
 // Played when the pool is empty and the Hall of Fame has nothing yet.
 export const FALLBACK_VIDEOS = [
   'dQw4w9WgXcQ',

@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { RoomId } from '@/config/rooms';
 import { type Dict, dictFor } from '@/i18n';
-import type { LiveEvent, LiveSnapshot, ReactionBatch, RoomSettings } from './types';
+import type { ChatMessage, LiveEvent, LiveSnapshot, ReactionBatch, RoomSettings } from './types';
 
 type Me = {
   voteCooldownEndsAt: number | null;
@@ -33,6 +33,8 @@ type LiveCtx = {
   refreshMe: () => Promise<void>;
   /** Couch reactions aren't state: listen to the batches as they come. Returns the unsubscribe. */
   onReactions: (fn: (batch: ReactionBatch) => void) => () => void;
+  /** Same for chat lines. */
+  onChat: (fn: (msg: ChatMessage) => void) => () => void;
 };
 
 const Ctx = createContext<LiveCtx | null>(null);
@@ -62,6 +64,7 @@ function apply(s: LiveSnapshot | null, e: LiveEvent): LiveSnapshot | null {
     case 'closed':
       return s;
     case 'react':
+    case 'chat':
       return s;
   }
 }
@@ -89,6 +92,7 @@ export function LiveProvider({
   });
   const offset = useRef(0);
   const reactionListeners = useRef(new Set<(batch: ReactionBatch) => void>());
+  const chatListeners = useRef(new Set<(msg: ChatMessage) => void>());
 
   const settings = state?.room ?? initial;
 
@@ -138,6 +142,7 @@ export function LiveProvider({
         if (e.type === 'closed') window.location.reload();
         if (e.type === 'nowplaying' || e.type === 'steal') refreshMe();
         if (e.type === 'react') reactionListeners.current.forEach((fn) => fn(e.data));
+        else if (e.type === 'chat') chatListeners.current.forEach((fn) => fn(e.data));
         else setState((s) => apply(s, e));
       };
       es.onerror = () => {
@@ -161,9 +166,15 @@ export function LiveProvider({
     reactionListeners.current.add(fn);
     return () => void reactionListeners.current.delete(fn);
   }, []);
+  const onChat = useCallback((fn: (msg: ChatMessage) => void) => {
+    chatListeners.current.add(fn);
+    return () => void chatListeners.current.delete(fn);
+  }, []);
 
   return (
-    <Ctx.Provider value={{ room, t: dictFor(settings.locale), settings, state, connected, serverNow, me, refreshMe, onReactions }}>
+    <Ctx.Provider
+      value={{ room, t: dictFor(settings.locale), settings, state, connected, serverNow, me, refreshMe, onReactions, onChat }}
+    >
       {/* The room's look ([data-room] in globals.css): a private room wears the decor its streamer picked. */}
       <div data-room={settings.decor} className="contents">
         {children}
