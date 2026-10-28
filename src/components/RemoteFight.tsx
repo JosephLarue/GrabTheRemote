@@ -1,13 +1,13 @@
 'use client';
 
-import Link from 'next/link';
 import { remoteFight } from '@/lib/fight';
 import { useLive } from '@/lib/live';
 import type { PoolEntry } from '@/lib/types';
+import { openVote } from './VoteBox';
 
 /** Tug-of-war banner when the top two of the queue are neck and neck. */
 export function RemoteFight() {
-  const { room, t, state } = useLive();
+  const { t, state } = useLive();
   const fight = remoteFight(state?.pool ?? []);
   if (!fight) return null;
   const [a, b] = fight;
@@ -17,9 +17,9 @@ export function RemoteFight() {
     <section aria-label={t.fight.title} className="panel fight flex flex-col gap-3 p-4">
       <div className="flex items-center justify-between gap-3">
         <p className="font-display wobble text-2xl text-[var(--skip)] uppercase sm:text-3xl">{t.fight.title}</p>
-        <Link href={`/${room}/vote`} className="btn shrink-0 bg-[var(--glow)] px-3 py-1 text-sm text-[var(--ink)]">
+        <button type="button" onClick={openVote} className="btn shrink-0 bg-[var(--glow)] px-3 py-1 text-sm text-[var(--ink)]">
           {t.fight.pickSide}
-        </Link>
+        </button>
       </div>
 
       <div className="flex items-center gap-3">

@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
 import { errorText } from '@/i18n';
 import { post } from '@/lib/api';
@@ -71,9 +70,20 @@ export function Remote() {
             onClick={() => press('report')}
           >
             <span className="report-label">
-              <span aria-hidden className="report-siren">
-                🚨
-              </span>
+              {/* A flag drawn in the label's ink: the siren emoji clashed with the caution tape. */}
+              <svg
+                aria-hidden
+                viewBox="0 0 24 24"
+                className="report-siren h-5 w-5 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.6}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 21V4" />
+                <path d="M5 4c3-2 6 2 9 0s4-1 5 0v9c-1-1-2-2-5 0s-6-2-9 0" fill="currentColor" fillOpacity={0.25} />
+              </svg>
               <span className="font-display text-base uppercase">{t.remote.report}</span>
             </span>
           </button>
@@ -82,10 +92,6 @@ export function Remote() {
           </p>
         </div>
       )}
-
-      <Link href={`/${room}/vote`} className="btn whitespace-nowrap bg-[var(--glow)] text-[var(--ink)]">
-        {t.remote.pickNext}
-      </Link>
 
       <div ref={captchaRef} />
       <p role="status" aria-live="polite" className="min-h-5 w-full text-center text-sm font-bold">

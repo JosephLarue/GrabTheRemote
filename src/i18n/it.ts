@@ -1,7 +1,7 @@
 import type { Dict } from './en';
 
 export const it: Dict = {
-  nav: { main: 'Principale', rooms: 'Stanze', watch: 'Guarda', vote: 'Vota', hall: 'Hall of Fame' },
+  nav: { main: 'Principale', rooms: 'Stanze', watch: 'Guarda', hall: 'Hall of Fame' },
   watch: {
     nowPlaying: 'In onda',
     nothingOnScreen: 'Niente sullo schermo',
@@ -33,7 +33,6 @@ export const it: Dict = {
     report: 'Segnala',
     reported: 'Segnalato.',
     toHide: (votes, needed) => `${votes}/${needed} per nasconderlo`,
-    pickNext: 'Scegli il prossimo',
     skipped: 'Saltato! Il pubblico ha parlato 🔴',
     hidden: 'Nascosto. Grazie per tenere pulito il divano 🚨',
     skipCounted: 'Voto contato. Servono più mani sul pulsante.',
@@ -55,6 +54,20 @@ export const it: Dict = {
   reactions: {
     label: 'Reazioni dal divano',
     send: (emoji) => `Reagisci ${emoji}`,
+  },
+  cinema: {
+    enter: 'Schermo intero',
+    exit: 'Esci dallo schermo intero',
+    hideChat: 'Nascondi la chat',
+    showChat: 'Mostra la chat',
+    newMessages: (n) => (n === 1 ? '1 nuovo messaggio' : `${n} nuovi messaggi`),
+  },
+  chat: {
+    title: 'Chat del divano',
+    you: 'Sei',
+    placeholder: 'Di qualcosa al divano…',
+    send: 'Invia',
+    empty: 'Divano silenzioso. Saluta 👋',
   },
   pool: {
     empty: 'Ancora niente in coda.',
@@ -81,7 +94,6 @@ export const it: Dict = {
     inQueue: 'Già in coda. Il tuo voto aggiunge +1.',
     looksGood: 'Sembra perfetto. Prendilo!',
     counted: 'Voto contato! Ci saranno coriandoli se arriva sullo schermo 🎉',
-    queue: 'La coda',
     rules: 'Regole della casa',
     ruleEmbeddable: (max) => `Solo video YouTube incorporabili, massimo ${max}.`,
     ruleAge: 'Niente video con limiti di età.',
@@ -240,6 +252,10 @@ export const it: Dict = {
     nothing_veto: 'Niente su cui mettere il veto adesso 🤷',
     no_remote: 'Non hai più il telecomando 🫳',
     bad_reaction: 'Questa reazione non è sul divano 🙃',
+    bad_seed: 'Il tuo soprannome del divano si è perso. Ricarica la pagina 🛋️',
+    bad_chat: 'Scrivi qualcosa, ma sotto i 200 caratteri 💬',
+    chat_link: 'Niente link sul divano. I video vanno nella casella di voto 🔗',
+    chat_blocked: 'Teniamo il divano pulito 🙅',
     skip_cooldown: 'Il pulsante salta si sta surriscaldando 🔥 Aspetta che si raffreddi.',
     already_skip: 'Hai già premuto salta su questo 🔴',
     already_report: 'Già segnalato. Il pubblico è avvisato 🚨',

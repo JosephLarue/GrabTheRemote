@@ -106,6 +106,9 @@ export type TwitchLive = {
 /** Reactions sent since the last batch: emoji → count. */
 export type ReactionBatch = Record<string, number>;
 
+/** A couch chat line. `name` and `hue` come from the sender's seed (lib/chat.ts), never from them. */
+export type ChatMessage = { id: string; name: string; hue: number; text: string; at: number };
+
 export type LiveEvent =
   | { type: 'snapshot'; data: LiveSnapshot }
   | { type: 'nowplaying'; data: NowPlaying | null }
@@ -116,6 +119,7 @@ export type LiveEvent =
   | { type: 'report'; data: LiveSnapshot['report'] }
   | { type: 'steal'; data: LiveSnapshot['steal'] }
   | { type: 'react'; data: ReactionBatch }
+  | { type: 'chat'; data: ChatMessage }
   | { type: 'twitch'; data: TwitchLive }
   | { type: 'room'; data: RoomSettings }
   | { type: 'closed'; data: null };

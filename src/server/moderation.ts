@@ -61,4 +61,11 @@ export async function streamRefusal(login: string, title: string): Promise<'bann
   return keywords.some((k) => t.includes(k)) ? 'blocked_keyword' : null;
 }
 
+/** The admin's blocked keywords apply to chat messages too. */
+export async function chatHasBlockedKeyword(text: string) {
+  const { keywords } = await blocklists();
+  const t = text.toLowerCase();
+  return keywords.some((k) => t.includes(k));
+}
+
 export const twitchBanId = (login: string) => `twitch:${login}`;

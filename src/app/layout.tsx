@@ -27,9 +27,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     // Browser extensions (LanguageTool, ColorZilla…) stamp attributes on <html> and <body> before React loads.
     // This only silences attribute mismatches on these two tags, not on anything inside them.
     <html lang={localeOf(room)} suppressHydrationWarning>
-      <body className={`${bagel.variable} ${nunito.variable} antialiased`} suppressHydrationWarning>
+      {/* Column with a growing main: the footer sits at the bottom of the window even when the page is short. */}
+      <body className={`${bagel.variable} ${nunito.variable} flex flex-col antialiased`} suppressHydrationWarning>
         <Header lastRoom={room} />
-        <main className="mx-auto w-full max-w-6xl px-4 pb-16">{children}</main>
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-16">{children}</main>
         <Footer lastRoom={room} />
         <AdsScript />
       </body>
