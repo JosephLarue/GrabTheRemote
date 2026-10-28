@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { COUCH_COLLAPSE_AT } from '@/config/app';
 import { useLive } from '@/lib/live';
+import { SfxToggle } from './SoundEffects';
 import { VOTE_HASH, onOpenVote } from './VoteBox';
 
 const OPEN_KEY = 'gtr:remote-open';
@@ -96,6 +97,7 @@ export function RemoteDrawer({ children }: { children: React.ReactNode }) {
         </div>
         <div className="flex items-center justify-between gap-3">
           <LiveLight />
+          <SfxToggle compact />
           <CouchCount />
         </div>
         {children}

@@ -42,8 +42,15 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
         <h2>Your browser</h2>
         <p>
           We keep a short list of videos you voted for in your browser&apos;s local storage, only so we can show confetti
-          when one of them plays, and a cookie remembering the last room you visited. Neither leaves your device for any
-          other purpose.
+          when one of them plays and to hand you the Hall of Shame card when one of them gets cut short (your card
+          collection stays in that same local storage), and a cookie remembering the last room you visited. Your sound
+          and chat preferences are kept there too. None of it leaves your device for any other purpose.
+        </p>
+        <h2>Invitations</h2>
+        <p>
+          Your invite link carries a code derived from the scrambled version of your IP, so it says nothing about you.
+          When a friend arrives through it, we count one more friend next to your code for that room, for 24 hours, and
+          remember their scrambled code so they only count once. Nothing else about either of you is kept.
         </p>
         <h2>Private rooms</h2>
         <p>
@@ -116,7 +123,16 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
         <p>
           Nous gardons dans le stockage local de ton navigateur une courte liste des vidéos pour lesquelles tu as voté,
           uniquement pour afficher des confettis quand l&apos;une d&apos;elles passe, ainsi qu&apos;un cookie qui retient la
-          dernière room visitée. Ni l&apos;un ni l&apos;autre ne sert à autre chose.
+          dernière room visitée, ainsi que tes préférences de son et de chat. Quand l&apos;une de tes vidéos se fait
+          couper, sa carte du Hall of Shame rejoint ta collection, gardée dans ce même stockage local. Rien de tout cela
+          ne sert à autre chose.
+        </p>
+        <h2>Invitations</h2>
+        <p>
+          Ton lien d&apos;invitation contient un code dérivé de la version brouillée de ton IP : il ne dit rien sur toi.
+          Quand un pote arrive par ce lien, nous comptons un pote de plus à côté de ton code pour cette room, pendant
+          24 heures, et nous retenons son code brouillé pour qu&apos;il ne compte qu&apos;une fois. Rien d&apos;autre
+          n&apos;est conservé sur l&apos;un ou l&apos;autre.
         </p>
         <h2>Rooms privées</h2>
         <p>
@@ -190,8 +206,15 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
         <h2>Tu navegador</h2>
         <p>
           Guardamos en el almacenamiento local de tu navegador una lista corta de los vídeos que votaste, solo para
-          mostrar confeti cuando uno de ellos se reproduce, y una cookie que recuerda la última sala que visitaste. Ninguno
-          de los dos se usa para nada más.
+          mostrar confeti cuando uno de ellos se reproduce y darte la tarjeta del Hall of Shame cuando uno es cortado
+          (tu colección vive en ese mismo almacenamiento local), y una cookie que recuerda la última sala que visitaste.
+          Tus preferencias de sonido y chat también se guardan ahí. Nada de esto se usa para otra cosa.
+        </p>
+        <h2>Invitaciones</h2>
+        <p>
+          Tu enlace de invitación lleva un código derivado de la versión cifrada de tu IP, así que no dice nada de ti.
+          Cuando un amigo llega por él, sumamos un amigo más junto a tu código para esa sala, durante 24 horas, y
+          recordamos su código cifrado para que solo cuente una vez. No se guarda nada más de ninguno de los dos.
         </p>
         <h2>Salas privadas</h2>
         <p>
@@ -264,8 +287,15 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
         <h2>Il tuo browser</h2>
         <p>
           Conserviamo nella memoria locale del tuo browser un breve elenco dei video per cui hai votato, solo per mostrare
-          i coriandoli quando uno di questi va in onda, e un cookie che ricorda l&apos;ultima stanza visitata. Nessuno dei
-          due serve ad altro.
+          i coriandoli quando uno di questi va in onda e darti la card della Hall of Shame quando uno viene tagliato (la
+          tua collezione vive nella stessa memoria locale), e un cookie che ricorda l&apos;ultima stanza visitata. Anche le
+          preferenze di suono e chat restano lì. Niente di tutto ciò serve ad altro.
+        </p>
+        <h2>Inviti</h2>
+        <p>
+          Il tuo link di invito contiene un codice derivato dalla versione cifrata del tuo IP: non dice nulla di te.
+          Quando un amico arriva da quel link, contiamo un amico in più accanto al tuo codice per quella stanza, per 24
+          ore, e ricordiamo il suo codice cifrato perché conti una sola volta. Nient&apos;altro viene conservato.
         </p>
         <h2>Stanze private</h2>
         <p>

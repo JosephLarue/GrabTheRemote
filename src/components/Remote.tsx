@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { errorText } from '@/i18n';
 import { post } from '@/lib/api';
+import { beam } from '@/lib/fx';
 import { formatClock, useLive, useServerNow } from '@/lib/live';
+import { play } from '@/lib/sfx';
 import { useTurnstile } from '@/lib/turnstile';
 
 export function Remote() {
@@ -20,6 +22,8 @@ export function Remote() {
   const skipCd = skip?.cooldownEndsAt && skip.cooldownEndsAt > now ? skip.cooldownEndsAt - now : 0;
 
   const press = async (kind: 'skip' | 'report') => {
+    play('click');
+    beam(document.querySelector('.remote-ir'));
     setBusy(kind);
     setMsg(null);
     try {

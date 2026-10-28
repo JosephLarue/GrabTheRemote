@@ -1,5 +1,6 @@
 import { parseYouTubeId } from '@/lib/youtube-id';
 import { ApiError, handle, ok, openRoom } from '@/server/http';
+import { voteCooldownFor } from '@/server/invite';
 import { ipHash } from '@/server/ip';
 import { K } from '@/server/keys';
 import { assertAllowed, assertFitsRoom } from '@/server/moderation';
@@ -56,11 +57,13 @@ export const POST = handle(async (req: Request) => {
     throw new ApiError(422, 'theme', `Doesn't fit the theme: ${theme.emoji} ${theme.label}`);
   }
 
-  if (!(await redis().set(K.voteCd(room, iph), '1', 'EX', rules.voteCooldownS, 'NX'))) {
+  // Brought friends? The boost shortens the cooldown.
+  const cooldownS = await voteCooldownFor(room, iph, rules);
+  if (!(await redis().set(K.voteCd(room, iph), '1', 'EX', cooldownS, 'NX'))) {
     throw cooldownError(await redis().ttl(K.voteCd(room, iph)));
   }
   await addVote(room, id);
   await Promise.all([markPoolDirty(room), noteVoter(room, iph)]);
 
-  return ok({ ok: true, videoId: id, cooldownEndsAt: Date.now() + rules.voteCooldownS * 1000 });
+  return ok({ ok: true, videoId: id, cooldownEndsAt: Date.now() + cooldownS * 1000 });
 });

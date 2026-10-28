@@ -1,12 +1,14 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { errorText, languageName, themeLabel } from '@/i18n';
+import { errorText, themeLabel } from '@/i18n';
 import { post, rememberPick } from '@/lib/api';
+import { beam } from '@/lib/fx';
 import { formatClock, useLive, useServerNow } from '@/lib/live';
 import { useTurnstile } from '@/lib/turnstile';
 import type { VideoCard } from '@/lib/types';
 import { parseYouTubeId } from '@/lib/youtube-id';
+import { play } from '@/lib/sfx';
 import { ThemeBanner } from './ThemeBanner';
 
 // Voting lives in the remote, not on a page of its own: the link box is in the drawer, the +1s are on the queue
@@ -50,6 +52,7 @@ export function VoteProvider({ children }: { children: React.ReactNode }) {
 
   const vote = useCallback(
     async (target: string) => {
+      play('click');
       setBusy(true);
       setMsg(null);
       try {
@@ -144,6 +147,7 @@ export function VoteForm() {
         className="flex flex-col gap-2"
         onSubmit={async (e) => {
           e.preventDefault();
+          beam(e.currentTarget.querySelector('button'));
           if (id && (await vote(url))) setUrl('');
         }}
       >
@@ -221,16 +225,6 @@ export function VoteForm() {
         </p>
       )}
 
-      <details className="text-xs font-semibold">
-        <summary className="cursor-pointer font-extrabold">{t.vote.rules}</summary>
-        <ul className="mt-2 list-disc space-y-1 pl-5">
-          <li>{t.vote.ruleEmbeddable(t.duration(rules.maxDurationS))}</li>
-          <li>{t.vote.ruleAge}</li>
-          <li>{t.vote.ruleLanguage(languageName(rules.lang, t))}</li>
-          {settings.themes.mode !== 'none' && <li>{t.vote.ruleTheme}</li>}
-          {rules.report && <li>{t.vote.ruleReport}</li>}
-        </ul>
-      </details>
     </section>
   );
 }

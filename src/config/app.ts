@@ -1,5 +1,7 @@
 export const APP_NAME = 'Grab The Remote';
 export const APP_TAGLINE = 'One screen. The whole internet. Only one remote.';
+/** Public URL, no trailing slash. Read at build time (NEXT_PUBLIC_*); sitemap, robots and canonical links use it. */
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 // Legal notice (/legal, required in France by the LCEN) and contact for /privacy. Public.
 export const LEGAL = {
@@ -74,6 +76,25 @@ export const PRIVATE_MAX_DURATIONS_MIN = [1, 3, 5, 10, 15, 30, 60];
 export const PRIVATE_VOTE_COOLDOWNS_S = [30, 60, 120, 300, 900];
 export const PRIVATE_LOCALES = ['en', 'fr', 'es', 'it'];
 export const PRIVATE_LANGS = ['en', 'fr', 'es', 'it'];
+
+// Invite a friend: bring INVITE_FRIENDS new viewers to a room within INVITE_WINDOW_S and vote every
+// INVITE_BOOST_COOLDOWN_S instead of the room's cooldown for INVITE_BOOST_S. A newcomer counts once they have
+// watched for INVITE_CLAIM_AFTER_S, and each connection can be somebody's friend once per INVITE_CLAIMED_TTL_S.
+export const INVITE_FRIENDS = 3;
+export const INVITE_WINDOW_S = 24 * 3600;
+export const INVITE_BOOST_COOLDOWN_S = 300;
+export const INVITE_BOOST_S = 3600;
+export const INVITE_CLAIM_AFTER_S = 45;
+export const INVITE_CLAIMED_TTL_S = 30 * 86400;
+
+// Next video preload: when the leader of the queue has this share of the top-two votes (and the video ends
+// within PRELOAD_WINDOW_S), everyone's player cues it up so the switch is instant.
+export const PRELOAD_SHARE = 0.6;
+export const PRELOAD_WINDOW_S = 60;
+
+// Easter eggs: each one fires at most once per EGG_COOLDOWN_S per browser, and lasts EGG_DURATION_MS.
+export const EGG_COOLDOWN_S = 3600;
+export const EGG_DURATION_MS = 10_000;
 
 // Couch reactions: a fixed set (nothing to moderate), batched before going out to every viewer.
 export const REACTIONS = ['😂', '💀', '🔥', '😍', '🤮', '👏'] as const;

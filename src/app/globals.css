@@ -396,6 +396,34 @@ body {
       transform 320ms cubic-bezier(0.2, 1.25, 0.4, 1),
       visibility 0s linear 320ms;
   }
+  /* A thin scrollbar in the remote's own colours: the default white track cut the remote in two. */
+  .remote-drawer,
+  .chat-list {
+    scrollbar-width: thin;
+    scrollbar-color: var(--remote-hi) transparent;
+  }
+  .remote-drawer::-webkit-scrollbar,
+  .chat-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  .remote-drawer::-webkit-scrollbar-track,
+  .chat-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .remote-drawer::-webkit-scrollbar-thumb,
+  .chat-list::-webkit-scrollbar-thumb {
+    background: var(--remote-hi);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  .chat-list {
+    scrollbar-color: color-mix(in srgb, var(--ink) 25%, transparent) transparent;
+  }
+  .chat-list::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--ink) 25%, transparent);
+    background-clip: padding-box;
+  }
   .remote-drawer.is-open {
     visibility: visible;
     transform: translate(0, -50%);
@@ -473,139 +501,6 @@ body {
     :root[data-remote-open] body {
       padding-left: 384px;
     }
-  }
-
-  /* ---------------------------------------------------------------- cinema (full screen, chat kept) */
-
-  /* The stage covers the window (and goes full screen when the browser lets it): the TV takes all the room it can,
-     the chat sits on its right, under it on a portrait screen. Everything marked .cinema-hide steps aside. */
-  .cinema.is-cinema {
-    position: fixed;
-    inset: 0;
-    z-index: 60;
-    grid-template-columns: minmax(0, 1fr) min(360px, 38%);
-    grid-template-rows: minmax(0, 1fr);
-    gap: 12px;
-    padding: 12px;
-    background-color: var(--wall);
-    background-image: var(--wall-image);
-    background-size: var(--wall-size);
-  }
-  :root[data-cinema] {
-    overflow: hidden;
-  }
-  .is-cinema .cinema-hide,
-  .is-cinema .tv-knob,
-  .is-cinema .tv::before,
-  .is-cinema .tv::after {
-    display: none;
-  }
-  .is-cinema .cinema-col,
-  .is-cinema .cinema-grow {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-  .is-cinema .cinema-grow {
-    flex: 1;
-  }
-  .is-cinema .tv {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    margin-top: 0;
-    padding: 10px;
-    border-radius: 24px;
-  }
-  .is-cinema .tv-screen {
-    flex: 1;
-    min-height: 0;
-    aspect-ratio: auto;
-  }
-  .is-cinema .chat-rail {
-    position: static;
-    align-self: stretch;
-    min-height: 0;
-  }
-  .is-cinema .chat-panel {
-    height: 100%;
-  }
-  .is-cinema .chat-list {
-    height: 0;
-    min-height: 0;
-    flex: 1;
-  }
-  /* Chat folded away: the TV gets the whole screen (the TV's chat button brings it back). */
-  .cinema.is-cinema.chat-folded {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .is-cinema.chat-folded .chat-rail {
-    display: none;
-  }
-  @media (max-aspect-ratio: 1/1) {
-    .cinema.is-cinema {
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-rows: auto minmax(0, 1fr);
-      padding: 8px;
-      /* the remote's button floats at the bottom: keep it off the chat's input */
-      padding-bottom: 76px;
-      gap: 8px;
-    }
-    .is-cinema .cinema-grow,
-    .is-cinema .tv {
-      flex: none;
-    }
-    .is-cinema .tv-screen {
-      flex: none;
-      aspect-ratio: 16 / 9;
-    }
-    /* no chat underneath: the TV sits in the middle of the screen */
-    .cinema.is-cinema.chat-folded {
-      grid-template-rows: auto;
-      align-content: center;
-    }
-  }
-
-  /* Report: a yellow label inside caution tape, so it reads as "emergencies only" next to the big red skip. */
-  .report-btn {
-    display: flex;
-    width: 100%;
-    max-width: 170px;
-    padding: 5px;
-    border: var(--line) solid var(--edge);
-    border-radius: 18px;
-    background: repeating-linear-gradient(-45deg, var(--report) 0 8px, var(--ink) 8px 16px);
-    box-shadow: 0 5px 0 var(--shade);
-    cursor: pointer;
-    user-select: none;
-    transition: transform 80ms ease, box-shadow 80ms ease;
-  }
-  .report-label {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    padding: 0.4rem 0.7rem;
-    border: 2px solid var(--edge);
-    border-radius: 12px;
-    background: var(--report);
-    color: var(--ink);
-  }
-  .report-siren {
-    transform-origin: 20% 90%;
-  }
-  .report-btn:hover:not(:disabled) .report-siren {
-    animation: wobble 0.5s ease-in-out infinite;
-  }
-  .report-btn:active:not(:disabled) {
-    transform: translateY(4px);
-    box-shadow: 0 1px 0 var(--shade);
-  }
-  .report-btn:disabled {
-    cursor: not-allowed;
-    filter: grayscale(0.6) brightness(0.85);
   }
 
   /* ---------------------------------------------------------------- couch reactions */
@@ -711,6 +606,235 @@ body {
     border-color: var(--glow);
   }
 
+
+  /* ---------------------------------------------------------------- TV warming up (loading) */
+
+  .tv-poweron {
+    background: #000;
+  }
+  .tv-poweron-beam {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, #fff 0%, #dfe9ff 35%, rgba(120, 160, 255, 0.5) 60%, transparent 75%);
+    transform: translate(-50%, -50%) scale(0, 0);
+    animation:
+      tv-on 900ms cubic-bezier(0.2, 0.9, 0.3, 1) forwards,
+      tv-breathe 1.8s ease-in-out 900ms infinite;
+  }
+  @keyframes tv-on {
+    0% { transform: translate(-50%, -50%) scale(0.02, 0.02); opacity: 1; }
+    35% { transform: translate(-50%, -50%) scale(1, 0.015); opacity: 1; }
+    70% { transform: translate(-50%, -50%) scale(1, 1); opacity: 0.9; }
+    100% { transform: translate(-50%, -50%) scale(1, 1); opacity: 0.18; }
+  }
+  @keyframes tv-breathe {
+    0%, 100% { opacity: 0.18; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ---------------------------------------------------------------- one-shot effects (lib/fx.ts) */
+
+  .fx-beam {
+    position: fixed;
+    z-index: 70;
+    height: 6px;
+    margin-top: -3px;
+    transform-origin: 0 50%;
+    pointer-events: none;
+    border-radius: 3px;
+    background: repeating-linear-gradient(90deg, var(--glow) 0 14px, transparent 14px 26px);
+    filter: drop-shadow(0 0 6px var(--glow));
+    animation: fx-beam 550ms linear forwards;
+  }
+  @keyframes fx-beam {
+    0% { clip-path: inset(0 100% 0 0); opacity: 1; background-position: 0 0; }
+    45% { clip-path: inset(0 0 0 0); opacity: 1; }
+    100% { clip-path: inset(0 0 0 100%); opacity: 0.6; background-position: 104px 0; }
+  }
+  .fx-hit {
+    animation: fx-hit 700ms ease-out;
+  }
+  @keyframes fx-hit {
+    0% { box-shadow: 0 0 0 6px var(--tv-dark), 0 0 0 0 var(--glow); filter: brightness(1); }
+    20% { box-shadow: 0 0 0 6px var(--tv-dark), 0 0 0 14px var(--glow); filter: brightness(1.6); }
+    100% { box-shadow: 0 0 0 6px var(--tv-dark), 0 0 40px -4px var(--glow); filter: brightness(1); }
+  }
+  .fx-crack {
+    animation: fx-crack 400ms steps(2) both;
+  }
+  @keyframes fx-crack {
+    0% { transform: translate(0, 0); filter: invert(1); }
+    50% { transform: translate(-6px, 3px); filter: invert(0); }
+    100% { transform: translate(0, 0); }
+  }
+  .fx-shatter {
+    position: fixed;
+    z-index: 65;
+    pointer-events: none;
+  }
+  .fx-shatter > div {
+    position: absolute;
+    border: 1px solid rgba(0, 0, 0, 0.35);
+    box-sizing: border-box;
+    animation: fx-tile 1100ms cubic-bezier(0.3, 0.1, 0.7, 1) both;
+  }
+  @keyframes fx-tile {
+    0% { transform: translate(0, 0) rotate(0); opacity: 1; }
+    15% { opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.6); opacity: 0; }
+  }
+
+  /* ---------------------------------------------------------------- easter eggs */
+
+  .egg-antenna {
+    position: absolute;
+    top: -78px;
+    width: 14%;
+    height: 86px;
+    z-index: 1;
+    /* nothing to see: the rabbit ears are the TV's ::before/::after */
+    background: transparent;
+  }
+  .egg-antenna-left { left: 34%; }
+  .egg-antenna-right { left: 52%; }
+  .is-cinema .egg-antenna {
+    display: none;
+  }
+  .egg-bw {
+    filter: grayscale(1) contrast(1.15) sepia(0.15);
+    transition: filter 600ms ease;
+  }
+  .egg-roll {
+    animation: egg-roll 1.2s linear infinite;
+  }
+  @keyframes egg-roll {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-100%); }
+  }
+  .egg-roll::after {
+    /* the next frame rolling in from the bottom, so the screen never goes empty */
+    content: "";
+    position: absolute;
+    inset: 0;
+    top: 100%;
+    background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 0 2px, transparent 2px 6px), #000;
+  }
+  /* Analog snow over the picture: grain blended in, the video still visible underneath. */
+  .egg-static {
+    position: absolute;
+    inset: 0;
+    z-index: 25;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    image-rendering: pixelated;
+  }
+  .egg-static-jolt {
+    animation: egg-jolt 500ms steps(3) both;
+  }
+  @keyframes egg-jolt {
+    0% { transform: translate(0, 0) skewX(0); }
+    33% { transform: translate(-4px, 2px) skewX(-1.5deg); }
+    66% { transform: translate(3px, -1px) skewX(1deg); }
+    100% { transform: translate(0, 0) skewX(0); }
+  }
+
+  /* ---------------------------------------------------------------- shame cards (holo foil) */
+
+  .card {
+    --mx: 50%;
+    --my: 50%;
+    --tilt-x: 0deg;
+    --tilt-y: 0deg;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: var(--line) solid var(--edge);
+    border-radius: 22px;
+    background: var(--panel);
+    color: var(--panel-ink);
+    box-shadow: var(--pop);
+    overflow: hidden;
+    transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+    transition: transform 120ms ease, box-shadow 120ms ease;
+    isolation: isolate;
+  }
+  .card:hover {
+    box-shadow: 8px 8px 0 var(--shade);
+  }
+  .card-foil {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+      radial-gradient(circle at var(--mx) var(--my), rgba(255, 255, 255, 0.55), transparent 35%),
+      repeating-linear-gradient(115deg, var(--foil-a) 0 6%, var(--foil-b) 6% 12%, var(--foil-c) 12% 18%);
+    mix-blend-mode: color-dodge;
+    opacity: 0.35;
+    transition: opacity 200ms ease;
+  }
+  .card:hover .card-foil {
+    opacity: 0.6;
+  }
+  .card-frame {
+    position: relative;
+    padding: 10px;
+    background: linear-gradient(135deg, var(--foil-a), var(--foil-b), var(--foil-c));
+  }
+  .card-art {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: var(--line) solid var(--edge);
+    border-radius: 14px;
+    background: var(--skip);
+  }
+  .card-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(40%);
+  }
+  .card-stamp {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-12deg);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .card-mine {
+    outline: 4px solid var(--report);
+    outline-offset: 2px;
+  }
+
+  /* ---------------------------------------------------------------- invite a friend */
+
+  /* The ticket lives in the TV's knob row (floating, it sat on the chat's send button). Full screen hides it. */
+  .invite-cta {
+    flex-shrink: 0;
+  }
+  :root[data-cinema] .invite-cta {
+    display: none;
+  }
+  .invite-dialog {
+    position: fixed;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  .invite-dialog[open] {
+    opacity: 1;
+    transform: none;
+    transition: opacity 180ms ease, transform 220ms cubic-bezier(0.2, 1.25, 0.4, 1);
+  }
+
   /* ---------------------------------------------------------------- motion */
 
   @keyframes wobble {
@@ -739,8 +863,18 @@ body {
     .close-call,
     .heartbeat,
     .verdict,
-    .report-btn:hover:not(:disabled) .report-siren {
+    .report-btn:hover:not(:disabled) .report-siren,
+    .egg-roll,
+    .egg-static-jolt,
+    .fx-crack {
       animation: none;
+    }
+    .tv-poweron-beam {
+      animation: tv-on 900ms ease-out forwards;
+    }
+    .card {
+      transform: none;
+      transition: none;
     }
     /* Reactions still show up, they just fade in place instead of flying. */
     @keyframes reaction-float {
@@ -756,4 +890,139 @@ body {
       transition: none;
     }
   }
+}
+
+/* Outside the components layer on purpose: these are state overrides on elements that also carry Tailwind
+   utilities (`flex`, `mt-12`, `sm:block`, `xl:sticky`), and a layered rule can never beat an unlayered utility. */
+/* ---------------------------------------------------------------- cinema (full screen, chat kept) */
+
+/* The stage covers the window (and goes full screen when the browser lets it): the TV takes all the room it can,
+   the chat sits on its right, under it on a portrait screen. Everything marked .cinema-hide steps aside. */
+.cinema.is-cinema {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  grid-template-columns: minmax(0, 1fr) min(360px, 38%);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px;
+  background-color: var(--wall);
+  background-image: var(--wall-image);
+  background-size: var(--wall-size);
+}
+:root[data-cinema] {
+  overflow: hidden;
+}
+.is-cinema .cinema-hide,
+.is-cinema .tv-knob,
+.is-cinema .tv::before,
+.is-cinema .tv::after {
+  display: none;
+}
+.is-cinema .cinema-col,
+.is-cinema .cinema-grow {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.is-cinema .cinema-grow {
+  flex: 1;
+}
+.is-cinema .tv {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: 0;
+  padding: 10px;
+  border-radius: 24px;
+}
+.is-cinema .tv-screen {
+  flex: 1;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+.is-cinema .chat-rail {
+  position: static;
+  align-self: stretch;
+  min-height: 0;
+}
+.is-cinema .chat-panel {
+  height: 100%;
+}
+.is-cinema .chat-list {
+  height: 0;
+  min-height: 0;
+  flex: 1;
+}
+/* Chat folded away: the TV gets the whole screen (the TV's chat button brings it back). */
+.cinema.is-cinema.chat-folded {
+  grid-template-columns: minmax(0, 1fr);
+}
+.is-cinema.chat-folded .chat-rail {
+  display: none;
+}
+@media (max-aspect-ratio: 1/1) {
+  .cinema.is-cinema {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    padding: 8px;
+    /* the remote's button floats at the bottom: keep it off the chat's input */
+    padding-bottom: 76px;
+    gap: 8px;
+  }
+  .is-cinema .cinema-grow,
+  .is-cinema .tv {
+    flex: none;
+  }
+  .is-cinema .tv-screen {
+    flex: none;
+    aspect-ratio: 16 / 9;
+  }
+  /* no chat underneath: the TV sits in the middle of the screen */
+  .cinema.is-cinema.chat-folded {
+    grid-template-rows: auto;
+    align-content: center;
+  }
+}
+
+/* Report: a yellow label inside caution tape, so it reads as "emergencies only" next to the big red skip. */
+.report-btn {
+  display: flex;
+  width: 100%;
+  max-width: 170px;
+  padding: 5px;
+  border: var(--line) solid var(--edge);
+  border-radius: 18px;
+  background: repeating-linear-gradient(-45deg, var(--report) 0 8px, var(--ink) 8px 16px);
+  box-shadow: 0 5px 0 var(--shade);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 80ms ease, box-shadow 80ms ease;
+}
+.report-label {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  border: 2px solid var(--edge);
+  border-radius: 12px;
+  background: var(--report);
+  color: var(--ink);
+}
+.report-siren {
+  transform-origin: 20% 90%;
+}
+.report-btn:hover:not(:disabled) .report-siren {
+  animation: wobble 0.5s ease-in-out infinite;
+}
+.report-btn:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--shade);
+}
+.report-btn:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.6) brightness(0.85);
 }

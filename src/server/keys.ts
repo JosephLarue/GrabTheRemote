@@ -21,6 +21,12 @@ export const K = {
   online: (room: RoomId) => r(room, 'online'),
   /** IP hashes that voted (score: last vote). */
   voters: (room: RoomId) => r(room, 'voters'),
+  /** Invites: code → owner's IP hash (global); per room, the owner's recent friends (score: when they counted),
+   *  the owner's boost, and whether a newcomer already counted for someone. */
+  inviteCode: (code: string) => `invite:code:${code}`,
+  inviteFriends: (room: RoomId, iph: string) => r(room, `invite:friends:${iph}`),
+  inviteBoost: (room: RoomId, iph: string) => r(room, `invite:boost:${iph}`),
+  inviteClaimed: (room: RoomId, iph: string) => r(room, `invite:claimed:${iph}`),
   /** IP hash holding the stolen remote; expires with the veto. */
   steal: (room: RoomId) => r(room, 'steal'),
   /** When this period's remote gets stolen (ms), then whether it was drawn. */

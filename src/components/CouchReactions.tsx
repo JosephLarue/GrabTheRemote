@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { REACTIONS } from '@/config/app';
 import { post } from '@/lib/api';
 import { useLive } from '@/lib/live';
+import { play } from '@/lib/sfx';
 
 type Floater = { id: number; emoji: string; left: number; duration: number; drift: number };
 
@@ -77,6 +78,7 @@ export function ReactionBar() {
   const disabled = !state?.nowPlaying && !state?.twitch?.channel;
 
   const react = async (emoji: string) => {
+    play('click');
     pending[emoji] = (pending[emoji] ?? 0) + 1;
     localTaps.forEach((fn) => fn(emoji));
     const res = await post('/api/react', { room, emoji });

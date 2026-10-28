@@ -1,3 +1,4 @@
+import type { Rarity } from '@/lib/cards';
 import type { Roast } from '@/lib/roast';
 
 // UI copy for the English room and The Jungle. Every other locale must provide the same keys (type Dict).
@@ -18,6 +19,7 @@ export const en = {
     nothingOn: 'Dead air. Someone is clearly not doing their job.',
     massReported: 'Mass reported 🚨',
     massReportedSub: 'The crowd hid this one. Next pick coming right up.',
+    warmingUp: 'Warming up the tubes…',
   },
   remote: {
     hide: 'Hide',
@@ -216,6 +218,44 @@ export const en = {
     copied: 'Link copied 📋',
     cta: 'Think your taste is better? Grab the remote.',
     back: 'Back to the Hall of Shame',
+  },
+  seo: {
+    roomTitle: (room: string) => `Watch YouTube together · ${room} room`,
+    roomDescription: (room: string) =>
+      `One shared screen for the ${room} room. Everyone watches the same YouTube video at the same second, and the crowd votes on what plays next. No account, no sign-up.`,
+    watching: (n: number) => `${n} on the couch right now`,
+    hallTitle: 'Hall of Fame',
+    hallDescription: "The crowd's all-time favorites, biggest landslides, peak crowds, and the Hall of Shame with its share cards.",
+  },
+  sfx: { on: 'Sound effects: on', off: 'Sound effects: off' },
+  invite: {
+    title: '🎟️ Bring your friends',
+    intro: (n: number, every: string, boost: string) =>
+      `Bring ${n} friends to this room and you get to vote every ${every} for ${boost}.`,
+    copy: 'Copy my invite link',
+    share: 'Share my invite link',
+    copied: 'Link copied 📋',
+    progress: (have: number, need: number) => `${have}/${need} friends arrived`,
+    boosted: (every: string, left: string) => `Boost on! You vote every ${every} for another ${left}.`,
+    howCounted: (s: number) => `A friend counts once they have watched for ${s} seconds. Same connection as you doesn't count.`,
+    welcome: 'A friend saved you a seat on the couch 🛋️',
+  },
+  cards: {
+    title: 'Shame cards',
+    blurb: 'Every disaster is a collectible. Voted for a video the crowd killed? The card is yours to download.',
+    myCollection: 'My collection',
+    collectionEmpty: 'No cards yet. Vote for a video, watch the crowd skip it, and its card is yours.',
+    mine: 'You voted for this one 💀',
+    download: 'Download the card',
+    claimed: '💀 Your pick got cut short. Its card is in your collection.',
+    serial: (n: number) => `No. ${n}`,
+    lasted: (d: string) => `Lasted ${d}`,
+    rarity: { mythic: 'Mythic', legendary: 'Legendary', epic: 'Epic', rare: 'Rare', common: 'Common', banned: 'Banned' } as Record<Rarity, string>,
+  },
+  eggs: {
+    bw: 'Konami code accepted. Welcome to 1954 📺',
+    snow: 'You knocked the antenna. Enjoy the snow ❄️',
+    roll: 'Vertical hold is gone. Smack the side of the TV 📺',
   },
   /** Name of a room's language, as used inside this locale's sentences. */
   languages: { en: 'English', fr: 'French', es: 'Spanish', it: 'Italian' } as Record<string, string>,
