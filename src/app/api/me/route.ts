@@ -1,5 +1,6 @@
 import { isTwitchRoom } from '@/config/rooms';
 import { handle, ok, openRoom } from '@/server/http';
+import { inviteStatus } from '@/server/invite';
 import { ipHash } from '@/server/ip';
 import { K } from '@/server/keys';
 import { getPrivateRoom } from '@/server/private-rooms';
@@ -15,18 +16,20 @@ export const GET = handle(async (req: Request) => {
   const { room, access } = await openRoom(req, new URL(req.url).searchParams.get('room'));
   const iph = ipHash(req.headers);
   const np = await getNowPlaying(room);
-  const [voteTtl, skipped, reported, remote, twitch] = await Promise.all([
+  const [voteTtl, skipped, reported, remote, twitch, invite] = await Promise.all([
     redis().pttl(K.voteCd(room, iph)),
     np ? redis().sismember(K.skipVotes(np.playId), iph) : 0,
     np ? redis().sismember(K.reportVotes(np.playId), iph) : 0,
     holdsRemote(room, iph),
     isTwitchRoom(room) ? myTwitchVotes(room, iph) : { decided: null, picked: null },
+    isTwitchRoom(room) ? null : inviteStatus(room, iph),
   ]);
   return ok({
     voteCooldownEndsAt: voteTtl > 0 ? Date.now() + voteTtl : null,
     skipped: skipped === 1,
     reported: reported === 1,
     remote,
+    invite,
     owner: access.owner,
     // The streamer shows it on stream: only they get it back.
     password: access.owner ? ((await getPrivateRoom(room))?.password ?? null) : null,

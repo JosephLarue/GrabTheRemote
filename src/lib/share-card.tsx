@@ -6,7 +6,7 @@ import { APP_NAME } from '@/config/app';
 export const SHARE_CARD_SIZE = { width: 1200, height: 630 };
 
 /** Share card (og:image): the TV on the room's wallpaper, the logo above it. */
-export async function shareCard({ wall, tv, tagline }: { wall: string; tv: string; tagline: string }) {
+export async function shareCard({ wall, tv, tagline, sub }: { wall: string; tv: string; tagline: string; sub?: string }) {
   const logo = `data:image/png;base64,${(await readFile(join(process.cwd(), 'public/logo.png'))).toString('base64')}`;
   return new ImageResponse(
     (
@@ -56,6 +56,25 @@ export async function shareCard({ wall, tv, tagline }: { wall: string; tv: strin
           </div>
         </div>
         <div style={{ display: 'flex', color: '#fff6e0', fontSize: 40, fontWeight: 800 }}>{tagline}</div>
+        {sub && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 14,
+              background: '#fff6e0',
+              color: '#1c1236',
+              border: '5px solid #1c1236',
+              borderRadius: 999,
+              padding: '6px 26px',
+              fontSize: 30,
+              fontWeight: 900,
+            }}
+          >
+            <span style={{ display: 'flex', width: 18, height: 18, borderRadius: 9, background: '#ff4a3d' }} />
+            {sub}
+          </div>
+        )}
       </div>
     ),
     SHARE_CARD_SIZE,

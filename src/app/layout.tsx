@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Bagel_Fat_One, Nunito } from 'next/font/google';
-import { APP_NAME, APP_TAGLINE } from '@/config/app';
+import { APP_NAME, APP_TAGLINE, SITE_URL } from '@/config/app';
 import { AdsScript } from '@/components/AdsScript';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
@@ -16,7 +16,31 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: { default: APP_NAME, template: `%s | ${APP_NAME}` },
   description: `${APP_TAGLINE} Everyone watches the same YouTube video. The crowd votes on what plays next.`,
-  openGraph: { title: APP_NAME, description: APP_TAGLINE, type: 'website' },
+  applicationName: APP_NAME,
+  keywords: ['watch together', 'youtube together', 'watch party', 'shared screen', 'crowd votes', 'live', 'no account'],
+  openGraph: { title: APP_NAME, description: APP_TAGLINE, type: 'website', siteName: APP_NAME },
+  twitter: { card: 'summary_large_image', title: APP_NAME, description: APP_TAGLINE },
+  appleWebApp: { capable: true, title: APP_NAME, statusBarStyle: 'black-translucent' },
+  formatDetection: { telephone: false },
+  category: 'entertainment',
+};
+
+// Structured data: one web app, searchable by room.
+const JSON_LD = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    { '@type': 'WebSite', name: APP_NAME, url: SITE_URL, inLanguage: ['en', 'fr', 'es', 'it'] },
+    {
+      '@type': 'WebApplication',
+      name: APP_NAME,
+      url: SITE_URL,
+      description: `${APP_TAGLINE} Everyone watches the same YouTube video. The crowd votes on what plays next.`,
+      applicationCategory: 'EntertainmentApplication',
+      operatingSystem: 'Any',
+      browserRequirements: 'Requires JavaScript',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+    },
+  ],
 };
 
 export const viewport: Viewport = { themeColor: '#6c4df6' };
@@ -27,7 +51,15 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     // Browser extensions (LanguageTool, ColorZilla…) stamp attributes on <html> and <body> before React loads.
     // This only silences attribute mismatches on these two tags, not on anything inside them.
     <html lang={localeOf(room)} suppressHydrationWarning>
-      <body className={`${bagel.variable} ${nunito.variable} antialiased`} suppressHydrationWarning>
+      <head>
+        {/* The player, its thumbnails and the captcha come from elsewhere: shake hands early. */}
+        <link rel="preconnect" href="https://www.youtube-nocookie.com" />
+        <link rel="preconnect" href="https://i.ytimg.com" />
+        <link rel="dns-prefetch" href="https://challenges.cloudflare.com" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
+      </head>
+      {/* Column with a growing main: the footer sits at the bottom of the window even when the page is short. */}
+      <body className={`${bagel.variable} ${nunito.variable} flex flex-col antialiased`} suppressHydrationWarning>
         <Header lastRoom={room} />
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-16">{children}</main>
         <Footer lastRoom={room} />

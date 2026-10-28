@@ -11,6 +11,8 @@ type Me = {
   reported: boolean;
   /** This viewer holds the stolen remote. */
   remote: boolean;
+  /** Invite a friend: this viewer's code and progress in this room. Null in Twitch rooms. */
+  invite: { code: string; friends: number; need: number; boostEndsAt: number | null } | null;
   /** Twitch rooms: this viewer's keep/change vote and pick in the current round. */
   decided: 'keep' | 'change' | null;
   picked: string | null;
@@ -85,6 +87,7 @@ export function LiveProvider({
     skipped: false,
     reported: false,
     remote: false,
+    invite: null,
     decided: null,
     picked: null,
     owner: false,

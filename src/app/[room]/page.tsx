@@ -3,6 +3,8 @@
 import { AdSlot } from '@/components/AdSlot';
 import { ChatUnfoldButton, CinemaButton, CinemaStage } from '@/components/Cinema';
 import { CHAT_RAIL, CouchChat, WITH_CHAT } from '@/components/CouchChat';
+import { EasterEggs } from '@/components/EasterEggs';
+import { InviteCta } from '@/components/Invite';
 import { OwnerPanel } from '@/components/OwnerPanel';
 import { ReactionOverlay } from '@/components/CouchReactions';
 import { PoolBars } from '@/components/PoolBars';
@@ -38,26 +40,23 @@ function YouTubeStage() {
   const left = np ? np.endsAt - (np.pausedAt ?? now) : 0;
 
   return (
-    // The TV gets the whole width; every control is in the remote drawer. The veto banner stays out in the
-    // open (it only lasts a minute), and the queue sits under the TV with the ad beside it.
-    <div className="flex flex-col gap-6">
-      <section aria-label={t.watch.nowPlaying} className="min-w-0">
-        {settings.private && <h1 className="font-display mb-4 truncate text-3xl sm:text-4xl">🔒 {settings.name}</h1>}
-        <StolenRemote />
-        <div className="tv tv-stage mt-12">
-          <SyncedPlayer np={np} overlay={<ReactionOverlay />} />
-          <div className="mt-3 flex items-center justify-between gap-3 px-1 text-[var(--ink)]">
-            <div className="min-w-0">
-              <p className="truncate text-base font-black sm:text-lg" title={np?.video.title}>
-                {np ? np.video.title : t.watch.nothingOnScreen}
-              </p>
-              <p className="truncate text-xs font-bold opacity-80">{np?.video.channelTitle}</p>
-            </div>
-            <div className="flex shrink-0 items-center gap-3">
-              {np && np.state === 'playing' && (
-                <p className={`text-right ${left < 10_000 ? 'wobble' : ''}`}>
-                  <span className="block text-[11px] font-extrabold">{t.watch.nextPickIn}</span>
-                  <span className="font-display text-2xl tabular-nums sm:text-3xl">{formatClock(left)}</span>
+    // Left: the TV, then what plays next right under it (+1 straight from there). Right: the chat (with the
+    // reactions). The link box and every control are in the remote drawer, on the left. The veto banner stays out
+    // in the open (it only lasts a minute).
+    <CinemaStage className={WITH_CHAT}>
+      <div className="cinema-col flex min-w-0 flex-col gap-6">
+        <section aria-label={t.watch.nowPlaying} className="cinema-grow min-w-0">
+          {settings.private && (
+            <h1 className="cinema-hide font-display mb-4 truncate text-3xl sm:text-4xl">🔒 {settings.name}</h1>
+          )}
+          <StolenRemote />
+          <div className="tv mt-12">
+            <EasterEggs />
+            <SyncedPlayer np={np} overlay={<ReactionOverlay />} />
+            <div className="mt-3 flex items-center justify-between gap-3 px-1 text-[var(--ink)]">
+              <div className="min-w-0">
+                <p className="truncate text-base font-black sm:text-lg" title={np?.video.title}>
+                  {np ? np.video.title : t.watch.nothingOnScreen}
                 </p>
                 <p className="truncate text-xs font-bold opacity-80">{np?.video.channelTitle}</p>
               </div>
@@ -68,6 +67,7 @@ function YouTubeStage() {
                     <span className="font-display text-2xl tabular-nums sm:text-3xl">{formatClock(left)}</span>
                   </p>
                 )}
+                <InviteCta />
                 <ChatUnfoldButton />
                 <CinemaButton />
                 <span aria-hidden className="tv-knob" />

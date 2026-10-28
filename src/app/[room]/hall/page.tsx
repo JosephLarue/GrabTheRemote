@@ -2,13 +2,20 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { AdSlot } from '@/components/AdSlot';
+import { MyCollection, ShameCards } from '@/components/ShameCards';
 import { isRoom, isTwitchRoom, type RoomId } from '@/config/rooms';
 import { type Dict, dict, localeOf } from '@/i18n';
 import { formatLasted, roastOf } from '@/lib/roast';
 import { HALL_TABS, type HallRow, type HallTab, hall } from '@/server/hall';
 
 export const dynamic = 'force-dynamic';
-export const metadata: Metadata = { title: 'Hall of Fame' };
+
+export async function generateMetadata({ params }: { params: Promise<{ room: string }> }): Promise<Metadata> {
+  const { room } = await params;
+  if (!isRoom(room)) return {};
+  const t = dict(room);
+  return { title: t.seo.hallTitle, description: t.seo.hallDescription, openGraph: { title: t.seo.hallTitle, description: t.seo.hallDescription } };
+}
 
 const UNITS: Record<HallTab, (t: Dict, locale: string) => (n: number) => string> = {
   watched: (t, locale) => (n) => t.hall.minutes(n.toLocaleString(locale)),
@@ -50,7 +57,9 @@ export default async function HallPage({
         ))}
       </nav>
 
-      <p className="font-bold">{meta.blurb}</p>
+      <p className="font-bold">{tab === 'shame' ? t.cards.blurb : meta.blurb}</p>
+
+      {tab === 'shame' && <MyCollection />}
 
       {rows.length === 0 ? (
         <div className="panel p-6">
@@ -62,6 +71,8 @@ export default async function HallPage({
             {t.hall.emptyRest}
           </p>
         </div>
+      ) : tab === 'shame' ? (
+        <ShameCards rows={rows} />
       ) : (
         <ol className="flex flex-col gap-3">
           {rows.map((r, i) => (
@@ -70,7 +81,7 @@ export default async function HallPage({
               row={r}
               rank={i + 1}
               unit={meta.unit}
-              shame={tab === 'shame'}
+              shame={false}
               room={room}
               t={t}
             />
