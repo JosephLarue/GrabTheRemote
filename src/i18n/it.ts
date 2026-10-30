@@ -170,6 +170,7 @@ export const it: Dict = {
     ytTerms: 'Termini di servizio di YouTube',
     privacy: 'Privacy',
     legal: 'Note legali',
+    coffee: 'Offrimi un caffè ☕',
   },
   celebration: 'La tua scelta ha preso il telecomando! 🎉',
   hall: {

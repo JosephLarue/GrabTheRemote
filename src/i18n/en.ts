@@ -172,6 +172,7 @@ export const en = {
     ytTerms: 'YouTube Terms of Service',
     privacy: 'Privacy',
     legal: 'Legal notice',
+    coffee: 'Buy me a coffee ☕',
   },
   celebration: 'Your pick grabbed the remote! 🎉',
   hall: {

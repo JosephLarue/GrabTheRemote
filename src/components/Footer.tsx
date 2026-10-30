@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { APP_NAME } from '@/config/app';
+import { APP_NAME, COFFEE_URL } from '@/config/app';
 import { type RoomId, isTwitchRoom } from '@/config/rooms';
 import { dict } from '@/i18n';
 import { useRoom } from '@/lib/use-room';
@@ -11,6 +11,16 @@ export function Footer({ lastRoom }: { lastRoom: RoomId }) {
   const t = dict(ui).footer;
   return (
     <footer className="mx-auto w-full max-w-6xl px-4 pb-10 text-sm font-semibold text-[var(--muted)]">
+      <p className="mb-4 text-center">
+        <a
+          href={COFFEE_URL}
+          className="sticker bg-[var(--report)] text-base text-[var(--ink)] transition hover:-rotate-2 hover:scale-105 sm:text-lg"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {t.coffee}
+        </a>
+      </p>
       <p>
         {t.notAffiliated(APP_NAME)}{' '}
         <a href="https://www.youtube.com/t/terms" className="underline underline-offset-2" target="_blank" rel="noreferrer">

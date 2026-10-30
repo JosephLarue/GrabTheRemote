@@ -1,5 +1,7 @@
 export const APP_NAME = 'Grab The Remote';
 export const APP_TAGLINE = 'One screen. The whole internet. Only one remote.';
+/** Tips page, linked from the footer. */
+export const COFFEE_URL = 'https://buymeacoffee.com/jozyjozy';
 /** Public URL, no trailing slash. Read at build time (NEXT_PUBLIC_*); sitemap, robots and canonical links use it. */
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
 
