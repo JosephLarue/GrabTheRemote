@@ -121,72 +121,75 @@
   --muted: #c9f2d3;
 }
 
-/* The Jungle, Alliance side: a Stormwind keep. Ashlar stone walls, blue velvet, gold trim, oak furniture.
-   Same by day and by night, so every variable the dark scheme touches is pinned here. */
+/* The Jungle, Alliance side: the tabard. WoW's Alliance blue (#1d3fa0 → #16275f) and gold (#e3b341 /
+   #c9a227), a heraldic lattice on the wall studded with gold, Stormwind stone only as accents. Same by day and by
+   night, so every variable the dark scheme touches is pinned here. */
 :root:has([data-room="alliance"]) {
-  --wall: #3f4860;
-  --wall-pattern: #5d6882;
-  --stone-light: #67728d;
-  /* running-bond stone blocks: each layer draws one block in the top-left of its tile, the second layer is
-     shifted half a block */
+  --wall: #16275f;
+  --wall-pattern: #1f357a;
+  --gold: #e3b341;
+  --gold-dark: #c9a227;
+  /* diamond lattice: two diagonal line layers through the centre and corners of a 65px tile, gold studs where
+     they cross */
   --wall-image:
-    conic-gradient(at 116px 50px, transparent 0 270deg, var(--stone-light) 270deg),
-    conic-gradient(at 116px 50px, transparent 0 270deg, var(--wall-pattern) 270deg),
-    conic-gradient(at 116px 50px, transparent 0 270deg, var(--stone-light) 270deg),
-    conic-gradient(at 116px 50px, transparent 0 270deg, var(--wall-pattern) 270deg);
-  --wall-size: 124px 112px, 124px 112px, 124px 112px, 124px 112px;
-  --wall-position: 2px 2px, 0 0, 64px 58px, 62px 56px;
-  --tv: #1f4fa8;
-  --tv-dark: #143577;
-  --ink: #0f1a33;
-  --cream: #f6ecd2;
-  --muted: #cfd8ec;
-  --mint: #7fc8a9;
-  --skip: #a4231f;
-  --report: #e4b84a;
-  --glow: #ffd36b;
-  --panel: #1d3a7a;
-  --panel-ink: #f6ecd2;
-  --remote: #3b2a1a;
-  --remote-hi: #5a4028;
+    radial-gradient(circle at 50% 50%, rgba(227, 179, 65, 0.6) 0 2.5px, transparent 3.5px),
+    radial-gradient(circle at 0 0, rgba(227, 179, 65, 0.6) 0 2.5px, transparent 3.5px),
+    repeating-linear-gradient(45deg, var(--wall-pattern) 0 2px, transparent 2px 46px),
+    repeating-linear-gradient(-45deg, var(--wall-pattern) 0 2px, transparent 2px 46px);
+  --wall-size: 65px 65px, 65px 65px, 65px 65px, 65px 65px;
+  --tv: #1d3fa0;
+  --tv-dark: #112a73;
+  --ink: #0b1437;
+  --cream: #f3e6c2;
+  --muted: #b9c5e8;
+  --mint: #8fd3b0;
+  --skip: #b3261e;
+  --report: #e3b341;
+  --glow: #ffd76a;
+  --panel: #122258;
+  --panel-ink: #f3e6c2;
+  --remote: #0d1a44;
+  --remote-hi: #1b2f73;
   --edge: #c9a227;
   --antenna: #c9a227;
-  --shade: #0b1a3a;
+  --shade: #080f2e;
   --line: 4px;
   --pop: 6px 6px 0 var(--shade);
   --pop-sm: 4px 4px 0 var(--shade);
 }
 
-/* The Jungle, Horde side: a war camp. Mud and blood on rough planks, iron, spikes; the 70s living room is gone. */
+/* The Jungle, Horde side: the war banner. WoW's Horde crimson (#8b0000 → #3a0a0a), black iron, bone, fire.
+   Blood on the wall, spikes on the TV, nothing round. */
 :root:has([data-room="horde"]) {
-  --wall: #2b1410;
-  --wall-pattern: #4a1c12;
+  --wall: #3a0a0a;
+  --wall-pattern: #5a1010;
   --wall-image:
-    radial-gradient(ellipse 7% 4% at 22% 28%, rgba(150, 10, 10, 0.6) 55%, transparent 100%),
-    radial-gradient(ellipse 4% 6% at 25% 31%, rgba(130, 8, 8, 0.55) 50%, transparent 100%),
-    radial-gradient(ellipse 1% 7% at 23% 36%, rgba(130, 8, 8, 0.5) 40%, transparent 100%),
-    radial-gradient(ellipse 5% 3% at 68% 64%, rgba(120, 6, 6, 0.55) 55%, transparent 100%),
-    radial-gradient(ellipse 3% 5% at 70% 66%, rgba(120, 6, 6, 0.5) 50%, transparent 100%),
-    radial-gradient(ellipse 3% 2% at 84% 18%, rgba(160, 14, 10, 0.5) 55%, transparent 100%),
-    radial-gradient(ellipse 1% 4% at 84% 22%, rgba(140, 10, 8, 0.45) 40%, transparent 100%),
-    radial-gradient(ellipse 45% 25% at 40% 85%, rgba(0, 0, 0, 0.35), transparent 70%),
-    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0 3px, transparent 3px 11px),
-    repeating-linear-gradient(90deg, #1f0e08 0 3px, #3a2114 3px 56px, #2a160d 56px 60px);
-  --wall-size: 520px 520px, 520px 520px, 520px 520px, 520px 520px, 520px 520px, 520px 520px, 520px 520px, 640px 640px, auto, auto;
-  --tv: #8a1612;
-  --tv-dark: #3d0c08;
-  --ink: #160906;
-  --cream: #f1e2c3;
-  --muted: #c9a98f;
-  --mint: #8fb339;
-  --skip: #b3121a;
-  --report: #c8752a;
-  --glow: #ff5a1f;
-  --panel: #3a1f15;
-  --panel-ink: #f1e2c3;
-  --remote: #241410;
-  --remote-hi: #3d2419;
-  --edge: #0e0604;
+    radial-gradient(ellipse 7% 4% at 22% 28%, rgba(196, 18, 18, 0.55) 55%, transparent 100%),
+    radial-gradient(ellipse 4% 6% at 25% 31%, rgba(170, 12, 12, 0.5) 50%, transparent 100%),
+    radial-gradient(ellipse 1% 7% at 23% 36%, rgba(170, 12, 12, 0.45) 40%, transparent 100%),
+    radial-gradient(ellipse 5% 3% at 68% 64%, rgba(180, 12, 12, 0.5) 55%, transparent 100%),
+    radial-gradient(ellipse 3% 5% at 70% 66%, rgba(170, 12, 12, 0.45) 50%, transparent 100%),
+    radial-gradient(ellipse 3% 2% at 84% 18%, rgba(200, 20, 16, 0.45) 55%, transparent 100%),
+    radial-gradient(ellipse 1% 4% at 84% 22%, rgba(170, 12, 12, 0.4) 40%, transparent 100%),
+    radial-gradient(ellipse 45% 30% at 30% 80%, rgba(0, 0, 0, 0.45), transparent 70%),
+    radial-gradient(ellipse 35% 25% at 80% 20%, rgba(0, 0, 0, 0.35), transparent 70%),
+    repeating-linear-gradient(-35deg, rgba(0, 0, 0, 0.32) 0 14px, transparent 14px 92px),
+    repeating-linear-gradient(55deg, rgba(90, 16, 16, 0.35) 0 3px, transparent 3px 27px);
+  --wall-size: 520px 520px, 520px 520px, 520px 520px, 520px 520px, 520px 520px, 520px 520px, 520px 520px, 760px 760px, 760px 760px, auto, auto;
+  --tv: #8b0000;
+  --tv-dark: #4a0000;
+  --ink: #120808;
+  --cream: #e9d8b8;
+  --muted: #c9a3a3;
+  --mint: #9bbf2a;
+  --skip: #c41212;
+  --report: #e6cfa6;
+  --glow: #ff3b1f;
+  --panel: #1c1414;
+  --panel-ink: #e9d8b8;
+  --remote: #1a1010;
+  --remote-hi: #3a1414;
+  --edge: #8b0000;
   --antenna: transparent;
   --shade: #000;
   --line: 4px;
@@ -424,34 +427,36 @@ body {
   }
 
   /* ---------------------------------------------------------------- The Jungle's factions
-     Beyond colours: the furniture itself changes. Alliance: a stone keep with battlements, blue velvet and gold.
-     Horde: rough planks, iron bands and spikes, nothing round. */
+     Beyond colours: the furniture itself changes. Alliance: a blue tabard of a TV crowned with gold battlements,
+     gold trim everywhere, a hint of Stormwind stone. Horde: black riveted iron banded in crimson, spikes, bone. */
 
   :root:has([data-room="alliance"]) .tv {
+    /* satin blue with a vertical sheen, like the banner cloth */
     background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 30%),
-      repeating-linear-gradient(0deg, transparent 0 34px, rgba(0, 0, 0, 0.22) 34px 38px),
-      linear-gradient(180deg, #6b7590, #4f586f);
-    border-radius: 14px;
-    box-shadow: 10px 10px 0 var(--shade), inset 0 0 0 4px var(--tv);
+      linear-gradient(90deg, rgba(255, 255, 255, 0.1), transparent 25%, transparent 75%, rgba(0, 0, 0, 0.2)),
+      repeating-linear-gradient(90deg, transparent 0 18px, rgba(255, 255, 255, 0.025) 18px 20px),
+      var(--tv);
+    border-radius: 12px;
+    box-shadow: 10px 10px 0 var(--shade), inset 0 0 0 3px rgba(227, 179, 65, 0.55), inset 0 0 0 7px var(--tv-dark);
   }
   :root:has([data-room="alliance"]) .tv::before {
-    /* battlements */
+    /* gold crown of battlements */
     left: 20px;
     right: 20px;
     top: -24px;
     width: auto;
     height: 28px;
     transform: none;
-    border-radius: 4px 4px 0 0;
-    background: repeating-linear-gradient(90deg, #5f6a85 0 30px, transparent 30px 50px);
+    border-radius: 3px 3px 0 0;
+    background: repeating-linear-gradient(90deg, var(--gold) 0 26px, transparent 26px 44px);
   }
   :root:has([data-room="alliance"]) .tv::after {
     display: none;
   }
   :root:has([data-room="alliance"]) .tv-screen {
-    border-radius: 8px;
-    box-shadow: 0 0 0 8px var(--tv), 0 0 0 12px var(--edge), 0 0 40px -4px var(--glow);
+    border-radius: 6px;
+    border-color: var(--gold-dark);
+    box-shadow: 0 0 0 6px #d9dfee, 0 0 0 10px var(--gold-dark), 0 0 44px -4px var(--glow);
   }
   :root:has([data-room="alliance"]) .tv-knob {
     background: radial-gradient(circle at 35% 35%, #ffe08a, #b8891a);
@@ -459,7 +464,8 @@ body {
   }
   :root:has([data-room="alliance"]) .panel {
     border-radius: 10px;
-    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.07), transparent 45%);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 45%);
+    box-shadow: var(--pop), inset 0 0 0 2px rgba(227, 179, 65, 0.25);
   }
   :root:has([data-room="alliance"]) .btn {
     border-radius: 8px;
@@ -469,60 +475,63 @@ body {
     border-radius: 6px;
   }
   :root:has([data-room="alliance"]) .field {
-    background: var(--cream);
+    /* Stormwind stone */
+    background: #e9edf5;
   }
   :root:has([data-room="alliance"]) .remote,
   :root:has([data-room="alliance"]) .remote-handle {
-    background-image: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.18) 0 2px, transparent 2px 34px);
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 40%);
     border-radius: 16px;
   }
 
   :root:has([data-room="horde"]) .tv {
+    /* black iron plates, riveted, banded in crimson */
     background:
-      radial-gradient(ellipse 60px 34px at 10% 14%, rgba(140, 8, 8, 0.65) 50%, transparent 100%),
-      radial-gradient(ellipse 10px 70px at 11% 22%, rgba(130, 8, 8, 0.55) 40%, transparent 100%),
-      radial-gradient(ellipse 40px 26px at 90% 84%, rgba(120, 6, 6, 0.55) 50%, transparent 100%),
-      repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.08) 0 2px, transparent 2px 9px),
-      repeating-linear-gradient(90deg, #3d2412 0 3px, #8a5a30 3px 42px, #6b4420 42px 46px);
-    border-radius: 8px;
-    box-shadow: 0 0 0 4px #4b4b4b, 12px 12px 0 var(--shade), inset 0 0 0 2px rgba(0, 0, 0, 0.5);
+      radial-gradient(circle at 14px 14px, #6a6a6a 0 2.5px, #2a2222 3.5px, transparent 4.5px),
+      repeating-linear-gradient(90deg, transparent 0 118px, rgba(0, 0, 0, 0.55) 118px 122px),
+      repeating-linear-gradient(0deg, transparent 0 78px, rgba(0, 0, 0, 0.55) 78px 82px),
+      linear-gradient(180deg, #2e2626, #171212);
+    background-size: 60px 60px, auto, auto, auto;
+    border-radius: 6px;
+    border-color: #0a0606;
+    box-shadow: 0 0 0 5px var(--tv), 0 0 0 8px #0a0606, 12px 12px 0 var(--shade);
   }
   :root:has([data-room="horde"]) .tv::before,
   :root:has([data-room="horde"]) .tv::after {
     /* iron spikes */
-    top: -62px;
-    width: 22px;
-    height: 70px;
+    top: -64px;
+    width: 24px;
+    height: 72px;
     border-radius: 0;
     transform: none;
-    background: linear-gradient(90deg, #9a9a9a, #4a4a4a 55%, #2a2a2a);
+    background: linear-gradient(90deg, #a0a0a0, #4a4a4a 55%, #222);
     clip-path: polygon(50% 0, 100% 100%, 0 100%);
   }
   :root:has([data-room="horde"]) .tv::before {
-    left: 14%;
+    left: 12%;
   }
   :root:has([data-room="horde"]) .tv::after {
     left: auto;
-    right: 14%;
+    right: 12%;
   }
   :root:has([data-room="horde"]) .tv-screen {
-    border-radius: 4px;
-    border-color: #3a3a3a;
-    box-shadow: 0 0 0 8px #262626, 0 0 0 11px #0e0604, inset 0 0 50px #000, 0 0 40px -4px var(--glow);
+    border-radius: 3px;
+    border-color: #0a0606;
+    box-shadow: 0 0 0 6px var(--tv), 0 0 0 9px #0a0606, inset 0 0 50px #000, 0 0 40px -4px var(--glow);
   }
   :root:has([data-room="horde"]) .tv-knob {
-    border-radius: 6px;
+    border-radius: 4px;
     background: radial-gradient(circle at 35% 35%, #8a8a8a, #3a3a3a);
-    border-color: #0e0604;
+    border-color: #0a0606;
   }
   :root:has([data-room="horde"]) .panel {
-    border-radius: 6px;
+    border-radius: 5px;
     background-image:
-      radial-gradient(circle at 92% 8%, rgba(150, 10, 10, 0.45) 0 10px, transparent 11px),
-      linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 40%);
+      radial-gradient(ellipse 40px 24px at 94% 6%, rgba(196, 18, 18, 0.5) 50%, transparent 100%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 40%);
   }
   :root:has([data-room="horde"]) .btn {
-    border-radius: 5px;
+    border-radius: 4px;
   }
   :root:has([data-room="horde"]) .sticker,
   :root:has([data-room="horde"]) .field {
@@ -534,8 +543,8 @@ body {
   :root:has([data-room="horde"]) .remote,
   :root:has([data-room="horde"]) .remote-handle,
   :root:has([data-room="horde"]) .remote-drawer {
-    background-image: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.25) 0 2px, transparent 2px 30px);
-    border-radius: 10px;
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 40%);
+    border-radius: 8px;
   }
 
   /* ---------------------------------------------------------------- the remote */
