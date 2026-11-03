@@ -22,7 +22,7 @@ export function Header({ lastRoom }: { lastRoom: RoomId }) {
   const t = dict(ui);
 
   return (
-    <header className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-4 pt-6 pb-10">
+    <header className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-4 pt-[calc(1.5rem+env(safe-area-inset-top))] pb-10">
       <Link
         href={room ? `/${room}` : '/'}
         className="flex items-center gap-2"

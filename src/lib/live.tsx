@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { RoomId } from '@/config/rooms';
 import { type Dict, dictFor } from '@/i18n';
 import type { ChatMessage, LiveEvent, LiveSnapshot, ReactionBatch, RoomSettings } from './types';
@@ -71,6 +71,9 @@ function apply(s: LiveSnapshot | null, e: LiveEvent): LiveSnapshot | null {
   }
 }
 
+const RECONNECT_MIN_MS = 3000;
+const RECONNECT_MAX_MS = 30_000;
+
 export function LiveProvider({
   room,
   settings: initial,
@@ -114,6 +117,8 @@ export function LiveProvider({
   useEffect(() => {
     let es: EventSource | null = null;
     let poll: ReturnType<typeof setInterval> | null = null;
+    let retry: ReturnType<typeof setTimeout> | null = null;
+    let backoff = RECONNECT_MIN_MS;
     let closed = false;
 
     const onSnapshot = (snap: LiveSnapshot) => {
@@ -138,11 +143,19 @@ export function LiveProvider({
       es = new EventSource(`/api/stream?room=${room}`);
       es.onopen = () => {
         setConnected(true);
+        backoff = RECONNECT_MIN_MS;
         if (poll) clearInterval(poll);
         poll = null;
+        // Back after an outage: cooldowns, skip/report marks and the invite may have moved meanwhile.
+        refreshMe();
       };
       es.onmessage = (m) => {
-        const e = JSON.parse(m.data) as LiveEvent;
+        let e: LiveEvent;
+        try {
+          e = JSON.parse(m.data) as LiveEvent;
+        } catch {
+          return;
+        }
         if (e.type === 'snapshot') onSnapshot(e.data);
         if (e.type === 'closed') window.location.reload();
         if (e.type === 'nowplaying' || e.type === 'steal') refreshMe();
@@ -151,9 +164,19 @@ export function LiveProvider({
         else setState((s) => apply(s, e));
       };
       es.onerror = () => {
-        // EventSource retries on its own; poll meanwhile so the screen keeps moving.
+        // EventSource retries on its own after a network blip; poll meanwhile so the screen keeps moving. But a
+        // non-2xx answer (a 502 during a deploy, a Cloudflare error) closes it for good: reconnect ourselves,
+        // slower each time.
         setConnected(false);
         startPolling();
+        if (es?.readyState === EventSource.CLOSED && !retry) {
+          es.close();
+          retry = setTimeout(() => {
+            retry = null;
+            backoff = Math.min(backoff * 2, RECONNECT_MAX_MS);
+            connect();
+          }, backoff);
+        }
       };
     };
 
@@ -163,6 +186,7 @@ export function LiveProvider({
       closed = true;
       es?.close();
       if (poll) clearInterval(poll);
+      if (retry) clearTimeout(retry);
     };
   }, [room, refreshMe]);
 
@@ -176,10 +200,14 @@ export function LiveProvider({
     return () => void chatListeners.current.delete(fn);
   }, []);
 
+  // One object per real change: every `useLive` consumer re-renders when the value identity changes.
+  const value = useMemo(
+    () => ({ room, t: dictFor(settings.locale), settings, state, connected, serverNow, me, refreshMe, onReactions, onChat }),
+    [room, settings, state, connected, serverNow, me, refreshMe, onReactions, onChat],
+  );
+
   return (
-    <Ctx.Provider
-      value={{ room, t: dictFor(settings.locale), settings, state, connected, serverNow, me, refreshMe, onReactions, onChat }}
-    >
+    <Ctx.Provider value={value}>
       {/* The room's look ([data-room] in globals.css): a private room wears the decor its streamer picked. */}
       <div data-room={settings.decor} className="contents">
         {children}

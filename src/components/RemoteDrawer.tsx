@@ -1,12 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { COUCH_COLLAPSE_AT } from '@/config/app';
 import { useLive } from '@/lib/live';
 import { SfxToggle } from './SoundEffects';
 import { VOTE_HASH, onOpenVote } from './VoteBox';
 
 const OPEN_KEY = 'gtr:remote-open';
+const DESKTOP = '(min-width: 1024px)';
 
 /**
  * The room's controls live in a remote that slides in from the left (the chat has the TV's right), so the TV
@@ -16,19 +17,24 @@ const OPEN_KEY = 'gtr:remote-open';
 export function RemoteDrawer({ children }: { children: React.ReactNode }) {
   const { t } = useLive();
   const [open, setOpen] = useState(false);
+  const handle = useRef<HTMLButtonElement>(null);
+  const hide = useRef<HTMLButtonElement>(null);
 
   // Only desktop reopens it: there it sits beside the TV. On a phone it covers the TV, so it always starts closed.
   useEffect(() => {
     try {
-      setOpen(window.matchMedia('(min-width: 1024px)').matches && localStorage.getItem(OPEN_KEY) === '1');
+      setOpen(window.matchMedia(DESKTOP).matches && localStorage.getItem(OPEN_KEY) === '1');
     } catch {}
   }, []);
 
+  // Only desktop remembers: on a phone the drawer is a modal, and a phone's "closed" must not close it on the
+  // next desktop visit (nor the other way round). Focus follows the drawer: in on open, back to the button on close.
   const toggle = useCallback((next: boolean) => {
     setOpen(next);
     try {
-      localStorage.setItem(OPEN_KEY, next ? '1' : '0');
+      if (window.matchMedia(DESKTOP).matches) localStorage.setItem(OPEN_KEY, next ? '1' : '0');
     } catch {}
+    setTimeout(() => (next ? hide.current : handle.current)?.focus({ preventScroll: true }), 60);
   }, []);
 
   // Desktop: the page makes room for the open remote instead of hiding behind it (globals.css).
@@ -40,9 +46,15 @@ export function RemoteDrawer({ children }: { children: React.ReactNode }) {
   // "Pick a video" anywhere (or a link to /<room>#vote) opens the remote on the link box.
   useEffect(() => {
     const toVote = () => {
-      toggle(true);
-      // The drawer is inert until it re-renders open.
-      setTimeout(() => document.getElementById('vote-url')?.focus({ preventScroll: true }), 60);
+      // Phones have the link box under the TV; desktop has it in the drawer (inert until it re-renders open).
+      if (window.matchMedia(DESKTOP).matches) {
+        toggle(true);
+        setTimeout(() => document.getElementById('vote-url')?.focus({ preventScroll: true }), 80);
+      } else {
+        const box = document.getElementById('vote-url-compact');
+        box?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        setTimeout(() => box?.focus({ preventScroll: true }), 300);
+      }
     };
     if (window.location.hash === VOTE_HASH) {
       history.replaceState(null, '', window.location.pathname + window.location.search);
@@ -64,6 +76,7 @@ export function RemoteDrawer({ children }: { children: React.ReactNode }) {
       {open && <div aria-hidden className="fixed inset-0 z-40 bg-black/40 lg:hidden" onClick={() => toggle(false)} />}
 
       <button
+        ref={handle}
         type="button"
         aria-expanded={open}
         aria-controls="remote-drawer"
@@ -72,8 +85,8 @@ export function RemoteDrawer({ children }: { children: React.ReactNode }) {
       >
         <span aria-hidden className="remote-handle-power" />
         <span aria-hidden>📺</span>
-        {/* Phones: just the power button, the TV and the count, so it hides as little as possible. */}
-        <span className="remote-handle-label max-sm:sr-only">{t.remote.label}</span>
+        {/* The label shows everywhere: on a phone this is the only way to find skip and report. */}
+        <span className="remote-handle-label">{t.remote.label}</span>
         <LiveLight dot />
         <CouchCount compact />
       </button>
@@ -86,6 +99,7 @@ export function RemoteDrawer({ children }: { children: React.ReactNode }) {
       >
         <div className="flex items-center justify-between gap-3">
           <button
+            ref={hide}
             type="button"
             onClick={() => toggle(false)}
             className="btn bg-[var(--remote-hi)] px-3 py-1 text-sm text-[var(--cream)]"

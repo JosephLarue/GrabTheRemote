@@ -133,7 +133,7 @@ function ShameCard({ row, rank, owned }: { row: HallRow; rank?: number; owned?: 
           {title}
         </p>
         <p className="font-display text-sm leading-tight sm:text-base">{headline}</p>
-        <p className="line-clamp-2 text-[11px] font-black text-[var(--skip)]">“{t.hall.roasts[roastOf(row.reason, row.value)]}”</p>
+        <p className="line-clamp-2 text-[11px] font-black text-[var(--danger-panel-ink)]">“{t.hall.roasts[roastOf(row.reason, row.value)]}”</p>
         <p className="mt-auto flex items-center justify-between pt-2 text-[10px] font-bold opacity-70">
           <span>{settings.name}</span>
           <span>{t.cards.lasted(formatLasted(row.value))}</span>
