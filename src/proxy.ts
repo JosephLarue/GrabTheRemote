@@ -7,7 +7,7 @@ const ORIGIN_LOCK_EXEMPT = ['/api/health'];
 // Those files are public anyway, so the lock has nothing to protect there.
 const PUBLIC_ASSET = /\.(png|jpe?g|webp|gif|svg|ico|txt|xml|webmanifest)$/;
 
-/** Constant-time string compare (no node:crypto in the edge runtime). */
+/** Constant-time string compare, dependency-free so the proxy stays tiny. */
 function safeEqual(a: string, b: string): boolean {
   let diff = a.length ^ b.length;
   for (let i = 0; i < b.length; i++) diff |= (a.charCodeAt(i) || 0) ^ b.charCodeAt(i);
@@ -69,7 +69,7 @@ function rooms(req: NextRequest): NextResponse {
   return res;
 }
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   if (!originAllowed(req)) return new NextResponse('Forbidden', { status: 403 });
   const path = req.nextUrl.pathname;
   if ((path === '/admin' || path.startsWith('/admin/')) && !adminAllowed(req)) {

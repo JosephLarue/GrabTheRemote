@@ -146,7 +146,7 @@ pnpm dev                        # http://localhost:3000
 |---|---|
 | Every tunable number (cooldowns, thresholds, quota limits) | `src/config/app.ts` |
 | Themes | `src/config/constraints.ts` |
-| Rooms (list, names, browser-language pick) | `src/config/rooms.ts`, routing in `src/middleware.ts`, pages in `src/app/[room]` |
+| Rooms (list, names, browser-language pick) | `src/config/rooms.ts`, routing in `src/proxy.ts`, pages in `src/app/[room]` |
 | UI copy per room language (en, fr, es, it) | `src/i18n` |
 | Playback ticker, queue advance, per-room lock | `src/server/engine.ts`, started from `src/instrumentation.ts` |
 | Live state, SSE fan-out, viewer presence | `src/server/state.ts`, `src/app/api/stream` |
@@ -160,7 +160,7 @@ The ticker needs a **long-running Node process** (not serverless). Run a single 
 
 1. Provision Postgres and Redis, then set every variable from `.env.example`. Set `IP_HASH_SECRET` to a long random string and `NEXT_PUBLIC_SITE_URL` to the public URL (e.g. `https://grab-the-remote.com`), otherwise social previews point to localhost.
 2. Build with `pnpm build`, run `pnpm db:migrate` as the pre-deploy step, and start with `pnpm start`. Point the platform health check at `/api/health` (200 when Postgres and Redis answer and the ticker is ticking, 503 otherwise). On `SIGTERM` the server finishes the ticks in flight and closes Redis and Postgres before exiting.
-3. Put **Cloudflare** in front with proxied DNS, then lock the origin so `CF-Connecting-IP` can't be spoofed: set `ORIGIN_SECRET` (`openssl rand -base64 32`) and add a Cloudflare Transform Rule (Rules > Transform Rules > Modify request header) that sets `x-origin-secret: <ORIGIN_SECRET>` on every request. The middleware answers 403 to anything without it, except `/api/health`. In production the server refuses to boot without `ORIGIN_SECRET`, or with a `NEXT_PUBLIC_SITE_URL` that isn't `https://`.
+3. Put **Cloudflare** in front with proxied DNS, then lock the origin so `CF-Connecting-IP` can't be spoofed: set `ORIGIN_SECRET` (`openssl rand -base64 32`) and add a Cloudflare Transform Rule (Rules > Transform Rules > Modify request header) that sets `x-origin-secret: <ORIGIN_SECRET>` on every request. The proxy answers 403 to anything without it, except `/api/health`. In production the server refuses to boot without `ORIGIN_SECRET`, or with a `NEXT_PUBLIC_SITE_URL` that isn't `https://`.
 4. **Ads:** set `NEXT_PUBLIC_ADS_PROVIDER=adsense` and `NEXT_PUBLIC_ADSENSE_CLIENT_ID=ca-pub-…`. Turn on the GDPR message in AdSense > Privacy & messaging. `ads.txt` is generated automatically.
 5. Fill in `LEGAL` in `src/config/app.ts` (publisher, host, contact email). It feeds `/legal` and `/privacy`.
 
