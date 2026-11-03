@@ -5,6 +5,8 @@
   --wall-pattern: #7a5eff;
   --tv: #ff5da2;
   --tv-dark: #d93f84;
+  /* text on the TV frame (title, countdown): dark on the pastel TVs, light on the factions' dark ones */
+  --tv-ink: var(--ink);
   --ink: #1c1236;
   --remote: #2e2650;
   --remote-hi: #463b74;
@@ -139,6 +141,7 @@
   --wall-size: 65px 65px, 65px 65px, 65px 65px, 65px 65px;
   --tv: #1d3fa0;
   --tv-dark: #112a73;
+  --tv-ink: #f3e6c2;
   --ink: #0b1437;
   --cream: #f3e6c2;
   --muted: #b9c5e8;
@@ -159,7 +162,7 @@
 }
 
 /* The Jungle, Horde side: the war banner. WoW's Horde crimson (#8b0000 → #3a0a0a), black iron, bone, fire.
-   Blood on the wall, spikes on the TV, nothing round. */
+   Blood on the wall, nothing round. */
 :root:has([data-room="horde"]) {
   --wall: #3a0a0a;
   --wall-pattern: #5a1010;
@@ -178,6 +181,7 @@
   --wall-size: 520px 520px, 520px 520px, 520px 520px, 520px 520px, 520px 520px, 520px 520px, 520px 520px, 760px 760px, 760px 760px, auto, auto;
   --tv: #8b0000;
   --tv-dark: #4a0000;
+  --tv-ink: #e9d8b8;
   --ink: #120808;
   --cream: #e9d8b8;
   --muted: #c9a3a3;
@@ -428,7 +432,7 @@ body {
 
   /* ---------------------------------------------------------------- The Jungle's factions
      Beyond colours: the furniture itself changes. Alliance: a blue tabard of a TV crowned with gold battlements,
-     gold trim everywhere, a hint of Stormwind stone. Horde: black riveted iron banded in crimson, spikes, bone. */
+     gold trim everywhere, a hint of Stormwind stone. Horde: black riveted iron banded in crimson, bone. */
 
   :root:has([data-room="alliance"]) .tv {
     /* satin blue with a vertical sheen, like the banner cloth */
@@ -498,21 +502,8 @@ body {
   }
   :root:has([data-room="horde"]) .tv::before,
   :root:has([data-room="horde"]) .tv::after {
-    /* iron spikes */
-    top: -64px;
-    width: 24px;
-    height: 72px;
-    border-radius: 0;
-    transform: none;
-    background: linear-gradient(90deg, #a0a0a0, #4a4a4a 55%, #222);
-    clip-path: polygon(50% 0, 100% 100%, 0 100%);
-  }
-  :root:has([data-room="horde"]) .tv::before {
-    left: 12%;
-  }
-  :root:has([data-room="horde"]) .tv::after {
-    left: auto;
-    right: 12%;
+    /* no rabbit ears on a war machine */
+    display: none;
   }
   :root:has([data-room="horde"]) .tv-screen {
     border-radius: 3px;
