@@ -225,6 +225,14 @@ export const it: Dict = {
     watching: (n) => `${n} sul divano in questo momento`,
     hallTitle: 'Hall of Fame',
     hallDescription: 'I preferiti di sempre, le valanghe di voti più grandi, i record di pubblico e la Hall of Shame con le sue card da condividere.',
+    twitchTitle: 'Guardare Twitch insieme · stanza Twitch',
+    twitchDescription:
+      'Un solo schermo condiviso per una diretta Twitch. Tutti guardano lo stesso canale nello stesso momento, e la folla vota se tenerlo o cambiarlo, poi sceglie il prossimo. Niente account, niente iscrizione.',
+  },
+  notFound: {
+    title: 'Nessuno su questo divano 🚪',
+    body: 'Questa pagina non esiste, o si è alzata ed è andata via.',
+    back: 'Torna sul divano',
   },
   sfx: { on: 'Effetti sonori: attivi', off: 'Effetti sonori: spenti' },
   invite: {
