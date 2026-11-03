@@ -30,7 +30,12 @@ function adminAllowed(req: NextRequest): boolean {
   const header = req.headers.get('authorization') ?? '';
   const [scheme, encoded] = header.split(' ');
   if (!expected || scheme !== 'Basic' || !encoded) return false;
-  const decoded = atob(encoded);
+  let decoded: string;
+  try {
+    decoded = atob(encoded);
+  } catch {
+    return false; // not base64: a malformed header is just a wrong password, not a 500
+  }
   return safeEqual(decoded.slice(decoded.indexOf(':') + 1), expected);
 }
 

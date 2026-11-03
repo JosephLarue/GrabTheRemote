@@ -1,10 +1,19 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { addKeyword, banChannel, banVideo, clearFlag, forceSkip, unbanChannel, unbanVideo } from '@/app/admin/actions';
 import { getNowPlaying } from '@/server/state';
 import { playNext, playsOf, seedVideo, state, vid, videoRow, vote } from './helpers';
 
 // Outside a Next.js request there is no cache to revalidate.
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
+
+// Server actions read the request's Basic auth themselves; the tests play the browser that typed it.
+let authorization = '';
+vi.mock('next/headers', () => ({ headers: async () => new Headers(authorization ? { authorization } : {}) }));
+const basic = (password: string) => `Basic ${Buffer.from(`admin:${password}`).toString('base64')}`;
+
+beforeEach(() => {
+  authorization = basic('test-admin');
+});
 
 const form = (fields: Record<string, string>) => {
   const f = new FormData();
@@ -13,6 +22,15 @@ const form = (fields: Record<string, string>) => {
 };
 
 describe('admin actions', () => {
+  it('refuse anyone without the admin password', async () => {
+    const id = await seedVideo({ id: vid(1) });
+    for (const header of ['', 'Basic not-base64!', basic('wrong'), basic('test-admin ')]) {
+      authorization = header;
+      await expect(banVideo(form({ id }))).rejects.toThrow('Admins only');
+    }
+    expect((await videoRow(id)).banned).toBe(false);
+  });
+
   it('force skip ends the current play', async () => {
     const id = await seedVideo({ id: vid(1) });
     await vote('it', id);
