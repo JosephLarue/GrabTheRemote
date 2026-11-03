@@ -116,13 +116,13 @@ Stack:
 - **Redis** for votes, cooldowns, the queue and live state
 - **Server-Sent Events** to keep everyone's screen in sync
 - Two stacked YouTube players: the likely next video is cued on the standby one during the last minute, so the switch is instant
-- `/sitemap.xml`, `/robots.txt` and a web manifest (installable); public rooms carry hreflang, canonical and a live couch count in their description and share card
+- `/sitemap.xml`, `/robots.txt` and a web manifest (installable); public rooms and their Hall of Fame carry hreflang and canonical, and a live couch count in their description and share card
 - **Cloudflare Turnstile** to stop the bots
 - **YouTube IFrame + Data API** (with aggressive caching, because quota is precious)
 
 ### Run it locally
 
-You need Node 20+, pnpm and Docker.
+You need Node 22 (`.nvmrc`), pnpm and Docker.
 
 ```bash
 pnpm install
