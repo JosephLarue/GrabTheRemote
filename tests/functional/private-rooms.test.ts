@@ -12,6 +12,7 @@ import {
   joinRoom,
   me,
   playNext,
+  playsOf,
   report,
   roomSettingsUpdate,
   seedVideo,
@@ -163,9 +164,13 @@ describe('private rooms', () => {
 
   it('closes for good, by hand or after a day with nobody watching', async () => {
     const a = await room(input(), 2);
+    await playing(a.id);
     expect(await control(a.id, 'close', { viewer: 2 })).toMatchObject({ status: 403 });
     expect((await control(a.id, 'close', { viewer: STREAMER })).status).toBe(200);
     expect(await state(a.id, STREAMER)).toMatchObject({ status: 404, body: { error: 'room_gone' } });
+    // Whatever was on screen is over: no play row stays open forever.
+    expect(await playsOf(vid(1))).toEqual([expect.objectContaining({ room: a.id, endReason: 'admin' })]);
+    expect((await playsOf(vid(1)))[0].endedAt).toBeInstanceOf(Date);
 
     const b = await room();
     await redis().del(K.privateRoom(b.id)); // what the idle TTL does

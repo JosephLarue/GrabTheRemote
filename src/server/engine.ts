@@ -5,10 +5,11 @@ import { FALLBACK_VIDEOS, STATIC_TRANSITION_MS } from '@/config/app';
 import { ROOMS, type RoomId, isTwitchRoom } from '@/config/rooms';
 import type { NowPlaying, RoomRules, VideoMeta } from '@/lib/types';
 import { db, schema } from './db/client';
+import { ApiError } from './http';
 import { K } from './keys';
 import { assertAllowed, assertFitsRoom } from './moderation';
 import { popBest, poolIds, sweepPool } from './pool';
-import { delIfEquals, redis } from './redis';
+import { delIfEquals, pexpireIfEquals, redis } from './redis';
 import {
   getNowPlaying,
   poolForClients,
@@ -27,15 +28,24 @@ import { getMeta, refreshStale, toCard } from './youtube';
 
 type EndReason = 'finished' | 'skipped' | 'reported' | 'admin' | 'vetoed';
 
-/** Serializes a room's playback changes across requests, the ticker and multiple instances. */
+const LOCK_TTL_MS = 10_000;
+const LOCK_RENEW_MS = 3000;
+
+/**
+ * Serializes a room's playback changes across requests, the ticker and multiple instances. The lock is
+ * renewed while `fn` runs (a slow YouTube call must not let another instance advance the same room), but
+ * only while it still holds our token: once the TTL has lapsed and someone else took it, we leave it alone.
+ */
 export async function withLock<T>(room: RoomId, fn: () => Promise<T>, { wait = true } = {}): Promise<T | undefined> {
   const token = randomUUID();
   const key = K.lockAdvance(room);
   for (let i = 0; i < (wait ? 40 : 1); i++) {
-    if (await redis().set(key, token, 'PX', 10_000, 'NX')) {
+    if (await redis().set(key, token, 'PX', LOCK_TTL_MS, 'NX')) {
+      const renew = setInterval(() => void pexpireIfEquals(key, token, LOCK_TTL_MS).catch(() => {}), LOCK_RENEW_MS);
       try {
         return await fn();
       } finally {
+        clearInterval(renew);
         await delIfEquals(key, token);
       }
     }
@@ -44,13 +54,18 @@ export async function withLock<T>(room: RoomId, fn: () => Promise<T>, { wait = t
   return undefined;
 }
 
+/**
+ * False when the room's rules refuse the video (an ApiError from moderation). Anything else (Postgres down,
+ * blocklist unreadable) propagates: a candidate must not be thrown away because we couldn't judge it.
+ */
 const isPlayable = (rules: RoomRules) => async (m: VideoMeta) => {
   try {
     await assertAllowed(m, rules);
     assertFitsRoom(rules, m);
     return true;
-  } catch {
-    return false;
+  } catch (e) {
+    if (e instanceof ApiError) return false;
+    throw e;
   }
 };
 
@@ -134,6 +149,8 @@ export async function advance(room: RoomId, reason: EndReason | null) {
     pausedAt: null,
   };
   await setNowPlaying(room, np);
+  // Viewer-seconds for the new play count from its start, not from the previous play's last credit.
+  await redis().set(K.acct(room), String(startedAt));
   const viewers = await viewerCount(room);
   await publish(room, { type: 'nowplaying', data: np });
   await publish(room, { type: 'pool', data: await poolForClients(room) });
@@ -160,17 +177,37 @@ export async function resumePlayback(room: RoomId, now = Date.now()) {
   const d = Math.max(0, now - np.pausedAt);
   const resumed = { ...np, startedAt: np.startedAt + d, endsAt: np.endsAt + d, pausedAt: null };
   await setNowPlaying(room, resumed);
+  await redis().set(K.acct(room), String(now)); // the pause earned nobody any viewer-seconds
   await publish(room, { type: 'nowplaying', data: resumed });
   return resumed;
 }
 
+/**
+ * Closes a private room: ends whatever is on screen (so no `plays` row stays open forever), drops its
+ * state and tells the viewers. Takes the room's lock itself.
+ */
+export async function closePrivateRoom(room: RoomId) {
+  await withLock(room, async () => {
+    const np = await getNowPlaying(room);
+    if (np && np.state === 'playing') await closePlay(np, 'admin');
+    await forgetPrivateRoom(room);
+  });
+  await publish(room, { type: 'closed', data: null });
+}
+
 // ---------------------------------------------------------------- ticker
 
-const g = globalThis as unknown as { __ticker?: NodeJS.Timeout };
+const g = globalThis as unknown as { __ticker?: NodeJS.Timeout; __lastTickAt?: number };
 let tickN = 0;
 const lastSlot = new Map<RoomId, number>();
 const nextAdvanceTry = new Map<RoomId, number>();
-let running = false;
+const lastAdvanceError = new Map<RoomId, number>();
+/** Rooms whose previous tick is still running: each room skips its own late ticks, without blocking the others. */
+const ticking = new Set<RoomId>();
+const ADVANCE_RETRY_MS = 10_000;
+const ADVANCE_ERROR_LOG_EVERY_MS = 60_000;
+/** Viewer-seconds credit per tick is capped: a missing or ancient timestamp must not credit hours at once. */
+const ACCT_MAX_ELAPSED_MS = 30_000;
 
 /** Twitch rooms: the keep/change/pick state machine, plus the viewer count. No queue, no themes. */
 async function tickTwitchRoom(room: RoomId, now: number) {
@@ -199,8 +236,18 @@ async function tickRoom(room: RoomId, now: number) {
       } else if ((!np || now >= np.endsAt) && now >= (nextAdvanceTry.get(room) ?? 0)) {
         // A reported card was already closed as 'reported' when the threshold was hit.
         const reason = np && np.state === 'playing' ? 'finished' : null;
-        const next = await advance(room, reason);
-        if (!next) nextAdvanceTry.set(room, now + 10_000);
+        let next: NowPlaying | null = null;
+        try {
+          next = await advance(room, reason);
+        } catch (e) {
+          // Postgres/Redis/YouTube trouble: the pool is intact (popBest judges before removing), so retry
+          // later rather than hammering a sick dependency every second. Logged once a minute per room.
+          if (now - (lastAdvanceError.get(room) ?? 0) >= ADVANCE_ERROR_LOG_EVERY_MS) {
+            lastAdvanceError.set(room, now);
+            console.error(`[ticker:${room}] advance failed`, e);
+          }
+        }
+        if (!next) nextAdvanceTry.set(room, now + ADVANCE_RETRY_MS);
       } else if (np?.state === 'playing') {
         await maybeStealRemote(room, now);
       }
@@ -229,13 +276,20 @@ async function tickRoom(room: RoomId, now: number) {
           await publish(room, { type: 'report', data: await reportState(cur.playId, viewers) });
         }
         if (cur && cur.state === 'playing' && !cur.pausedAt && tickN % 6 === 0 && now >= cur.startedAt) {
-          await db()
-            .update(schema.plays)
-            .set({
-              viewerSeconds: sql`${schema.plays.viewerSeconds} + ${viewers * 6}`,
-              peakViewers: sql`greatest(${schema.plays.peakViewers}, ${viewers})`,
-            })
-            .where(eq(schema.plays.id, cur.playId));
+          // Elapsed time comes from a shared Redis timestamp, so N instances credit the wall clock once,
+          // not N times. GETSET is atomic: two instances can't both read the same previous value.
+          const prev = Number(await redis().getset(K.acct(room), String(now)));
+          const elapsedMs = Math.min(ACCT_MAX_ELAPSED_MS, Math.max(0, now - (prev || now)));
+          const credit = Math.round((viewers * elapsedMs) / 1000);
+          if (viewers > 0) {
+            await db()
+              .update(schema.plays)
+              .set({
+                viewerSeconds: sql`${schema.plays.viewerSeconds} + ${credit}`,
+                peakViewers: sql`greatest(${schema.plays.peakViewers}, ${viewers})`,
+              })
+              .where(eq(schema.plays.id, cur.playId));
+          }
         }
       }
     },
@@ -253,8 +307,7 @@ async function livePrivateRooms(): Promise<RoomId[]> {
   const alive: RoomId[] = [];
   for (const room of ids) {
     if (!(await roomSettings(room))) {
-      await forgetPrivateRoom(room);
-      await publish(room, { type: 'closed', data: null });
+      await closePrivateRoom(room);
       continue;
     }
     if ((await viewerCount(room)) > 0) await touchPrivateRoom(room);
@@ -263,26 +316,51 @@ async function livePrivateRooms(): Promise<RoomId[]> {
   return alive;
 }
 
-async function tick() {
-  if (running) return;
-  running = true;
+/** One room's tick, unless its previous one is still running: a stuck room never freezes the others. */
+async function tickRoomOnce(room: RoomId, now: number) {
+  if (ticking.has(room)) return;
+  ticking.add(room);
   try {
-    const now = Date.now();
+    await tickRoom(room, now);
+  } catch (e) {
+    console.error(`[ticker:${room}]`, e);
+  } finally {
+    ticking.delete(room);
+  }
+}
+
+async function tick() {
+  const now = Date.now();
+  g.__lastTickAt = now;
+  try {
     tickN++;
     const rooms: RoomId[] = [...ROOMS, ...(await livePrivateRooms())];
-    // One room failing must not freeze the others.
-    const results = await Promise.allSettled(rooms.map((room) => tickRoom(room, now)));
-    results.forEach((r, i) => r.status === 'rejected' && console.error(`[ticker:${rooms[i]}]`, r.reason));
+    await Promise.all(rooms.map((room) => tickRoomOnce(room, now)));
     if (tickN % 600 === 0) await refreshStale((await Promise.all(rooms.map(poolIds))).flat());
   } catch (e) {
     console.error('[ticker]', e);
-  } finally {
-    running = false;
   }
 }
 
 export function startTicker() {
   if (g.__ticker) return;
+  g.__lastTickAt = Date.now();
   g.__ticker = setInterval(tick, 1000);
   console.log('[ticker] started');
+}
+
+/** For the health check: whether this process ticks, and when it last did. */
+export function tickerStatus() {
+  return { started: Boolean(g.__ticker), lastTickAt: g.__lastTickAt ?? 0 };
+}
+
+/** Stops scheduling ticks and waits (up to `maxWaitMs`) for the rooms still mid-tick to finish. */
+export async function stopTicker(maxWaitMs = 5000) {
+  if (!g.__ticker) return;
+  clearInterval(g.__ticker);
+  delete g.__ticker;
+  const deadline = Date.now() + maxWaitMs;
+  while (ticking.size > 0 && Date.now() < deadline) await new Promise((r) => setTimeout(r, 100));
+  if (ticking.size > 0) console.error(`[ticker] stopped with ${ticking.size} room tick(s) still running`);
+  else console.log('[ticker] stopped');
 }

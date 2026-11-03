@@ -14,6 +14,8 @@ export const K = {
   skipCd: (room: RoomId) => r(room, 'skip:cd'),
   presence: (room: RoomId) => r(room, 'presence'),
   lockAdvance: (room: RoomId) => r(room, 'lock:advance'),
+  /** When viewer-seconds were last credited (ms), shared by every instance so they don't each count. */
+  acct: (room: RoomId) => r(room, 'acct'),
   /** Last chat messages (JSON), newest first; expires an hour after the last one. */
   chat: (room: RoomId) => r(room, 'chat'),
   hallCache: (room: RoomId, tab: string) => r(room, `hall:${tab}`),
@@ -54,6 +56,8 @@ export const K = {
   ytCache: (id: string) => `yt:cache:${id}`,
   ytQuota: (day: string) => `yt:quota:${day}`,
   rate: (bucket: string, iph: string) => `rate:${bucket}:${iph}`,
+  /** Open SSE streams per IP hash; refreshed by the presence ping, so a dead process can't pin it. */
+  streams: (iph: string) => `streams:${iph}`,
   /** Single pub/sub channel; each message is `<room>|<json event>`. */
   events: 'events',
 } as const;

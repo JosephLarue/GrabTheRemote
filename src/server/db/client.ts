@@ -11,4 +11,11 @@ export function db() {
   return g.__db;
 }
 
+/** Graceful shutdown: lets running queries finish (up to `timeoutS`), then closes the pool. */
+export async function closeDb(timeoutS = 5) {
+  const client = g.__db?.$client;
+  delete g.__db;
+  await client?.end({ timeout: timeoutS });
+}
+
 export { schema };
