@@ -5,6 +5,7 @@ import { isMyPick } from '@/lib/api';
 import { addCard } from '@/lib/cards';
 import { shatter } from '@/lib/fx';
 import { useLive } from '@/lib/live';
+import { useClientValue } from '@/lib/use-client-value';
 import { onSfxChange, play, setSfxEnabled, sfxEnabled } from '@/lib/sfx';
 import type { NowPlaying } from '@/lib/types';
 
@@ -63,11 +64,7 @@ export function SoundEffects() {
 /** The sound on/off switch, remembered per browser. */
 export function SfxToggle({ compact }: { compact?: boolean }) {
   const { t } = useLive();
-  const [on, setOn] = useState(true);
-  useEffect(() => {
-    setOn(sfxEnabled());
-    return onSfxChange(setOn);
-  }, []);
+  const on = useClientValue(sfxEnabled, true, onSfxChange);
   const label = on ? t.sfx.on : t.sfx.off;
   return (
     <button

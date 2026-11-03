@@ -1,14 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useClientValue } from '@/lib/use-client-value';
+
+const hostname = () => window.location.hostname;
 
 /**
  * Twitch's embedded player. No click shield on top (unlike YouTube): Twitch's own controls stay usable,
  * including unmute. `parent` must be the page's host, which only the browser knows.
  */
 export function TwitchPlayer({ login, overlay }: { login: string | null; overlay?: React.ReactNode }) {
-  const [host, setHost] = useState<string | null>(null);
-  useEffect(() => setHost(window.location.hostname), []);
+  const host = useClientValue(hostname, null);
 
   return (
     <div className="tv-screen">

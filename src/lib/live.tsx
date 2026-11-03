@@ -127,6 +127,7 @@ export function LiveProvider({
 
     const startPolling = () => {
       if (poll) return;
+      refreshMe();
       poll = setInterval(async () => {
         const res = await fetch(`/api/state?room=${room}`, { cache: 'no-store' }).catch(() => null);
         // Closed, or the password changed: the server-rendered page shows what happened.
@@ -181,7 +182,6 @@ export function LiveProvider({
     };
 
     connect();
-    refreshMe();
     return () => {
       closed = true;
       es?.close();

@@ -44,6 +44,8 @@ export function OwnerPanel() {
 
   const close = async () => {
     if (window.confirm(p.closeConfirm) && (await call('/api/rooms/control', { action: 'close' }))) {
+      // Full reload on purpose: drops this room's live connection and cookies-derived state.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.assign('/private');
     }
   };

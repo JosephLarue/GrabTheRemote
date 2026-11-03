@@ -100,7 +100,9 @@ export function SyncedPlayer({ np, overlay }: { np: NowPlaying | null; overlay?:
   const pausedAt = np?.pausedAt ?? null;
   // Resuming a pause shifts startedAt: that must not reload the video, so the load reads it from here.
   const startedAtRef = useRef(startedAt);
-  startedAtRef.current = startedAt;
+  useEffect(() => {
+    startedAtRef.current = startedAt;
+  }, [startedAt]);
 
   const applySound = (p: YTPlayer) => {
     if (unmutedThisSession) {

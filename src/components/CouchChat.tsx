@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { CHAT_HISTORY, CHAT_MAX_LENGTH } from '@/config/app';
 import { errorText } from '@/i18n';
 import { post } from '@/lib/api';
 import { type ChatName, chatName, isChatSeed } from '@/lib/chat';
 import { useLive } from '@/lib/live';
+import { useClientValue } from '@/lib/use-client-value';
 import { useCinema } from './Cinema';
 import { ReactionBar } from './CouchReactions';
 import type { ChatMessage } from '@/lib/types';
@@ -46,20 +47,15 @@ function merge(list: ChatMessage[], fresh: ChatMessage[]) {
 export function CouchChat() {
   const { room, t, connected, onChat } = useLive();
   const cinema = useCinema();
-  const [seed, setSeed] = useState<string | null>(null);
-  const [me, setMe] = useState<ChatName | null>(null);
+  // The tab's seed lives in sessionStorage: only the browser knows it, and it never changes while the tab is open.
+  const seed = useClientValue(sessionSeed, null);
+  const me = useMemo<ChatName | null>(() => (seed ? chatName(seed) : null), [seed]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
   const list = useRef<HTMLOListElement>(null);
   const pinned = useRef(true);
-
-  useEffect(() => {
-    const s = sessionSeed();
-    setSeed(s);
-    setMe(chatName(s));
-  }, []);
 
   useEffect(() => onChat((m) => setMessages((all) => merge(all, [m]))), [onChat]);
 
