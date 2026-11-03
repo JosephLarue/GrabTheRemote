@@ -6,7 +6,7 @@ import {
   PRIVATE_VOTE_COOLDOWNS_S,
 } from '@/config/app';
 import { CONSTRAINTS } from '@/config/constraints';
-import { DECORS, type PublicRoomId } from '@/config/rooms';
+import { DECORS, isDecorPick } from '@/config/rooms';
 import type { RoomSettings } from './types';
 
 // What a streamer sends when creating or editing a private room. Every option is picked from a fixed list.
@@ -17,7 +17,7 @@ const oneOf = <T extends string | number>(values: readonly T[]) =>
 export const roomInputSchema = z.object({
   name: z.string().trim().min(1).max(40),
   locale: oneOf(PRIVATE_LOCALES),
-  decor: oneOf(DECORS as readonly PublicRoomId[]),
+  decor: oneOf(DECORS),
   rules: z.object({
     maxDurationMin: oneOf(PRIVATE_MAX_DURATIONS_MIN),
     voteCooldownS: oneOf(PRIVATE_VOTE_COOLDOWNS_S),
@@ -76,7 +76,8 @@ export function toInput(s: RoomSettings): RoomInput {
   return {
     name: s.name,
     locale: s.locale,
-    decor: s.decor,
+    // A private room never stores the Twitch look; the fallback only keeps the types honest.
+    decor: isDecorPick(s.decor) ? s.decor : 'jungle',
     rules: {
       maxDurationMin: s.rules.maxDurationS ? Math.round(s.rules.maxDurationS / 60) : 15,
       voteCooldownS: s.rules.voteCooldownS,

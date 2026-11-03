@@ -17,7 +17,7 @@ GrabTheRemote is a single shared screen playing YouTube videos. Everybody watche
 
 ## 🌍 Rooms
 
-Five screens, five crowds: 🇬🇧 **English** (`/en`), 🇫🇷 **Français** (`/fr`), 🇪🇸 **Español** (`/es`), 🇮🇹 **Italiano** (`/it`) and 🌴 **The Jungle** (`/jungle`), where anything goes. Each room has its own queue, its own remote, its own vote cooldown and its own Hall of Fame. Themes are shared.
+Five screens, five crowds: 🇬🇧 **English** (`/en`), 🇫🇷 **Français** (`/fr`), 🇪🇸 **Español** (`/es`), 🇮🇹 **Italiano** (`/it`) and 🌴 **The Jungle** (`/jungle`), where anything goes and the walls side with the Alliance or the Horde, drawn at random on each visit. Each room has its own queue, its own remote, its own vote cooldown and its own Hall of Fame. Themes are shared.
 
 Language rooms only refuse a video when YouTube says it's in another language; videos that don't declare a language get the benefit of the doubt. The Jungle takes anything.
 
@@ -27,7 +27,7 @@ Landing on `/` takes you back to your last room, or to the one matching your bro
 
 Doing react content? Go to `/private` and make your own room. You get an **ID** and a **password** to show your chat, plus a secret owner link to run the room from another device.
 
-You set the rules: **max video length**, **one vote every** 30 s to 15 min, the **video language**, whether the **skip** and **report** buttons exist, and the **themes** (the roulette, no theme, or one theme all session). Pick the page language and the room's look (any public room's decor). Change any of it live.
+You set the rules: **max video length**, **one vote every** 30 s to 15 min, the **video language**, whether the **skip** and **report** buttons exist, and the **themes** (the roulette, no theme, or one theme all session). Pick the page language and the room's look (any public room's decor, or the Alliance and Horde looks of The Jungle). Change any of it live.
 
 During the stream you can **pause** everyone's screen, **skip** what's playing, or **close** the room. Your chat votes like in any other room. A room disappears after a day with nobody watching.
 

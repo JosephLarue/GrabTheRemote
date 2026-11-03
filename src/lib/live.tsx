@@ -97,7 +97,9 @@ export function LiveProvider({
   const reactionListeners = useRef(new Set<(batch: ReactionBatch) => void>());
   const chatListeners = useRef(new Set<(msg: ChatMessage) => void>());
 
-  const settings = state?.room ?? initial;
+  // A public room's settings are constants, and the page keeps the look it was served (The Jungle draws its
+  // faction per visit). A private room's streamer can change everything live, so the snapshot wins there.
+  const settings = initial.private ? (state?.room ?? initial) : initial;
 
   // The root layout can't know the room, so the room sets the document language itself.
   useEffect(() => {

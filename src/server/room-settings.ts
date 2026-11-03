@@ -1,11 +1,22 @@
 import 'server-only';
 import { THEMES_ENABLED, VOTE_COOLDOWN_S } from '@/config/app';
 import { type Constraint, constraintById } from '@/config/constraints';
-import { ROOM_INFO, type PublicRoomId, type RoomId, isPublicRoom } from '@/config/rooms';
+import { type Decor, FACTIONS, ROOM_INFO, type PublicRoomId, type RoomId, isPublicRoom } from '@/config/rooms';
+import { cache } from 'react';
 import { localeOf } from '@/i18n';
 import type { RoomSettings } from '@/lib/types';
 import { getPrivateRoom } from './private-rooms';
 import { currentTheme } from './themes';
+
+// One draw per request: the layout, the viewport colour and the pages outside a room agree on the faction.
+// Outside React rendering (API routes) each call draws again, which is fine: the client keeps the look it was served.
+const drawFaction = cache((): Decor => FACTIONS[Math.floor(Math.random() * FACTIONS.length)]);
+
+/** A public room's look right now. The Jungle wears the Alliance or the Horde, drawn at random on each visit. */
+export function decorOf(room: PublicRoomId): Decor {
+  const decor = ROOM_INFO[room].decor;
+  return decor === 'faction' ? drawFaction() : decor;
+}
 
 /** What a public room plays by: the site defaults. */
 export function publicSettings(room: PublicRoomId): RoomSettings {
@@ -13,7 +24,7 @@ export function publicSettings(room: PublicRoomId): RoomSettings {
     name: ROOM_INFO[room].name,
     private: false,
     locale: localeOf(room),
-    decor: room,
+    decor: decorOf(room),
     rules: { maxDurationS: null, voteCooldownS: VOTE_COOLDOWN_S, lang: ROOM_INFO[room].lang, skip: true, report: true },
     themes: { mode: 'roulette' },
   };

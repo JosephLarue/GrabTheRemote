@@ -9,7 +9,7 @@ import {
 } from '@/config/app';
 import { THEMES_ENABLED } from '@/config/app';
 import { CONSTRAINTS } from '@/config/constraints';
-import { DECORS, ROOM_INFO } from '@/config/rooms';
+import { DECOR_INFO, DECORS } from '@/config/rooms';
 import type { Dict } from '@/i18n';
 import type { RoomInput } from '@/lib/private-room';
 
@@ -170,12 +170,12 @@ export function RoomForm({
               key={d}
               type="button"
               aria-pressed={v.decor === d}
-              title={ROOM_INFO[d].name}
+              title={DECOR_INFO[d].name}
               onClick={() => setV({ ...v, decor: d })}
               className={`grid h-14 w-14 place-items-center rounded-2xl border-[3px] border-[var(--edge)] text-2xl ${v.decor === d ? 'shadow-[var(--pop)] ring-4 ring-[var(--glow)]' : 'opacity-70 hover:opacity-100'}`}
-              style={{ background: `linear-gradient(135deg, ${ROOM_INFO[d].wall} 50%, ${ROOM_INFO[d].tv} 50%)` }}
+              style={{ background: `linear-gradient(135deg, ${DECOR_INFO[d].wall} 50%, ${DECOR_INFO[d].tv} 50%)` }}
             >
-              {ROOM_INFO[d].emoji}
+              {DECOR_INFO[d].emoji}
             </button>
           ))}
         </div>

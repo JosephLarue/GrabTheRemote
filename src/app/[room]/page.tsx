@@ -53,7 +53,7 @@ function YouTubeStage() {
           <div className="tv mt-12">
             <EasterEggs />
             <SyncedPlayer np={np} overlay={<ReactionOverlay />} />
-            <div className="mt-3 flex items-center justify-between gap-3 px-1 text-[var(--ink)]">
+            <div className="mt-3 flex items-center justify-between gap-3 px-1 text-[var(--tv-ink)]">
               <div className="min-w-0">
                 <p className="truncate text-base font-black sm:text-lg" title={np?.video.title}>
                   {np ? np.video.title : t.watch.nothingOnScreen}
