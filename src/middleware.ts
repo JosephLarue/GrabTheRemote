@@ -3,6 +3,9 @@ import { ROOM_COOKIE, ROOM_HEADER, isPublicRoom, roomFromAcceptLanguage } from '
 
 // Railway/Fly health checks hit the origin directly, without going through Cloudflare.
 const ORIGIN_LOCK_EXEMPT = ['/api/health'];
+// next/image optimises public/ files by fetching them from the app itself, without the Cloudflare header.
+// Those files are public anyway, so the lock has nothing to protect there.
+const PUBLIC_ASSET = /\.(png|jpe?g|webp|gif|svg|ico|txt|xml|webmanifest)$/;
 
 /** Constant-time string compare (no node:crypto in the edge runtime). */
 function safeEqual(a: string, b: string): boolean {
@@ -16,7 +19,8 @@ function safeEqual(a: string, b: string): boolean {
 // Disabled when ORIGIN_SECRET is unset (local dev).
 function originAllowed(req: NextRequest): boolean {
   const secret = process.env.ORIGIN_SECRET;
-  if (!secret || ORIGIN_LOCK_EXEMPT.includes(req.nextUrl.pathname)) return true;
+  const path = req.nextUrl.pathname;
+  if (!secret || ORIGIN_LOCK_EXEMPT.includes(path) || PUBLIC_ASSET.test(path)) return true;
   return safeEqual(req.headers.get('x-origin-secret') ?? '', secret);
 }
 
