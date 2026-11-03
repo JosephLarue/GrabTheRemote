@@ -227,6 +227,14 @@ export const en = {
     watching: (n: number) => `${n} on the couch right now`,
     hallTitle: 'Hall of Fame',
     hallDescription: "The crowd's all-time favorites, biggest landslides, peak crowds, and the Hall of Shame with its share cards.",
+    twitchTitle: 'Watch Twitch together · Twitch room',
+    twitchDescription:
+      'One shared screen for a live Twitch stream. Everyone watches the same channel at the same time, and the crowd votes to keep it or change it, then picks the next one. No account, no sign-up.',
+  },
+  notFound: {
+    title: 'Nobody on this couch 🚪',
+    body: 'This page does not exist, or it got up and left.',
+    back: 'Back to the couch',
   },
   sfx: { on: 'Sound effects: on', off: 'Sound effects: off' },
   invite: {
