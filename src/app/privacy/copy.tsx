@@ -44,7 +44,9 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           We keep a short list of videos you voted for in your browser&apos;s local storage, only so we can show confetti
           when one of them plays and to hand you the Hall of Shame card when one of them gets cut short (your card
           collection stays in that same local storage), and a cookie remembering the last room you visited. Your sound
-          and chat preferences are kept there too. None of it leaves your device for any other purpose.
+          and chat preferences are kept there too, along with whether your remote drawer is open, when you last set off
+          an easter egg, and the invite code you arrived with; the random code behind your chat nickname lives in
+          session storage and goes when the tab closes. None of it leaves your device for any other purpose.
         </p>
         <h2>Invitations</h2>
         <p>
@@ -56,7 +58,9 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
         <p>
           A private room keeps its name, settings and password until a day passes with nobody watching, or its streamer
           closes it. Entering the password (or creating the room) sets a cookie for that room only, so you don&apos;t
-          have to type it again; it lasts 7 days and holds no personal data.
+          have to type it again; it lasts 7 days and holds no personal data. Creating or claiming a room also sets
+          an owner cookie (gtr_own_ followed by the room&apos;s id) for 7 days, readable only by the server, holding
+          just the key that proves the room is yours.
         </p>
         <h2>Couch chat</h2>
         <p>
@@ -124,8 +128,10 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           Nous gardons dans le stockage local de ton navigateur une courte liste des vidéos pour lesquelles tu as voté,
           uniquement pour afficher des confettis quand l&apos;une d&apos;elles passe, ainsi qu&apos;un cookie qui retient la
           dernière room visitée, ainsi que tes préférences de son et de chat. Quand l&apos;une de tes vidéos se fait
-          couper, sa carte du Hall of Shame rejoint ta collection, gardée dans ce même stockage local. Rien de tout cela
-          ne sert à autre chose.
+          couper, sa carte du Hall of Shame rejoint ta collection, gardée dans ce même stockage local. Ce même stockage
+          retient aussi si ton tiroir de télécommande est ouvert, à quand remonte ton dernier easter egg et le code
+          d&apos;invitation avec lequel tu es arrivé ; le code au hasard derrière ton pseudo de chat vit dans le stockage
+          de session et disparaît quand tu fermes l&apos;onglet. Rien de tout cela ne sert à autre chose.
         </p>
         <h2>Invitations</h2>
         <p>
@@ -138,7 +144,10 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
         <p>
           Une room privée garde son nom, ses réglages et son mot de passe jusqu&apos;à ce qu&apos;une journée passe sans
           personne devant, ou que son streamer la ferme. Entrer le mot de passe (ou créer la room) dépose un cookie propre
-          à cette room, pour ne pas avoir à le retaper ; il dure 7 jours et ne contient aucune donnée personnelle.
+          à cette room, pour ne pas avoir à le retaper ; il dure 7 jours et ne contient aucune donnée personnelle. Créer
+          ou récupérer une room dépose aussi un cookie de propriétaire (gtr_own_ suivi de l&apos;identifiant de la
+          room) pendant 7 jours, lisible uniquement par le serveur, qui ne contient que la clé prouvant que la room est
+          à toi.
         </p>
         <h2>Chat du canapé</h2>
         <p>
@@ -208,7 +217,10 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           Guardamos en el almacenamiento local de tu navegador una lista corta de los vídeos que votaste, solo para
           mostrar confeti cuando uno de ellos se reproduce y darte la tarjeta del Hall of Shame cuando uno es cortado
           (tu colección vive en ese mismo almacenamiento local), y una cookie que recuerda la última sala que visitaste.
-          Tus preferencias de sonido y chat también se guardan ahí. Nada de esto se usa para otra cosa.
+          Tus preferencias de sonido y chat también se guardan ahí, junto con si tu cajón del mando está abierto, cuándo
+          activaste tu último easter egg y el código de invitación con el que llegaste; el código aleatorio detrás de
+          tu apodo del chat vive en el almacenamiento de sesión y desaparece al cerrar la pestaña. Nada de esto se usa
+          para otra cosa.
         </p>
         <h2>Invitaciones</h2>
         <p>
@@ -220,7 +232,9 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
         <p>
           Una sala privada guarda su nombre, sus ajustes y su contraseña hasta que pasa un día sin nadie viéndola, o su
           streamer la cierra. Introducir la contraseña (o crear la sala) deja una cookie solo para esa sala, para no tener
-          que volver a escribirla; dura 7 días y no contiene datos personales.
+          que volver a escribirla; dura 7 días y no contiene datos personales. Crear o reclamar una sala también deja
+          una cookie de propietario (gtr_own_ seguido del identificador de la sala) durante 7 días, legible solo por el
+          servidor, que contiene únicamente la clave que demuestra que la sala es tuya.
         </p>
         <h2>Chat del sofá</h2>
         <p>
@@ -289,7 +303,10 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
           Conserviamo nella memoria locale del tuo browser un breve elenco dei video per cui hai votato, solo per mostrare
           i coriandoli quando uno di questi va in onda e darti la card della Hall of Shame quando uno viene tagliato (la
           tua collezione vive nella stessa memoria locale), e un cookie che ricorda l&apos;ultima stanza visitata. Anche le
-          preferenze di suono e chat restano lì. Niente di tutto ciò serve ad altro.
+          preferenze di suono e chat restano lì, insieme a se il cassetto del telecomando è aperto, a quando hai fatto
+          scattare l&apos;ultimo easter egg e al codice di invito con cui sei arrivato; il codice casuale dietro il tuo
+          soprannome in chat vive nella memoria di sessione e sparisce quando chiudi la scheda. Niente di tutto ciò
+          serve ad altro.
         </p>
         <h2>Inviti</h2>
         <p>
@@ -301,7 +318,9 @@ export const PRIVACY: Record<string, { title: string; body: React.ReactNode }> =
         <p>
           Una stanza privata conserva nome, impostazioni e password finché non passa un giorno senza nessuno davanti, o il
           suo streamer la chiude. Inserire la password (o creare la stanza) imposta un cookie solo per quella stanza, così
-          non devi riscriverla; dura 7 giorni e non contiene dati personali.
+          non devi riscriverla; dura 7 giorni e non contiene dati personali. Creare o reclamare una stanza imposta anche
+          un cookie di proprietario (gtr_own_ seguito dall&apos;id della stanza) per 7 giorni, leggibile solo dal server,
+          che contiene soltanto la chiave che prova che la stanza è tua.
         </p>
         <h2>Chat del divano</h2>
         <p>
