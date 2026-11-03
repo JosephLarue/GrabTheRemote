@@ -56,7 +56,7 @@ export const ROOM_INFO: Record<PublicRoomId, RoomInfo> = {
 export const DEFAULT_ROOM: PublicRoomId = 'en';
 /** Remembers the last room visited, so /, /vote and /hall send people back to it. */
 export const ROOM_COOKIE = 'gtr_room';
-/** Set by the middleware on every request: the URL's room, else the last room, else the browser's language. */
+/** Set by the proxy on every request: the URL's room, else the last room, else the browser's language. */
 export const ROOM_HEADER = 'x-gtr-room';
 
 export const isPublicRoom = (s: unknown): s is PublicRoomId => (ROOMS as readonly unknown[]).includes(s);

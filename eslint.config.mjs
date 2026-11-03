@@ -1,16 +1,21 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
+// eslint-config-next 16 ships flat configs: no FlatCompat bridge needed.
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...nextVitals,
+  ...nextTs,
+  {
+    // React Compiler rules that eslint-config-next 16 turned into errors. They flag patterns this code base
+    // uses on purpose (reading localStorage after mount, one-shot Math.random in confetti, a module-level
+    // pending counter): kept visible as warnings until each spot is reworked.
+    rules: {
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/purity": "warn",
+      "react-hooks/immutability": "warn",
+      "react-hooks/refs": "warn",
+    },
+  },
   {
     ignores: [
       "node_modules/**",

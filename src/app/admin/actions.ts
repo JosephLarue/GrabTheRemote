@@ -18,7 +18,7 @@ import { forceChange, startChannel, twitchLive } from '@/server/twitch';
 import { checkLive } from '@/server/twitch-api';
 import { invalidateMeta } from '@/server/youtube';
 
-// The middleware guards /admin with basic auth, but server actions are plain POSTs with an action id:
+// The proxy guards /admin with basic auth, but server actions are plain POSTs with an action id:
 // each one checks the same credentials itself, so a guessed id is worth nothing without the password.
 
 /** Throws unless the request carries the admin's Basic auth. */
