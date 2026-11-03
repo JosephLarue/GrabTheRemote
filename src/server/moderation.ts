@@ -1,5 +1,4 @@
 import 'server-only';
-import { MAX_DURATION_S } from '@/config/app';
 import { fitsLanguage } from '@/config/rooms';
 import type { RoomRules, VideoMeta } from '@/lib/types';
 import { db, schema } from './db/client';
@@ -34,8 +33,8 @@ export function assertFitsRoom(rules: Pick<RoomRules, 'lang'>, m: VideoMeta) {
   }
 }
 
-/** Throws a user-facing ApiError if the video can never be voted for (in a room allowing `maxDurationS`). */
-export async function assertAllowed(m: VideoMeta, { maxDurationS = MAX_DURATION_S }: { maxDurationS?: number } = {}) {
+/** Throws a user-facing ApiError if the video can never be voted for (in a room allowing `maxDurationS`, null for any length). */
+export async function assertAllowed(m: VideoMeta, { maxDurationS = null }: { maxDurationS?: number | null } = {}) {
   const reject = (code: string, message: string) => {
     throw new ApiError(422, code, message);
   };
@@ -44,7 +43,7 @@ export async function assertAllowed(m: VideoMeta, { maxDurationS = MAX_DURATION_
   if (m.banned) reject('banned', 'This video is banned from the living room 🚫');
   if (m.flagged) reject('flagged', 'The crowd mass-reported this one. It stays in timeout 🚨');
   if (m.durationS <= 0) reject('live', "Live streams can't grab the remote 📡");
-  if (m.durationS > maxDurationS) {
+  if (maxDurationS !== null && m.durationS > maxDurationS) {
     reject('too_long', `Too long! Max ${Math.floor(maxDurationS / 60)} minutes, nobody has time for that ⏳`);
   }
   const { channels, keywords } = await blocklists();

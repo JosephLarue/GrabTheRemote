@@ -100,7 +100,7 @@ No sign-up, no password, no "verify your email". Just show up and grab the remot
 
 ## 📜 House rules
 
-- Embeddable YouTube videos only, 15 minutes max
+- Embeddable YouTube videos only, any length
 - No age-restricted content
 - One vote per 15 minutes per connection
 - Be fun. Don't be gross. The crowd *will* report you.
