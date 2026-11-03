@@ -57,6 +57,7 @@ export const en = {
   reactions: {
     label: 'Couch reactions',
     send: (emoji: string) => `React ${emoji}`,
+    capped: (n: number) => `${n} a minute, let the couch breathe`,
   },
   cinema: {
     enter: 'Full screen',

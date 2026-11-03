@@ -68,7 +68,7 @@ When the top two videos in the queue are neck and neck, a **REMOTE FIGHT** banne
 
 ## 😂 Couch reactions
 
-😂 💀 🔥 😍 🤮 👏 float up over the TV for everyone, live. A fixed set of emojis and no chat, so there's nothing to moderate.
+😂 💀 🔥 😍 🤮 👏 float up over the TV for everyone, live. A fixed set of emojis, so there's nothing to moderate, and **5 per minute per viewer** so nobody papers the screen.
 
 
 

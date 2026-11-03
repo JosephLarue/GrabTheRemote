@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { REACTIONS } from '@/config/app';
+import { REACTION_MAX_PER_WINDOW, REACTION_WINDOW_S, REACTIONS } from '@/config/app';
 import { post } from '@/lib/api';
 import { useLive } from '@/lib/live';
 import { play } from '@/lib/sfx';
@@ -21,6 +21,11 @@ const addPending = (emoji: string, delta: number) => {
   pending[emoji] = Math.max(0, (pending[emoji] ?? 0) + delta);
 };
 let nextId = 0;
+/** This viewer's taps within the window, newest last (the cap counts them). */
+const recordTap = (all: number[]) => {
+  const now = Date.now();
+  return [...all.filter((at) => at > now - REACTION_WINDOW_S * 1000), now];
+};
 
 /** Emojis floating up the TV screen. Render inside .tv-screen. */
 export function ReactionOverlay() {
@@ -79,9 +84,23 @@ export function ReactionOverlay() {
 /** The emoji buttons, one tight row above the chat's input. */
 export function ReactionBar() {
   const { room, t, state } = useLive();
-  const disabled = !state?.nowPlaying && !state?.twitch?.channel;
+  const nothingOn = !state?.nowPlaying && !state?.twitch?.channel;
+  // The server caps each viewer (REACTION_MAX_PER_WINDOW per REACTION_WINDOW_S); the bar mirrors it so a tap
+  // over the cap is refused here instead of floating up and then being refused.
+  const [taps, setTaps] = useState<number[]>([]);
+  const capped = taps.length >= REACTION_MAX_PER_WINDOW;
+  const disabled = nothingOn || capped;
+
+  // Once capped, the oldest tap's expiry reopens the bar.
+  useEffect(() => {
+    if (taps.length === 0) return;
+    const wait = Math.max(0, taps[0] + REACTION_WINDOW_S * 1000 - Date.now());
+    const timer = setTimeout(() => setTaps((all) => all.filter((at) => at > Date.now() - REACTION_WINDOW_S * 1000)), wait + 50);
+    return () => clearTimeout(timer);
+  }, [taps]);
 
   const react = async (emoji: string) => {
+    setTaps(recordTap);
     play('click');
     addPending(emoji, 1);
     localTaps.forEach((fn) => fn(emoji));
@@ -94,6 +113,7 @@ export function ReactionBar() {
     <div
       role="group"
       aria-label={t.reactions.label}
+      title={capped ? t.reactions.capped(REACTION_MAX_PER_WINDOW) : undefined}
       className="grid grid-cols-6 gap-1.5"
     >
       {REACTIONS.map((emoji) => (
@@ -103,7 +123,7 @@ export function ReactionBar() {
           className="btn reaction-btn bg-[var(--panel)] text-xl"
           disabled={disabled}
           onClick={() => react(emoji)}
-          aria-label={t.reactions.send(emoji)}
+          aria-label={capped ? t.reactions.capped(REACTION_MAX_PER_WINDOW) : t.reactions.send(emoji)}
         >
           {emoji}
         </button>
