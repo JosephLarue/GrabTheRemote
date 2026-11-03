@@ -47,7 +47,7 @@ export function JoinRoom({ room, name, locale }: { room: RoomId; name: string; l
         <button type="submit" className="btn bg-[var(--glow)] text-[var(--ink)]" disabled={busy || password.trim().length < 4}>
           {busy ? t.private.joining : t.private.join}
         </button>
-        <p role="status" aria-live="polite" className="min-h-5 text-sm font-bold text-[var(--skip)]">
+        <p role="status" aria-live="polite" className="min-h-5 text-sm font-bold text-[var(--danger-panel-ink)]">
           {msg}
         </p>
       </form>

@@ -47,7 +47,7 @@ const JSON_LD = {
   ],
 };
 
-export const viewport: Viewport = { themeColor: '#6c4df6' };
+export const viewport: Viewport = { themeColor: '#6c4df6', viewportFit: 'cover' };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const room = await lastRoom();

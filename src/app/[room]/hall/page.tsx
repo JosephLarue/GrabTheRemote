@@ -152,7 +152,7 @@ function Row({
           {shame && row.reason === 'vetoed' && t.hall.vetoed}
         </p>
         {shame && (
-          <p className="mt-0.5 truncate text-xs font-black text-[var(--skip)]">
+          <p className="mt-0.5 truncate text-xs font-black text-[var(--danger-panel-ink)]">
             “{t.hall.roasts[roastOf(row.reason, row.value)]}”
           </p>
         )}

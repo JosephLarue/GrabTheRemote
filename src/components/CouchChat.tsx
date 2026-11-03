@@ -158,7 +158,7 @@ export function CouchChat() {
         </button>
       </form>
       {msg && (
-        <p role="status" className="-mt-1 text-sm font-bold text-[var(--skip)]">
+        <p role="status" className="-mt-1 text-sm font-bold text-[var(--danger-panel-ink)]">
           {msg}
         </p>
       )}

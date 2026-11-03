@@ -14,9 +14,10 @@ import { RemoteFight } from '@/components/RemoteFight';
 import { StolenRemote } from '@/components/StolenRemote';
 import { SyncedPlayer } from '@/components/SyncedPlayer';
 import { TwitchStage } from '@/components/TwitchStage';
-import { VoteForm, VoteProvider, useVote } from '@/components/VoteBox';
+import { VoteForm, VoteProvider, useVote, useVoteCooldown } from '@/components/VoteBox';
 import { isTwitchRoom } from '@/config/rooms';
 import { formatClock, useLive, useServerNow } from '@/lib/live';
+import type { NowPlaying } from '@/lib/types';
 
 export default function WatchPage() {
   const { room } = useLive();
@@ -33,11 +34,7 @@ function YouTubeWatch() {
 
 function YouTubeStage() {
   const { state, t, settings } = useLive();
-  const { vote, busy, cooldown, msg } = useVote();
-  const now = useServerNow(500);
   const np = state?.nowPlaying ?? null;
-  // Paused: the clock stops where the streamer stopped it.
-  const left = np ? np.endsAt - (np.pausedAt ?? now) : 0;
 
   return (
     // Left: the TV, then what plays next right under it (+1 straight from there). Right: the chat (with the
@@ -61,12 +58,7 @@ function YouTubeStage() {
                 <p className="truncate text-xs font-bold opacity-80">{np?.video.channelTitle}</p>
               </div>
               <div className="flex shrink-0 items-center gap-3">
-                {np && np.state === 'playing' && (
-                  <p className={`text-right ${left < 10_000 ? 'wobble' : ''}`}>
-                    <span className="block text-[11px] font-extrabold">{t.watch.nextPickIn}</span>
-                    <span className="font-display text-2xl tabular-nums sm:text-3xl">{formatClock(left)}</span>
-                  </p>
-                )}
+                {np && np.state === 'playing' && <NextPickIn np={np} />}
                 <InviteCta />
                 <ChatUnfoldButton />
                 <CinemaButton />
@@ -77,21 +69,15 @@ function YouTubeStage() {
           </div>
         </section>
 
+        {/* Phones: the link box sits right under the TV; the remote (a floating button there) only keeps the
+            skip/report buttons. Desktop: the remote drawer has the full form. */}
+        <section aria-label={t.vote.title} className="cinema-hide lg:hidden">
+          <VoteForm compact />
+        </section>
+
         <section aria-label={t.watch.queue} className="cinema-hide flex min-w-0 flex-col gap-5">
           <RemoteFight />
-          <div>
-            <h2 className="font-display mb-3 text-2xl">{t.watch.upNext}</h2>
-            <PoolBars
-              pool={state?.pool ?? []}
-              onPlusOne={(id) => vote(id)}
-              plusOneDisabled={busy || cooldown > 0}
-            />
-            {msg && (
-              <p role="status" className={`mt-3 font-extrabold ${msg.ok ? 'text-[var(--mint)]' : 'text-[var(--skip)]'}`}>
-                {msg.text}
-              </p>
-            )}
-          </div>
+          <UpNext />
         </section>
       </div>
 
@@ -103,10 +89,43 @@ function YouTubeStage() {
       </div>
 
       <RemoteDrawer>
-        <VoteForm />
+        <div className="hidden lg:contents">
+          <VoteForm />
+        </div>
         <Remote />
         <OwnerPanel />
       </RemoteDrawer>
     </CinemaStage>
+  );
+}
+
+/** The countdown under the screen: the only thing on the page that needs to tick, so it ticks alone. */
+function NextPickIn({ np }: { np: NowPlaying }) {
+  const { t } = useLive();
+  const now = useServerNow(500);
+  // Paused: the clock stops where the streamer stopped it.
+  const left = np.endsAt - (np.pausedAt ?? now);
+  return (
+    <p className={`text-right ${left < 10_000 ? 'wobble' : ''}`}>
+      <span className="block text-[11px] font-extrabold">{t.watch.nextPickIn}</span>
+      <span className="font-display text-2xl tabular-nums sm:text-3xl">{formatClock(left)}</span>
+    </p>
+  );
+}
+
+function UpNext() {
+  const { state, t } = useLive();
+  const { vote, busy, msg } = useVote();
+  const cooldown = useVoteCooldown();
+  return (
+    <div>
+      <h2 className="font-display mb-3 text-2xl">{t.watch.upNext}</h2>
+      <PoolBars pool={state?.pool ?? []} onPlusOne={(id) => vote(id)} plusOneDisabled={busy || cooldown > 0} />
+      {msg && (
+        <p role="status" className={`mt-3 font-extrabold ${msg.ok ? 'text-[var(--mint)]' : 'text-[var(--danger-ink)]'}`}>
+          {msg.text}
+        </p>
+      )}
+    </div>
   );
 }
