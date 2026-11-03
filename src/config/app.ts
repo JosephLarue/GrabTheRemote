@@ -108,6 +108,9 @@ export const EGG_DURATION_MS = 10_000;
 // Couch reactions: a fixed set (nothing to moderate), batched before going out to every viewer.
 export const REACTIONS = ['😂', '💀', '🔥', '😍', '🤮', '👏'] as const;
 export const REACTION_BATCH_MS = 300;
+// Each viewer gets this many reactions per window: enough to cheer, not enough to paper the screen.
+export const REACTION_MAX_PER_WINDOW = 5;
+export const REACTION_WINDOW_S = 60;
 
 // Couch chat: no accounts, a random nickname per tab. Only the last few messages are kept, and not for long.
 export const CHAT_MAX_LENGTH = 200;
