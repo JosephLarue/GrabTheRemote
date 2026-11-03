@@ -6,12 +6,10 @@ const SHUTDOWN_TIMEOUT_MS = 8000;
  * SIGTERM (Railway redeploy) / SIGINT (ctrl-c): stop ticking, let in-flight room ticks finish, then close
  * Redis and Postgres cleanly so no play is left half-written and no lock lingers. Registered once per process.
  */
-async function hookShutdown() {
+function hookShutdown(close: { stopTicker: () => Promise<void>; closeRedis: () => Promise<void>; closeDb: () => Promise<void> }) {
   if (g.__shutdownHooked) return;
   g.__shutdownHooked = true;
-  const { stopTicker } = await import('./server/engine');
-  const { closeRedis } = await import('./server/redis');
-  const { closeDb } = await import('./server/db/client');
+  const { stopTicker, closeRedis, closeDb } = close;
 
   let shuttingDown = false;
   const shutdown = async (signal: string) => {
@@ -36,20 +34,25 @@ async function hookShutdown() {
 }
 
 export async function register() {
-  if (process.env.NEXT_RUNTIME !== 'nodejs') return;
+  // One `if` on NEXT_RUNTIME around every import: webpack drops the whole branch from the edge bundle (an early
+  // return would not, and ioredis/postgres cannot be resolved there).
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    const [{ env }, { startTicker, stopTicker }, { closeRedis }, { closeDb }] = await Promise.all([
+      import('./server/env'),
+      import('./server/engine'),
+      import('./server/redis'),
+      import('./server/db/client'),
+    ]);
 
-  // A bad environment fails the boot with the list of problems, instead of the first request that needs it.
-  const { env } = await import('./server/env');
-  try {
-    env();
-  } catch (e) {
-    console.error('[boot]', e instanceof Error ? e.message : e);
-    throw e;
-  }
+    // A bad environment fails the boot with the list of problems, instead of the first request that needs it.
+    try {
+      env();
+    } catch (e) {
+      console.error('[boot]', e instanceof Error ? e.message : e);
+      throw e;
+    }
 
-  if (process.env.DISABLE_TICKER !== '1') {
-    const { startTicker } = await import('./server/engine');
-    startTicker();
+    if (process.env.DISABLE_TICKER !== '1') startTicker();
+    hookShutdown({ stopTicker, closeRedis, closeDb });
   }
-  await hookShutdown();
 }
