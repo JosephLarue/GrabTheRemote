@@ -1,5 +1,5 @@
 import 'server-only';
-import { MAX_DURATION_S, VOTE_COOLDOWN_S } from '@/config/app';
+import { MAX_DURATION_S, THEMES_ENABLED, VOTE_COOLDOWN_S } from '@/config/app';
 import { type Constraint, constraintById } from '@/config/constraints';
 import { ROOM_INFO, type PublicRoomId, type RoomId, isPublicRoom } from '@/config/rooms';
 import { localeOf } from '@/i18n';
@@ -25,8 +25,9 @@ export async function roomSettings(room: RoomId): Promise<RoomSettings | null> {
   return (await getPrivateRoom(room))?.settings ?? null;
 }
 
-/** The theme a room's votes must fit right now. */
+/** The theme a room's votes must fit right now. Null everywhere while themes are switched off. */
 export async function themeFor(room: RoomId, settings?: RoomSettings | null): Promise<Constraint | null> {
+  if (!THEMES_ENABLED) return null;
   const themes = (settings ?? (await roomSettings(room)))?.themes ?? { mode: 'roulette' };
   if (themes.mode === 'none') return null;
   if (themes.mode === 'fixed') return constraintById(themes.id) ?? null;

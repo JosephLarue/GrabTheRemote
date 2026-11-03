@@ -7,6 +7,7 @@ import {
   PRIVATE_MAX_DURATIONS_MIN,
   PRIVATE_VOTE_COOLDOWNS_S,
 } from '@/config/app';
+import { THEMES_ENABLED } from '@/config/app';
 import { CONSTRAINTS } from '@/config/constraints';
 import { DECORS, ROOM_INFO } from '@/config/rooms';
 import type { Dict } from '@/i18n';
@@ -128,6 +129,7 @@ export function RoomForm({
         <Toggle label={p.report} on={v.rules.report} t={t} onChange={(report) => rules({ report })} />
       </div>
 
+      {THEMES_ENABLED && (
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-1 text-sm font-extrabold">{p.themes}</legend>
         <Radio name="themes" checked={v.themes.mode === 'roulette'} onChange={() => setV({ ...v, themes: { mode: 'roulette' } })}>
@@ -158,6 +160,7 @@ export function RoomForm({
           </select>
         </div>
       </fieldset>
+      )}
 
       <fieldset>
         <legend className="mb-2 text-sm font-extrabold">{p.decor}</legend>

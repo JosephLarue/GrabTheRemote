@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { THEMES_ENABLED } from '@/config/app';
 import type { RoomId } from '@/config/rooms';
 import { defaultInput, type RoomInput } from '@/lib/private-room';
 import { K } from '@/server/keys';
@@ -106,7 +107,7 @@ describe('private rooms', () => {
     expect(await report(id, { viewer: 2 })).toMatchObject({ status: 403, body: { error: 'report_off' } });
   });
 
-  it('can drop the theme roulette, or pin one theme', async () => {
+  it.skipIf(!THEMES_ENABLED)('can drop the theme roulette, or pin one theme', async () => {
     await setTheme('music');
     const none = await room(input({ themes: { mode: 'none' } }), 2);
     expect((await state(none.id, 2)).body.theme).toBeNull();

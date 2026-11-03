@@ -5,7 +5,7 @@ import { DEFAULT_ROOM, ROOM_INFO, ROOMS, isPublicRoom, isTwitchRoom } from '@/co
 import { twitchUrl } from '@/lib/twitch';
 import { twitchConfigured } from '@/server/twitch-api';
 import { CONSTRAINTS } from '@/config/constraints';
-import { TWITCH_SLOT_S, YT_QUOTA_HARD, YT_QUOTA_SOFT } from '@/config/app';
+import { THEMES_ENABLED, TWITCH_SLOT_S, YT_QUOTA_HARD, YT_QUOTA_SOFT } from '@/config/app';
 import { db, schema } from '@/server/db/client';
 import { K } from '@/server/keys';
 import { poolIds } from '@/server/pool';
@@ -92,7 +92,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           value={`${quota} / 10,000`}
           warn={quota >= YT_QUOTA_SOFT}
         />
-        <Stat label="Theme" value={snap.theme ? `${snap.theme.emoji} ${snap.theme.label}` : 'None'} />
+        {THEMES_ENABLED && <Stat label="Theme" value={snap.theme ? `${snap.theme.emoji} ${snap.theme.label}` : 'None'} />}
       </section>
 
       {isTwitchRoom(room) && snap.twitch && <TwitchPanel room={room} live={snap.twitch} />}
@@ -229,6 +229,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
         </Panel>
       </div>
 
+      {THEMES_ENABLED && (
       <Panel title="Theme weights">
         <p className="mb-3 text-sm">
           Higher weight means picked more often. 0 disables a theme. Half of all slots have no theme regardless.
@@ -252,6 +253,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           <button className={`${btn} self-start bg-[var(--glow)] text-[var(--ink)]`}>Save weights</button>
         </form>
       </Panel>
+      )}
 
       <Panel title="Recent plays">
         <table className="w-full text-left text-sm">

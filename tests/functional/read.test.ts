@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { THEMES_ENABLED } from '@/config/app';
 import { GET as health } from '@/app/api/health/route';
 import { preview, seedVideo, setTheme, state, vid, vote } from './helpers';
 
@@ -29,7 +30,7 @@ describe('GET /api/state', () => {
     expect(await state('de')).toMatchObject({ status: 400, body: { error: 'bad_room' } });
   });
 
-  it('flags queued videos that miss the current theme', async () => {
+  it.skipIf(!THEMES_ENABLED)('flags queued videos that miss the current theme', async () => {
     const long = await seedVideo({ id: vid(1), durationS: 300 });
     await vote('en', long);
     await setTheme('short');
