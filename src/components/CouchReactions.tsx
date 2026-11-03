@@ -16,6 +16,10 @@ const MAX_PER_BATCH = 6;
 // batch the server echoes back so they don't float twice.
 const pending: Record<string, number> = {};
 const localTaps = new Set<(emoji: string) => void>();
+/** Taps sent but not yet echoed by the server, so the echo doesn't double them. */
+const addPending = (emoji: string, delta: number) => {
+  pending[emoji] = Math.max(0, (pending[emoji] ?? 0) + delta);
+};
 let nextId = 0;
 
 /** Emojis floating up the TV screen. Render inside .tv-screen. */
@@ -79,11 +83,11 @@ export function ReactionBar() {
 
   const react = async (emoji: string) => {
     play('click');
-    pending[emoji] = (pending[emoji] ?? 0) + 1;
+    addPending(emoji, 1);
     localTaps.forEach((fn) => fn(emoji));
     const res = await post('/api/react', { room, emoji });
     // Rate-limited or offline: nothing comes back to subtract.
-    if (!res.ok) pending[emoji] = Math.max(0, (pending[emoji] ?? 0) - 1);
+    if (!res.ok) addPending(emoji, -1);
   };
 
   return (

@@ -6,6 +6,7 @@ import { isMyPick } from '@/lib/api';
 import { CARDS_EVENT, FOIL, addCard, myCards, rarityOf } from '@/lib/cards';
 import { useLive } from '@/lib/live';
 import { formatLasted, roastOf } from '@/lib/roast';
+import { useClientValue } from '@/lib/use-client-value';
 import type { HallRow } from '@/server/hall';
 import { play } from '@/lib/sfx';
 
@@ -35,30 +36,30 @@ export function MyCollection() {
     return () => window.removeEventListener(CARDS_EVENT, bump);
   }, []);
 
+  // Which cards are mine is decided by local storage: nothing to fetch for an empty collection.
+  const ids = useClientValue(() => myCards().filter((c) => c.room === room).map((c) => c.playId).join(','), null);
+  const shown = ids === null ? null : ids === '' ? [] : rows;
+
   useEffect(() => {
-    const mine = myCards().filter((c) => c.room === room);
-    if (mine.length === 0) {
-      setRows([]);
-      return;
-    }
+    if (!ids) return;
     const ctrl = new AbortController();
-    fetch(`/api/cards?room=${room}&ids=${mine.map((c) => c.playId).join(',')}`, { cache: 'no-store', signal: ctrl.signal })
+    fetch(`/api/cards?room=${room}&ids=${ids}`, { cache: 'no-store', signal: ctrl.signal })
       .then((res) => (res.ok ? res.json() : null))
       .then((data: { rows: HallRow[] } | null) => setRows(data?.rows ?? []))
       .catch(() => ctrl.signal.aborted || setRows([]));
     return () => ctrl.abort();
-  }, [room, version]);
+  }, [room, ids, version]);
 
   return (
     <section aria-labelledby="collection-title" className="flex flex-col gap-3">
       <h2 id="collection-title" className="font-display text-2xl">
         🃏 {t.cards.myCollection}
       </h2>
-      {rows === null ? null : rows.length === 0 ? (
+      {shown === null ? null : shown.length === 0 ? (
         <p className="panel p-4 text-sm font-bold">{t.cards.collectionEmpty}</p>
       ) : (
         <ol className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {rows.map((row) => (
+          {shown.map((row) => (
             <li key={row.playId}>
               <ShameCard row={row} owned />
             </li>
@@ -71,18 +72,15 @@ export function MyCollection() {
 
 function ShameCard({ row, rank, owned }: { row: HallRow; rank?: number; owned?: boolean }) {
   const { room, t, settings } = useLive();
-  const [mine, setMine] = useState(!!owned);
+  // Picks live in local storage: decided on the client, after hydration. Finding one of yours here claims it.
+  const picked = useClientValue(() => !owned && !!row.playId && isMyPick(row.videoId), false);
+  const mine = !!owned || picked;
   const rarity = rarityOf(row.reason, row.value);
   const [a, b, c] = FOIL[rarity];
 
-  // Picks live in local storage: decided on the client, after hydration. Finding one of yours here claims it.
   useEffect(() => {
-    if (owned || !row.playId) return;
-    if (isMyPick(row.videoId)) {
-      setMine(true);
-      addCard({ room, playId: row.playId, videoId: row.videoId });
-    }
-  }, [owned, room, row.playId, row.videoId]);
+    if (picked && row.playId) addCard({ room, playId: row.playId, videoId: row.videoId });
+  }, [picked, room, row.playId, row.videoId]);
 
   const tilt = (e: React.PointerEvent<HTMLElement>) => {
     const el = e.currentTarget;

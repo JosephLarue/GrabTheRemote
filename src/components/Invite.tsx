@@ -146,6 +146,8 @@ export function InviteClaim() {
         url.searchParams.delete(REF_PARAM);
         history.replaceState(null, '', url.pathname + url.search + url.hash);
         if (!localStorage.getItem(DONE_KEY(room))) {
+          // The welcome follows a one-shot side effect (the URL param is consumed above): an effect is the place.
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setWelcome(true);
           setTimeout(() => setWelcome(false), 6000);
         }
