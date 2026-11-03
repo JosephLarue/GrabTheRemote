@@ -33,6 +33,8 @@ During the stream you can **pause** everyone's screen, **skip** what's playing, 
 
 ## 🎲 Theme roulette
 
+> Switched off for now (`THEMES_ENABLED` in `src/config/app.ts`): no theme in any room, every video is accepted.
+
 Every 15 minutes the remote *might* get possessed. Sometimes there's no rule. Sometimes it's:
 
 - ⏱️ **Under 2 minutes** — no time for your 14-minute video essay

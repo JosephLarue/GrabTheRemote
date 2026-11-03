@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_DURATION_S } from '@/config/app';
+import { MAX_DURATION_S, THEMES_ENABLED } from '@/config/app';
 import type { VideoMeta } from '@/lib/types';
 import { db, schema } from '@/server/db/client';
 import { me, playNext, seedVideo, setTheme, state, vid, vote } from './helpers';
@@ -110,7 +110,7 @@ describe('POST /api/vote', () => {
     expect(await vote('en', id, { viewer: 2 })).toMatchObject({ status: 409, body: { error: 'now_playing' } });
   });
 
-  it('only accepts videos matching the current theme', async () => {
+  it.skipIf(!THEMES_ENABLED)('only accepts videos matching the current theme', async () => {
     await setTheme('short');
     const long = await seedVideo({ id: vid(1), durationS: 300 });
     const short = await seedVideo({ id: vid(2), durationS: 90 });
