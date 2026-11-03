@@ -26,6 +26,12 @@ describe('GET /api/state', () => {
     expect(Math.abs(res.body.serverNow - Date.now())).toBeLessThan(5000);
   });
 
+  it('dresses The Jungle as the Alliance or the Horde', async () => {
+    const seen = new Set<string>();
+    for (let i = 0; i < 20 && seen.size < 2; i++) seen.add((await state('jungle')).body.room.decor);
+    expect([...seen].sort()).toEqual(['alliance', 'horde']);
+  });
+
   it('rejects unknown rooms', async () => {
     expect(await state('de')).toMatchObject({ status: 400, body: { error: 'bad_room' } });
   });

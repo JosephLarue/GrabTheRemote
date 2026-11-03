@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Bagel_Fat_One, Nunito } from 'next/font/google';
+import { Bagel_Fat_One, Cinzel, Nunito, Rubik_Wet_Paint } from 'next/font/google';
 import { APP_NAME, APP_TAGLINE, SITE_URL } from '@/config/app';
 import { AdsScript } from '@/components/AdsScript';
 import { Footer } from '@/components/Footer';
@@ -10,6 +10,10 @@ import './globals.css';
 
 const bagel = Bagel_Fat_One({ variable: '--font-bagel', weight: '400', subsets: ['latin'] });
 const nunito = Nunito({ variable: '--font-nunito', subsets: ['latin'] });
+// The Jungle's factions have their own lettering: royal capitals for the Alliance, dripping paint for the Horde.
+// Not preloaded: only those two looks use them.
+const cinzel = Cinzel({ variable: '--font-cinzel', weight: '700', subsets: ['latin'], preload: false });
+const wetPaint = Rubik_Wet_Paint({ variable: '--font-wet-paint', weight: '400', subsets: ['latin'], preload: false });
 
 export const metadata: Metadata = {
   // Absolute base for og:image and friends. Read at build time, like every NEXT_PUBLIC_* variable.
@@ -59,7 +63,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
       </head>
       {/* Column with a growing main: the footer sits at the bottom of the window even when the page is short. */}
-      <body className={`${bagel.variable} ${nunito.variable} flex flex-col antialiased`} suppressHydrationWarning>
+      <body className={`${bagel.variable} ${nunito.variable} ${cinzel.variable} ${wetPaint.variable} flex flex-col antialiased`} suppressHydrationWarning>
         <Header lastRoom={room} />
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-16">{children}</main>
         <Footer lastRoom={room} />

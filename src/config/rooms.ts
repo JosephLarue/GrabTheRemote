@@ -9,23 +9,48 @@ export type PublicRoomId = (typeof ROOMS)[number];
 export type PrivateRoomId = `p-${string}`;
 export type RoomId = PublicRoomId | PrivateRoomId;
 
+/**
+ * Looks a room can wear: CSS variables under `[data-room="<decor>"]` in globals.css. `wall` and `tv` are the
+ * wallpaper and TV colours, for the share cards and the browser's theme colour. The first ones are the public
+ * rooms' own; `alliance` and `horde` are the two faces of The Jungle. All but `twitch` are open to private rooms.
+ */
+export const DECORS = ['en', 'fr', 'es', 'it', 'jungle', 'alliance', 'horde'] as const;
+export type Decor = (typeof DECORS)[number] | 'twitch';
+/** The Jungle's two looks, drawn at random on each visit. */
+export const FACTIONS = ['alliance', 'horde'] as const satisfies readonly Decor[];
+
+/** A look a private room may pick (every decor but the Twitch room's). */
+export type DecorPick = (typeof DECORS)[number];
+export const isDecorPick = (d: Decor): d is DecorPick => (DECORS as readonly Decor[]).includes(d);
+
+export const DECOR_INFO: Record<Decor, { name: string; emoji: string; wall: string; tv: string }> = {
+  en: { name: 'London', emoji: '🇬🇧', wall: '#33404f', tv: '#e03a3e' },
+  fr: { name: 'Bistro', emoji: '🇫🇷', wall: '#6e1f3f', tv: '#ff9bb3' },
+  es: { name: 'Azulejos', emoji: '🇪🇸', wall: '#1f4fb5', tv: '#ff8a3d' },
+  it: { name: 'Trattoria', emoji: '🇮🇹', wall: '#b3343c', tv: '#ffe45c' },
+  jungle: { name: 'Jungle', emoji: '🌴', wall: '#14532d', tv: '#ff7a1a' },
+  alliance: { name: 'Alliance', emoji: '⚜️', wall: '#16275f', tv: '#1d3fa0' },
+  horde: { name: 'Horde', emoji: '🧟‍♂️', wall: '#3a0a0a', tv: '#8b0000' },
+  twitch: { name: 'Twitch', emoji: '🟣', wall: '#1f1240', tv: '#9146ff' },
+};
+
 type RoomInfo = {
   kind: 'youtube' | 'twitch';
   name: string;
   emoji: string;
   lang: string | null;
   language: string | null;
-  wall: string;
-  tv: string;
+  /** The room's look; `faction` draws Alliance or Horde on each visit (see `decorOf`). */
+  decor: Decor | 'faction';
 };
 
 export const ROOM_INFO: Record<PublicRoomId, RoomInfo> = {
-  en: { kind: 'youtube', name: 'English', emoji: '🇬🇧', lang: 'en', language: 'English', wall: '#33404f', tv: '#e03a3e' },
-  fr: { kind: 'youtube', name: 'Français', emoji: '🇫🇷', lang: 'fr', language: 'French', wall: '#6e1f3f', tv: '#ff9bb3' },
-  es: { kind: 'youtube', name: 'Español', emoji: '🇪🇸', lang: 'es', language: 'Spanish', wall: '#1f4fb5', tv: '#ff8a3d' },
-  it: { kind: 'youtube', name: 'Italiano', emoji: '🇮🇹', lang: 'it', language: 'Italian', wall: '#b3343c', tv: '#ffe45c' },
-  jungle: { kind: 'youtube', name: 'The Jungle', emoji: '🌴', lang: null, language: null, wall: '#14532d', tv: '#ff7a1a' },
-  twitch: { kind: 'twitch', name: 'Twitch', emoji: '🟣', lang: null, language: null, wall: '#1f1240', tv: '#9146ff' },
+  en: { kind: 'youtube', name: 'English', emoji: '🇬🇧', lang: 'en', language: 'English', decor: 'en' },
+  fr: { kind: 'youtube', name: 'Français', emoji: '🇫🇷', lang: 'fr', language: 'French', decor: 'fr' },
+  es: { kind: 'youtube', name: 'Español', emoji: '🇪🇸', lang: 'es', language: 'Spanish', decor: 'es' },
+  it: { kind: 'youtube', name: 'Italiano', emoji: '🇮🇹', lang: 'it', language: 'Italian', decor: 'it' },
+  jungle: { kind: 'youtube', name: 'The Jungle', emoji: '🌴', lang: null, language: null, decor: 'faction' },
+  twitch: { kind: 'twitch', name: 'Twitch', emoji: '🟣', lang: null, language: null, decor: 'twitch' },
 };
 
 export const DEFAULT_ROOM: PublicRoomId = 'en';
@@ -43,9 +68,6 @@ export const isRoom = (s: unknown): s is RoomId => isPublicRoom(s) || isPrivateR
 
 /** Private rooms always play YouTube. */
 export const isTwitchRoom = (room: RoomId) => isPublicRoom(room) && ROOM_INFO[room].kind === 'twitch';
-
-/** Public rooms a private room can borrow its look from. */
-export const DECORS = ROOMS.filter((r) => ROOM_INFO[r].kind === 'youtube');
 
 /**
  * Language rule: a language room only refuses videos YouTube says are in another language.

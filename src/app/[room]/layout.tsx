@@ -7,7 +7,7 @@ import { PickCelebration } from '@/components/PickCelebration';
 import { SoundEffects } from '@/components/SoundEffects';
 import { TabTitle } from '@/components/TabTitle';
 import { SITE_URL } from '@/config/app';
-import { ROOM_INFO, ROOMS, isPrivateRoom, isPublicRoom, isRoom } from '@/config/rooms';
+import { DECOR_INFO, ROOM_INFO, ROOMS, isPrivateRoom, isPublicRoom, isRoom } from '@/config/rooms';
 import { dict, localeOf } from '@/i18n';
 import { lastRoom } from '@/lib/last-room';
 import { LiveProvider } from '@/lib/live';
@@ -20,7 +20,7 @@ type Params = Promise<{ room: string }>;
 export async function generateViewport({ params }: { params: Params }): Promise<Viewport> {
   const { room } = await params;
   const settings = isRoom(room) ? await roomSettings(room) : null;
-  return settings ? { themeColor: ROOM_INFO[settings.decor].wall } : {};
+  return settings ? { themeColor: DECOR_INFO[settings.decor].wall } : {};
 }
 
 // Language rooms are translations of one another: each one points search engines at the others.

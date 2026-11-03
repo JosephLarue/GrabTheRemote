@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { APP_NAME } from '@/config/app';
-import { ROOM_INFO, isRoom } from '@/config/rooms';
+import { DECOR_INFO, isRoom } from '@/config/rooms';
 import { dictFor } from '@/i18n';
 import { roomSettings } from '@/server/room-settings';
 import { viewerCount } from '@/server/state';
@@ -16,7 +16,7 @@ export default async function RoomOgImage({ params }: { params: Promise<{ room: 
   if (!isRoom(room)) notFound();
   const settings = await roomSettings(room);
   if (!settings) notFound();
-  const { wall, tv } = ROOM_INFO[settings.decor];
+  const { wall, tv } = DECOR_INFO[settings.decor];
   const t = dictFor(settings.locale);
   const viewers = await viewerCount(room).catch(() => 0);
   // An empty couch is nothing to brag about: the pill only shows when someone is watching.
