@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useLive } from '@/lib/live';
+import { useClientValue } from '@/lib/use-client-value';
 
 export const useCinema = () => useContext(Ctx);
 
@@ -16,6 +17,13 @@ type CinemaCtx = {
 const Ctx = createContext<CinemaCtx>({ on: false, toggle: () => {}, chatOpen: true, setChatOpen: () => {} });
 
 const CHAT_KEY = 'gtr:cinema-chat';
+function readChatOpen() {
+  try {
+    return localStorage.getItem(CHAT_KEY) !== '0';
+  } catch {
+    return true;
+  }
+}
 
 /**
  * Full screen for the TV, with the chat kept beside it (under it on a portrait screen). The stage covers the
@@ -25,14 +33,10 @@ const CHAT_KEY = 'gtr:cinema-chat';
 export function CinemaStage({ className, children }: { className: string; children: React.ReactNode }) {
   const stage = useRef<HTMLDivElement>(null);
   const [on, setOn] = useState(false);
-  const [chatOpen, setChatOpenState] = useState(true);
-
-  // Whoever folded the chat away last time gets it folded again.
-  useEffect(() => {
-    try {
-      setChatOpenState(localStorage.getItem(CHAT_KEY) !== '0');
-    } catch {}
-  }, []);
+  // Whoever folded the chat away last time gets it folded again (the stored choice until this visit changes it).
+  const stored = useClientValue(readChatOpen, true);
+  const [chosen, setChatOpenState] = useState<boolean | null>(null);
+  const chatOpen = chosen ?? stored;
 
   const setChatOpen = useCallback((next: boolean) => {
     setChatOpenState(next);
@@ -112,9 +116,14 @@ export function ChatUnfoldButton() {
   const { on, chatOpen, setChatOpen } = useContext(Ctx);
   const [unread, setUnread] = useState(0);
   const folded = on && !chatOpen;
+  // Folding or unfolding resets the count (state derived from a prop: adjusted during render, not in an effect).
+  const [wasFolded, setWasFolded] = useState(folded);
+  if (folded !== wasFolded) {
+    setWasFolded(folded);
+    setUnread(0);
+  }
 
   useEffect(() => {
-    setUnread(0);
     if (folded) return onChat(() => setUnread((n) => n + 1));
   }, [folded, onChat]);
 

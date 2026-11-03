@@ -44,6 +44,8 @@ function Join({ locale }: { locale: string }) {
     setBusy(true);
     setMsg(null);
     const res = await post('/api/rooms/join', { room: id, password });
+    // Full reload on purpose: the room layout reads the fresh password cookie on the server.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     if (res.ok) window.location.assign(`/${id}`);
     else {
       setMsg(errorText(t, res.err, { room: 'en' }));

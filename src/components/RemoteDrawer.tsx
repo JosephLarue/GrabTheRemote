@@ -3,11 +3,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { COUCH_COLLAPSE_AT } from '@/config/app';
 import { useLive } from '@/lib/live';
+import { useClientValue } from '@/lib/use-client-value';
 import { SfxToggle } from './SoundEffects';
 import { VOTE_HASH, onOpenVote } from './VoteBox';
 
 const OPEN_KEY = 'gtr:remote-open';
 const DESKTOP = '(min-width: 1024px)';
+function readOpen() {
+  try {
+    return window.matchMedia(DESKTOP).matches && localStorage.getItem(OPEN_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
 
 /**
  * The room's controls live in a remote that slides in from the left (the chat has the TV's right), so the TV
@@ -16,16 +24,13 @@ const DESKTOP = '(min-width: 1024px)';
  */
 export function RemoteDrawer({ children }: { children: React.ReactNode }) {
   const { t } = useLive();
-  const [open, setOpen] = useState(false);
+  // Only desktop reopens it: there it sits beside the TV. On a phone it covers the TV, so it always starts closed.
+  // The stored choice holds until this visit toggles it.
+  const stored = useClientValue(readOpen, false);
+  const [chosen, setOpen] = useState<boolean | null>(null);
+  const open = chosen ?? stored;
   const handle = useRef<HTMLButtonElement>(null);
   const hide = useRef<HTMLButtonElement>(null);
-
-  // Only desktop reopens it: there it sits beside the TV. On a phone it covers the TV, so it always starts closed.
-  useEffect(() => {
-    try {
-      setOpen(window.matchMedia(DESKTOP).matches && localStorage.getItem(OPEN_KEY) === '1');
-    } catch {}
-  }, []);
 
   // Only desktop remembers: on a phone the drawer is a modal, and a phone's "closed" must not close it on the
   // next desktop visit (nor the other way round). Focus follows the drawer: in on open, back to the button on close.

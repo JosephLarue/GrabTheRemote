@@ -6,17 +6,6 @@ const eslintConfig = [
   ...nextVitals,
   ...nextTs,
   {
-    // React Compiler rules that eslint-config-next 16 turned into errors. They flag patterns this code base
-    // uses on purpose (reading localStorage after mount, one-shot Math.random in confetti, a module-level
-    // pending counter): kept visible as warnings until each spot is reworked.
-    rules: {
-      "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/purity": "warn",
-      "react-hooks/immutability": "warn",
-      "react-hooks/refs": "warn",
-    },
-  },
-  {
     ignores: [
       "node_modules/**",
       ".claude/**",

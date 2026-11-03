@@ -101,6 +101,8 @@ type PreviewRes = {
   matchesTheme: boolean | null;
 };
 type PreviewState = { status: 'idle' | 'loading' } | { status: 'ok'; data: PreviewRes } | { status: 'error'; message: string };
+/** What the server said about one id; anything else being typed means "loading". */
+type PreviewResult = { id: string; state: PreviewState };
 
 /**
  * The link box. Full: at the top of the remote (title, theme, cooldown rule). Compact: one row under the TV on
@@ -114,7 +116,7 @@ export function VoteForm({ compact = false }: { compact?: boolean }) {
   const cooldown = useVoteCooldown();
   const inputId = compact ? 'vote-url-compact' : 'vote-url';
   const [url, setUrl] = useState('');
-  const [preview, setPreview] = useState<PreviewState>({ status: 'idle' });
+  const [result, setResult] = useState<PreviewResult | null>(null);
   const id = parseYouTubeId(url);
   const fail = useCallback(
     (err: { error: string; message: string }) => errorText(t, err, { room, theme, rules }),
@@ -123,27 +125,31 @@ export function VoteForm({ compact = false }: { compact?: boolean }) {
 
   // Preview 400 ms after typing stops. Never costs YouTube quota (server uses cache or oEmbed).
   useEffect(() => {
-    if (!id) {
-      setPreview(url.trim() ? { status: 'error', message: t.errors.bad_url } : { status: 'idle' });
-      return;
-    }
-    setPreview({ status: 'loading' });
+    if (!id) return;
     const ctrl = new AbortController();
     const timer = setTimeout(async () => {
       try {
         const res = await fetch(`/api/preview?room=${room}&url=${encodeURIComponent(id)}`, { signal: ctrl.signal });
         const data = await res.json();
-        setPreview(res.ok ? { status: 'ok', data } : { status: 'error', message: fail(data) });
+        setResult({ id, state: res.ok ? { status: 'ok', data } : { status: 'error', message: fail(data) } });
       } catch {
-        if (!ctrl.signal.aborted) setPreview({ status: 'error', message: t.errors.network });
+        if (!ctrl.signal.aborted) setResult({ id, state: { status: 'error', message: t.errors.network } });
       }
     }, 400);
     return () => {
       clearTimeout(timer);
       ctrl.abort();
     };
-  }, [id, url, room, t, fail]);
+  }, [id, room, t, fail]);
 
+  // Derived, not stored: no id means idle (or a bad link), an id without its answer yet means loading.
+  const preview: PreviewState = !id
+    ? url.trim()
+      ? { status: 'error', message: t.errors.bad_url }
+      : { status: 'idle' }
+    : result?.id === id
+      ? result.state
+      : { status: 'loading' };
   const p = preview.status === 'ok' ? preview.data : null;
   const blocked = !!p?.problem || p?.matchesTheme === false;
 
