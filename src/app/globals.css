@@ -121,6 +121,41 @@
   --muted: #c9f2d3;
 }
 
+/* The Jungle, Alliance side: Stormwind stone, royal-blue TV, gold trim */
+:root:has([data-room="alliance"]) {
+  --wall: #3a4664;
+  --wall-pattern: #4b587a;
+  /* staggered cobblestones */
+  --wall-image:
+    radial-gradient(ellipse 42% 30% at 25% 25%, var(--wall-pattern) 97%, transparent),
+    radial-gradient(ellipse 42% 30% at 75% 75%, var(--wall-pattern) 97%, transparent);
+  --wall-size: 88px 60px;
+  --tv: #2456b3;
+  --tv-dark: #183d85;
+  --glow: #f5c542;
+  --report: #f5c542;
+  --remote: #1b2743;
+  --remote-hi: #2c3c64;
+  --muted: #d7dfef;
+}
+
+/* The Jungle, Horde side: Orgrimmar red rock, iron lattice, blood-red TV, ember glow */
+:root:has([data-room="horde"]) {
+  --wall: #4a1a14;
+  --wall-pattern: #5e241b;
+  /* crossed iron bars */
+  --wall-image:
+    repeating-linear-gradient(45deg, var(--wall-pattern) 0 8px, transparent 8px 36px),
+    repeating-linear-gradient(-45deg, var(--wall-pattern) 0 8px, transparent 8px 36px);
+  --wall-size: auto;
+  --tv: #b3261e;
+  --tv-dark: #7d1512;
+  --glow: #ff7a1a;
+  --remote: #2a1410;
+  --remote-hi: #43201a;
+  --muted: #f0cfc6;
+}
+
 /* Twitch: purple glitch, diagonal scan bars, Twitch-purple TV */
 :root:has([data-room="twitch"]) {
   --wall: #1f1240;
@@ -176,6 +211,22 @@
     --remote-hi: #241549;
     --panel: #1f1340;
     --shade: #9146ff;
+  }
+  :root:has([data-room="alliance"]) {
+    --wall: #1b2133;
+    --wall-pattern: #262e45;
+    --remote: #161d2e;
+    --remote-hi: #283452;
+    --panel: #232b40;
+    --shade: #f5c542;
+  }
+  :root:has([data-room="horde"]) {
+    --wall: #26100c;
+    --wall-pattern: #361811;
+    --remote: #1f0d09;
+    --remote-hi: #3a1812;
+    --panel: #3a1812;
+    --shade: #ff7a1a;
   }
   :root:has([data-room="jungle"]) {
     --wall: #082414;

@@ -1,4 +1,4 @@
-import type { PublicRoomId } from '@/config/rooms';
+import type { Decor } from '@/config/rooms';
 
 export type VideoMeta = {
   id: string;
@@ -74,7 +74,7 @@ export type RoomSettings = {
   /** UI language. */
   locale: string;
   /** The public room whose look (wallpaper, TV colours) this room wears. */
-  decor: PublicRoomId;
+  decor: Decor;
   rules: RoomRules;
   themes: ThemeMode;
 };
