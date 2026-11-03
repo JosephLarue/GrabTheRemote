@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { REACTION_MAX_PER_WINDOW } from '@/config/app';
 import { REACTION_BATCH_MS } from '@/config/app';
 import type { LiveEvent } from '@/lib/types';
 import { bus } from '@/server/state';
@@ -34,7 +35,7 @@ describe('POST /api/react', () => {
   });
 
   it('rate-limits each viewer', async () => {
-    for (let i = 0; i < 20; i++) await react('en', '👏', { viewer: 7 });
+    for (let i = 0; i < REACTION_MAX_PER_WINDOW; i++) expect((await react('en', '👏', { viewer: 7 })).status).toBe(200);
     expect(await react('en', '👏', { viewer: 7 })).toMatchObject({ status: 429, body: { error: 'rate_limited' } });
     expect((await react('en', '👏', { viewer: 8 })).status).toBe(200);
   });

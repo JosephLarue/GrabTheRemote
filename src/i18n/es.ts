@@ -55,6 +55,7 @@ export const es: Dict = {
   reactions: {
     label: 'Reacciones del sofá',
     send: (emoji) => `Reaccionar ${emoji}`,
+    capped: (n) => `${n} por minuto, deja respirar al sofá`,
   },
   cinema: {
     enter: 'Pantalla completa',
