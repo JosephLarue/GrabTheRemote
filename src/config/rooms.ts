@@ -29,8 +29,8 @@ export const DECOR_INFO: Record<Decor, { name: string; emoji: string; wall: stri
   es: { name: 'Azulejos', emoji: '🇪🇸', wall: '#1f4fb5', tv: '#ff8a3d' },
   it: { name: 'Trattoria', emoji: '🇮🇹', wall: '#b3343c', tv: '#ffe45c' },
   jungle: { name: 'Jungle', emoji: '🌴', wall: '#14532d', tv: '#ff7a1a' },
-  alliance: { name: 'Alliance', emoji: '🦁', wall: '#3a4664', tv: '#2456b3' },
-  horde: { name: 'Horde', emoji: '🪓', wall: '#4a1a14', tv: '#b3261e' },
+  alliance: { name: 'Alliance', emoji: '🦁', wall: '#4a5468', tv: '#1f4fa8' },
+  horde: { name: 'Horde', emoji: '🪓', wall: '#2b1410', tv: '#8a1612' },
   twitch: { name: 'Twitch', emoji: '🟣', wall: '#1f1240', tv: '#9146ff' },
 };
 
