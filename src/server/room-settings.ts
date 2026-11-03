@@ -1,5 +1,5 @@
 import 'server-only';
-import { MAX_DURATION_S, THEMES_ENABLED, VOTE_COOLDOWN_S } from '@/config/app';
+import { THEMES_ENABLED, VOTE_COOLDOWN_S } from '@/config/app';
 import { type Constraint, constraintById } from '@/config/constraints';
 import { ROOM_INFO, type PublicRoomId, type RoomId, isPublicRoom } from '@/config/rooms';
 import { localeOf } from '@/i18n';
@@ -14,7 +14,7 @@ export function publicSettings(room: PublicRoomId): RoomSettings {
     private: false,
     locale: localeOf(room),
     decor: room,
-    rules: { maxDurationS: MAX_DURATION_S, voteCooldownS: VOTE_COOLDOWN_S, lang: ROOM_INFO[room].lang, skip: true, report: true },
+    rules: { maxDurationS: null, voteCooldownS: VOTE_COOLDOWN_S, lang: ROOM_INFO[room].lang, skip: true, report: true },
     themes: { mode: 'roulette' },
   };
 }

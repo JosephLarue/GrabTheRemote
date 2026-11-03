@@ -1,4 +1,3 @@
-import { MAX_DURATION_S } from '@/config/app';
 import { ROOM_INFO, type RoomId, isPublicRoom } from '@/config/rooms';
 import type { ApiFailure } from '@/lib/api';
 import { formatLasted } from '@/lib/roast';
@@ -51,7 +50,7 @@ export function errorText(
       return language ? e.wrong_language(language) : err.message;
     }
     case 'too_long':
-      return e.too_long(Math.floor((ctx.rules?.maxDurationS ?? MAX_DURATION_S) / 60));
+      return ctx.rules?.maxDurationS ? e.too_long(Math.floor(ctx.rules.maxDurationS / 60)) : err.message;
     case 'nothing':
     case 'already': {
       const msg = (e as Record<string, unknown>)[`${err.error}_${ctx.kind ?? 'skip'}`];

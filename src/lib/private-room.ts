@@ -78,7 +78,7 @@ export function toInput(s: RoomSettings): RoomInput {
     locale: s.locale,
     decor: s.decor,
     rules: {
-      maxDurationMin: Math.round(s.rules.maxDurationS / 60),
+      maxDurationMin: s.rules.maxDurationS ? Math.round(s.rules.maxDurationS / 60) : 15,
       voteCooldownS: s.rules.voteCooldownS,
       lang: s.rules.lang,
       skip: s.rules.skip,

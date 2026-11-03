@@ -17,8 +17,7 @@ export const LEGAL = {
   hostWebsite: 'https://railway.com',
 };
 
-// Queue + voting
-export const MAX_DURATION_S = 900;
+// Queue + voting. Public rooms accept videos of any length; private rooms pick theirs (PRIVATE_MAX_DURATIONS_MIN).
 export const VOTE_COOLDOWN_S = 900;
 export const CANDIDATE_TTL_MIN = 60;
 

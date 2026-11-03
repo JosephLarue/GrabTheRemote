@@ -22,7 +22,10 @@ describe('errorText', () => {
   const fr = dict('fr');
   it('translates known codes', () => {
     expect(errorText(fr, { error: 'cooldown', message: 'x' }, { room: 'fr' })).toContain('télécommande');
-    expect(errorText(fr, { error: 'too_long', message: 'x' }, { room: 'fr' })).toContain('15 minutes');
+    expect(errorText(fr, { error: 'too_long', message: 'x' }, { room: 'fr', rules: { lang: null, maxDurationS: 900 } })).toContain(
+      '15 minutes',
+    );
+    expect(errorText(fr, { error: 'too_long', message: 'x' }, { room: 'fr' })).toBe('x');
   });
   it('uses the action for shared codes', () => {
     expect(errorText(fr, { error: 'already', message: 'x' }, { room: 'fr', kind: 'report' })).toBe(
