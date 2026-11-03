@@ -59,7 +59,12 @@ function rooms(req: NextRequest): NextResponse {
   headers.set(ROOM_HEADER, isPublicRoom(first) ? first : fallback);
   const res = NextResponse.next({ request: { headers } });
   if (isPublicRoom(first) && saved !== first) {
-    res.cookies.set(ROOM_COOKIE, first, { path: '/', maxAge: ROOM_COOKIE_MAX_AGE_S, sameSite: 'lax' });
+    res.cookies.set(ROOM_COOKIE, first, {
+      path: '/',
+      maxAge: ROOM_COOKIE_MAX_AGE_S,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+    });
   }
   return res;
 }

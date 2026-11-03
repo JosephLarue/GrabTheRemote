@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { errorText, themeLabel } from '@/i18n';
 import { post, rememberPick } from '@/lib/api';
 import { beam } from '@/lib/fx';
@@ -27,8 +27,8 @@ type VoteCtx = {
   /** A YouTube link or id. Resolves true when the vote counted. */
   vote: (target: string) => Promise<boolean>;
   busy: boolean;
-  /** ms left before this viewer can vote again. */
-  cooldown: number;
+  /** Server time at which this viewer can vote again, null when they can. */
+  cooldownEndsAt: number | null;
   msg: { ok: boolean; text: string } | null;
 };
 
@@ -40,15 +40,21 @@ export function useVote() {
   return ctx;
 }
 
+/** ms left before this viewer can vote again. Ticks once a second, only in the component that asks. */
+export function useVoteCooldown() {
+  const { cooldownEndsAt } = useVote();
+  const now = useServerNow(1000);
+  return cooldownEndsAt && cooldownEndsAt > now ? cooldownEndsAt - now : 0;
+}
+
 export function VoteProvider({ children }: { children: React.ReactNode }) {
   const { room, t, settings, state, me, refreshMe } = useLive();
   const theme = state?.theme;
   const rules = settings.rules;
-  const now = useServerNow(1000);
   const { ref: captchaRef, getToken } = useTurnstile();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<VoteCtx['msg']>(null);
-  const cooldown = me.voteCooldownEndsAt && me.voteCooldownEndsAt > now ? me.voteCooldownEndsAt - now : 0;
+  const cooldownEndsAt = me.voteCooldownEndsAt;
 
   const vote = useCallback(
     async (target: string) => {
@@ -76,11 +82,13 @@ export function VoteProvider({ children }: { children: React.ReactNode }) {
     [getToken, room, t, theme, rules, refreshMe],
   );
 
+  const value = useMemo(() => ({ vote, busy, cooldownEndsAt, msg }), [vote, busy, cooldownEndsAt, msg]);
+
   return (
-    <Ctx.Provider value={{ vote, busy, cooldown, msg }}>
+    <Ctx.Provider value={value}>
       {children}
       {/* Turnstile only shows up when it wants a click: float it above everything, the remote may be closed. */}
-      <div ref={captchaRef} className="fixed right-4 bottom-20 z-[70]" />
+      <div ref={captchaRef} className="fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-[70]" />
     </Ctx.Provider>
   );
 }
@@ -94,12 +102,17 @@ type PreviewRes = {
 };
 type PreviewState = { status: 'idle' | 'loading' } | { status: 'ok'; data: PreviewRes } | { status: 'error'; message: string };
 
-/** The link box, at the top of the remote. */
-export function VoteForm() {
+/**
+ * The link box. Full: at the top of the remote (title, theme, cooldown rule). Compact: one row under the TV on
+ * phones, where the remote is a floating button nobody would open to find out where to paste a link.
+ */
+export function VoteForm({ compact = false }: { compact?: boolean }) {
   const { room, t, settings, state } = useLive();
   const { rules } = settings;
   const theme = state?.theme;
-  const { vote, busy, cooldown, msg } = useVote();
+  const { vote, busy, msg } = useVote();
+  const cooldown = useVoteCooldown();
+  const inputId = compact ? 'vote-url-compact' : 'vote-url';
   const [url, setUrl] = useState('');
   const [preview, setPreview] = useState<PreviewState>({ status: 'idle' });
   const id = parseYouTubeId(url);
@@ -135,38 +148,46 @@ export function VoteForm() {
   const blocked = !!p?.problem || p?.matchesTheme === false;
 
   return (
-    <section aria-labelledby="vote-title" className="flex flex-col gap-3">
-      <h2 id="vote-title" className="font-display text-xl">
-        {t.vote.title}
-      </h2>
-      {/* The theme decides what gets in: say it right where the link goes, not only under the TV. */}
-      <ThemeBanner />
-      <p className="text-xs font-semibold opacity-85">{t.vote.intro(t.duration(rules.voteCooldownS))}</p>
+    <section
+      aria-label={compact ? t.vote.title : undefined}
+      aria-labelledby={compact ? undefined : 'vote-title'}
+      className="flex flex-col gap-3"
+    >
+      {!compact && (
+        <>
+          <h2 id="vote-title" className="font-display text-xl">
+            {t.vote.title}
+          </h2>
+          {/* The theme decides what gets in: say it right where the link goes, not only under the TV. */}
+          <ThemeBanner />
+          <p className="text-xs font-semibold opacity-85">{t.vote.intro(t.duration(rules.voteCooldownS))}</p>
+        </>
+      )}
 
       <form
-        className="flex flex-col gap-2"
+        className={compact ? 'flex gap-2' : 'flex flex-col gap-2'}
         onSubmit={async (e) => {
           e.preventDefault();
           beam(e.currentTarget.querySelector('button'));
           if (id && (await vote(url))) setUrl('');
         }}
       >
-        <label htmlFor="vote-url" className="sr-only">
+        <label htmlFor={inputId} className="sr-only">
           {t.vote.linkLabel}
         </label>
         <input
-          id="vote-url"
+          id={inputId}
           type="url"
           inputMode="url"
           autoComplete="off"
           placeholder="https://youtu.be/…"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          className="field"
+          className={compact ? 'field min-w-0 flex-1' : 'field'}
         />
         <button
           type="submit"
-          className="btn font-display bg-[var(--skip)] text-lg text-[var(--ink)]"
+          className={`btn font-display bg-[var(--skip)] text-[var(--ink)] ${compact ? 'shrink-0 px-4 text-base' : 'text-lg'}`}
           disabled={!id || busy || cooldown > 0 || blocked}
         >
           {busy ? t.vote.grabbing : t.vote.grab}
@@ -181,7 +202,7 @@ export function VoteForm() {
 
       <div aria-live="polite" className="empty:hidden">
         {preview.status === 'loading' && <p className="text-sm font-bold opacity-70">{t.vote.tuning}</p>}
-        {preview.status === 'error' && <p className="text-sm font-extrabold text-[var(--skip)]">{preview.message}</p>}
+        {preview.status === 'error' && <p className="text-sm font-extrabold text-[var(--danger-ink)]">{preview.message}</p>}
         {p && (
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -200,12 +221,12 @@ export function VoteForm() {
               </p>
               <p className="mt-0.5 text-xs font-extrabold">
                 {p.problem ? (
-                  <span className="text-[var(--skip)]">
+                  <span className="text-[var(--danger-ink)]">
                     {p.problemCode ? fail({ error: p.problemCode, message: p.problem }) : p.problem}
                   </span>
                 ) : p.matchesTheme === false ? (
                   // Name the theme: "off-theme" alone reads like any other rule (15 min max, 15 min cooldown…).
-                  <span className="text-[var(--skip)]">
+                  <span className="text-[var(--danger-ink)]">
                     {theme ? t.errors.theme(`${theme.emoji} ${themeLabel(t, theme)}`) : t.vote.offTheme}
                   </span>
                 ) : p.inPool ? (
@@ -220,7 +241,7 @@ export function VoteForm() {
       </div>
 
       {msg && (
-        <p role="status" className={`text-sm font-extrabold ${msg.ok ? 'text-[var(--mint)]' : 'text-[var(--skip)]'}`}>
+        <p role="status" className={`text-sm font-extrabold ${msg.ok ? 'text-[var(--mint)]' : 'text-[var(--danger-ink)]'}`}>
           {msg.text}
         </p>
       )}

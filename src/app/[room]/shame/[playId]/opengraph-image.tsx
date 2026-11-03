@@ -11,6 +11,8 @@ import { decorOf } from '@/server/room-settings';
 export const alt = `${APP_NAME}: Hall of Shame`;
 export const size = SHARE_CARD_SIZE;
 export const contentType = 'image/png';
+// A play that is over doesn't change: the card is rendered once an hour at most per entry.
+export const revalidate = 3600;
 
 export default async function ShameOgImage({ params }: { params: Promise<{ room: string; playId: string }> }) {
   const { room, playId } = await params;
