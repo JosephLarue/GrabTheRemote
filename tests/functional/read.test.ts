@@ -1,13 +1,27 @@
 import { describe, expect, it } from 'vitest';
-import { THEMES_ENABLED } from '@/config/app';
+import { THEMES_ENABLED, TICKER_STALE_MS } from '@/config/app';
 import { GET as health } from '@/app/api/health/route';
 import { preview, seedVideo, setTheme, state, vid, vote } from './helpers';
 
 describe('GET /api/health', () => {
-  it('reports Postgres and Redis up', async () => {
+  it('reports Postgres and Redis up, and no ticker in this process', async () => {
     const res = await health();
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true, postgres: true, redis: true });
+    expect(await res.json()).toEqual({ ok: true, postgres: true, redis: true, ticker: 'off' });
+  });
+
+  it('fails once the ticker stops ticking', async () => {
+    const g = globalThis as unknown as { __ticker?: unknown; __lastTickAt?: number };
+    g.__ticker = {};
+    g.__lastTickAt = Date.now() - TICKER_STALE_MS - 1;
+    try {
+      const res = await health();
+      expect(res.status).toBe(503);
+      expect(await res.json()).toMatchObject({ ok: false, ticker: 'stale' });
+    } finally {
+      delete g.__ticker;
+      delete g.__lastTickAt;
+    }
   });
 });
 
@@ -21,7 +35,7 @@ describe('GET /api/state', () => {
       theme: null,
       viewers: 0,
       skip: { votes: 0, needed: 3, cooldownEndsAt: null },
-      report: { votes: 0, needed: 3 },
+      report: { votes: 0, needed: 5 },
     });
     expect(Math.abs(res.body.serverNow - Date.now())).toBeLessThan(5000);
   });

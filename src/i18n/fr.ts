@@ -316,6 +316,7 @@ export const fr: Dict = {
     blocked_keyword: 'Non, pas ce genre de vidéo 🙅',
     rate_limited: "Doucement ! Trop de clics d'un coup 🫨",
     captcha: 'Le détecteur de robots fait bip boup. Réessaie 🤖',
+    captcha_unavailable: 'Le détecteur de robots fait la sieste. Réessaie dans un instant 😴',
     internal: 'La télécommande est tombée derrière le canapé. Réessaie dans une seconde.',
     network: 'Plus de signal. Vérifie ta connexion et réessaie 📡',
     bad_room: "Cette room n'existe pas 🚪",

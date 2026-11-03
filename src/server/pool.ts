@@ -62,15 +62,20 @@ export async function topPool(room: RoomId, n: number, theme: Constraint | null)
   return out;
 }
 
-/** Removes and returns the best playable candidate (its votes are consumed). */
+/**
+ * Removes and returns the best playable candidate (its votes are consumed). Candidates are judged before
+ * they're removed: a refusal (`isPlayable` false) or a vanished video drops them, but when Postgres, Redis
+ * or YouTube is down `getMeta`/`isPlayable` throw, and the error propagates with the pool intact.
+ */
 export async function popBest(
   room: RoomId,
   isPlayable: (m: VideoMeta) => Promise<boolean>,
 ): Promise<{ meta: VideoMeta; votes: number } | null> {
   for (const r of await ranked(room)) {
+    const meta = await getMeta(r.id, { allowFetch: true });
+    const playable = meta ? await isPlayable(meta) : false;
     await removeCandidate(room, r.id);
-    const meta = await getMeta(r.id, { allowFetch: true }).catch(() => null);
-    if (meta && (await isPlayable(meta))) return { meta, votes: r.votes };
+    if (meta && playable) return { meta, votes: r.votes };
   }
   return null;
 }

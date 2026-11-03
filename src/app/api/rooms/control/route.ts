@@ -1,7 +1,6 @@
-import { advance, pausePlayback, resumePlayback, withLock } from '@/server/engine';
+import { advance, closePrivateRoom, pausePlayback, resumePlayback, withLock } from '@/server/engine';
 import { ApiError, handle, ok, openRoom } from '@/server/http';
-import { forgetPrivateRoom } from '@/server/private-rooms';
-import { getNowPlaying, publish } from '@/server/state';
+import { getNowPlaying } from '@/server/state';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,8 +15,7 @@ export const POST = handle(async (req: Request) => {
   const action = body.action as Action;
 
   if (action === 'close') {
-    await forgetPrivateRoom(room);
-    await publish(room, { type: 'closed', data: null });
+    await closePrivateRoom(room);
     return ok({ ok: true });
   }
 

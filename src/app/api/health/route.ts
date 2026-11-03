@@ -1,6 +1,8 @@
 import { sql } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import { TICKER_STALE_MS } from '@/config/app';
 import { db } from '@/server/db/client';
+import { tickerStatus } from '@/server/engine';
 import { redis } from '@/server/redis';
 
 export const dynamic = 'force-dynamic';
@@ -24,15 +26,21 @@ async function check(fn: () => Promise<unknown>): Promise<boolean> {
   }
 }
 
-/** Used by Railway/Fly to restart the app when Postgres or Redis is unreachable. Exempt from the origin lock. */
+/**
+ * Used by Railway/Fly to restart the app when Postgres or Redis is unreachable, or when this process's
+ * ticker stopped ticking (event loop wedged). Exempt from the origin lock. `ticker` is 'off' when the ticker
+ * was never started here (DISABLE_TICKER, or a process that only serves requests).
+ */
 export async function GET() {
   const [postgres, redisOk] = await Promise.all([
     check(() => db().execute(sql`select 1`)),
     check(() => redis().ping()),
   ]);
-  const ok = postgres && redisOk;
+  const { started, lastTickAt } = tickerStatus();
+  const ticker = !started ? 'off' : Date.now() - lastTickAt > TICKER_STALE_MS ? 'stale' : 'ok';
+  const ok = postgres && redisOk && ticker !== 'stale';
   return NextResponse.json(
-    { ok, postgres, redis: redisOk },
+    { ok, postgres, redis: redisOk, ticker },
     { status: ok ? 200 : 503, headers: { 'cache-control': 'no-store' } },
   );
 }

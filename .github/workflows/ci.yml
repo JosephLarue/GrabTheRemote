@@ -96,24 +96,34 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      # `next start` runs with NODE_ENV=production, where env validation requires the origin lock and an
+      # https site URL. The requests below carry the secret like Cloudflare would; /api/health is exempt.
       - name: Smoke test (production server)
+        env:
+          ORIGIN_SECRET: ci-origin-secret
+          NEXT_PUBLIC_SITE_URL: https://ci.grabtheremote.invalid
         run: |
           pnpm start > server.log 2>&1 &
           for i in $(seq 1 60); do
             curl -sf http://localhost:3000/api/health > /dev/null && break
             sleep 1
           done
+          cf() { curl -H "x-origin-secret: $ORIGIN_SECRET" "$@"; }
           set -x
           curl -sf http://localhost:3000/api/health | grep -q '"ok":true'
+          curl -sf http://localhost:3000/api/health | grep -q '"ticker":"ok"'
           for room in en fr es it jungle; do
-            curl -sf -o /dev/null "http://localhost:3000/$room"
-            curl -sf "http://localhost:3000/api/state?room=$room" | grep -q '"serverNow"'
+            cf -sf -o /dev/null "http://localhost:3000/$room"
+            cf -sf "http://localhost:3000/api/state?room=$room" | grep -q '"serverNow"'
           done
-          curl -sf -o /dev/null http://localhost:3000/privacy
-          curl -sf -o /dev/null http://localhost:3000/legal
-          test "$(curl -s -o /dev/null -w '%{redirect_url}' -H 'accept-language: fr-FR' http://localhost:3000/)" = "http://localhost:3000/fr"
-          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/nope)" = "404"
-          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/admin)" = "401"
+          cf -sf -o /dev/null http://localhost:3000/privacy
+          cf -sf -o /dev/null http://localhost:3000/legal
+          test "$(cf -s -o /dev/null -w '%{redirect_url}' -H 'accept-language: fr-FR' http://localhost:3000/)" = "http://localhost:3000/fr"
+          test "$(cf -s -o /dev/null -w '%{http_code}' http://localhost:3000/nope)" = "404"
+          test "$(cf -s -o /dev/null -w '%{http_code}' http://localhost:3000/admin)" = "401"
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/en)" = "403"
+          cf -sI http://localhost:3000/en | grep -qi '^x-frame-options: DENY'
+          ! cf -sI http://localhost:3000/en | grep -qi '^x-powered-by'
 
       - name: Server log
         if: failure()
