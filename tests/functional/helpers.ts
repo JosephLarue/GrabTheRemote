@@ -10,6 +10,7 @@ import { POST as postCreateRoom } from '@/app/api/rooms/route';
 import { POST as postRoomSettings } from '@/app/api/rooms/settings/route';
 import { POST as postDecide } from '@/app/api/twitch/decide/route';
 import { POST as postPick } from '@/app/api/twitch/pick/route';
+import { POST as postClaimInvite } from '@/app/api/invite/claim/route';
 import { POST as postReport } from '@/app/api/report/route';
 import { POST as postSkip } from '@/app/api/skip/route';
 import { GET as getState } from '@/app/api/state/route';
@@ -91,6 +92,9 @@ export const report = (room: string, { viewer = 1, token = CAPTCHA_OK }: As = {}
 export const veto = (room: string, { viewer = 1 }: As = {}) =>
   call<ApiBody & { vetoed?: boolean }>(postVeto(post('/api/veto', { room }, viewer)));
 
+export const claimInvite = (room: string, code: string, { viewer = 1 }: As = {}) =>
+  call<ApiBody & { boosted?: boolean }>(postClaimInvite(post('/api/invite/claim', { room, code }, viewer)));
+
 export const react = (room: string, emoji: string, { viewer = 1 }: As = {}) =>
   call(postReact(post('/api/react', { room, emoji }, viewer)));
 
@@ -132,6 +136,7 @@ export const me = (room: string, viewer = 1) =>
     skipped: boolean;
     reported: boolean;
     remote: boolean;
+    invite: { code: string; friends: number; need: number; boostEndsAt: number | null } | null;
     decided: string | null;
     picked: string | null;
     owner: boolean;

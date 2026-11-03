@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { COUCH_COLLAPSE_AT } from '@/config/app';
 import { useLive } from '@/lib/live';
+import { SfxToggle } from './SoundEffects';
 import { VOTE_HASH, onOpenVote } from './VoteBox';
 
 const OPEN_KEY = 'gtr:remote-open';
@@ -71,7 +72,8 @@ export function RemoteDrawer({ children }: { children: React.ReactNode }) {
       >
         <span aria-hidden className="remote-handle-power" />
         <span aria-hidden>📺</span>
-        <span className="remote-handle-label">{t.remote.label}</span>
+        {/* Phones: just the power button, the TV and the count, so it hides as little as possible. */}
+        <span className="remote-handle-label max-sm:sr-only">{t.remote.label}</span>
         <LiveLight dot />
         <CouchCount compact />
       </button>
@@ -95,6 +97,7 @@ export function RemoteDrawer({ children }: { children: React.ReactNode }) {
         </div>
         <div className="flex items-center justify-between gap-3">
           <LiveLight />
+          <SfxToggle compact />
           <CouchCount />
         </div>
         {children}

@@ -76,6 +76,18 @@ When the top two videos in the queue are neck and neck, a **REMOTE FIGHT** banne
 - **Peak crowd** — the biggest audience ever in the room
 - **Hall of Shame** — fastest skips, vetoes and mass-reported disasters, each with its own roast ("Skipped faster than a YouTube ad"). Legends, in their own way. Every entry has a **📸 Share** card: *"Skipped after 4s by 600 people."*
 
+## 🃏 Shame cards
+
+Every Hall of Shame entry is a holographic trading card with a rarity: **Legendary** (died in under 5 s), **Epic**, **Rare**, **Common**, **Mythic** (vetoed) and **Banned** (mass-reported). Voted for a video the crowd killed? The card is yours: it lands in **My collection** on the Hall of Shame tab and you can download it as a PNG. Collections live in your browser.
+
+## 🎟️ Bring your friends
+
+Under the TV, the **🎟️ ticket** gives you an invite link. Bring 3 friends to the room within a day (each one has to watch for 45 seconds) and you vote **every 5 minutes for an hour** instead of every 15. The code is derived from your scrambled IP; each friend counts once per room.
+
+## 🔔 Sounds and surprises
+
+Button clicks, channel-change static, a buzzer when the crowd skips, applause when your pick wins, an alarm when the remote gets stolen, and the TV **shatters** on a veto. All synthesized in the browser, no files, one 🔔 switch in the remote to turn them off. There are also three easter eggs on the watch page, each once an hour at most: the Konami code, five taps on an antenna, five taps on a knob.
+
 ## 🔊 "Why is it muted?!"
 
 Browsers hate surprise noise. Click the giant wobbling **CRANK IT UP 🔊** sticker once and you're in.
@@ -101,6 +113,8 @@ Stack:
 - **Postgres (Drizzle)** for history and the Hall of Fame
 - **Redis** for votes, cooldowns, the queue and live state
 - **Server-Sent Events** to keep everyone's screen in sync
+- Two stacked YouTube players: the likely next video is cued on the standby one during the last minute, so the switch is instant
+- `/sitemap.xml`, `/robots.txt` and a web manifest (installable); public rooms carry hreflang, canonical and a live couch count in their description and share card
 - **Cloudflare Turnstile** to stop the bots
 - **YouTube IFrame + Data API** (with aggressive caching, because quota is precious)
 

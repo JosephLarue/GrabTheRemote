@@ -120,6 +120,13 @@ export async function shameEntry(room: RoomId, playId: number): Promise<HallRow 
   return row ?? null;
 }
 
+/** Several Hall of Shame entries (a browser's collection), fastest first. Ids not in this room's Hall are left out. */
+export async function shameEntries(room: RoomId, playIds: number[]): Promise<HallRow[]> {
+  const ids = playIds.filter((id) => Number.isSafeInteger(id) && id > 0);
+  if (ids.length === 0) return [];
+  return shameRows(room, inArray(p.id, ids), ids.length);
+}
+
 export async function hall(room: RoomId, tab: HallTab): Promise<HallRow[]> {
   const key = K.hallCache(room, tab);
   const hit = await redis().get(key);

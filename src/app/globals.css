@@ -206,272 +206,694 @@ body {
   background-size: var(--wall-size);
 }
 
-.font-display {
-  font-family: var(--font-bagel), system-ui, sans-serif;
-  font-weight: 400;
-  letter-spacing: 0.01em;
-}
+/* Everything below is in the components layer, so Tailwind utilities on an element win over it:
+   `btn px-3 py-1` really is a small button, `font-display tracking-widest` really is spaced out. */
+@layer components {
+  .font-display {
+    font-family: var(--font-bagel), system-ui, sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
 
-:focus-visible {
-  outline: 4px solid var(--glow);
-  outline-offset: 3px;
-  border-radius: 12px;
-}
+  :focus-visible {
+    outline: 4px solid var(--glow);
+    outline-offset: 3px;
+    border-radius: 12px;
+  }
 
-/* ---------------------------------------------------------------- chunky primitives */
+  /* ---------------------------------------------------------------- chunky primitives */
 
-.panel {
-  background: var(--panel);
-  color: var(--panel-ink);
-  border: var(--line) solid var(--edge);
-  border-radius: 20px;
-  box-shadow: var(--pop);
-}
+  .panel {
+    background: var(--panel);
+    color: var(--panel-ink);
+    border: var(--line) solid var(--edge);
+    border-radius: 20px;
+    box-shadow: var(--pop);
+  }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border: var(--line) solid var(--edge);
-  border-radius: 999px;
-  box-shadow: var(--pop-sm);
-  font-weight: 800;
-  padding: 0.6rem 1.2rem;
-  transition: transform 80ms ease, box-shadow 80ms ease;
-  cursor: pointer;
-  user-select: none;
-}
-.btn:active:not(:disabled) {
-  transform: translate(3px, 3px) scale(0.97, 0.92);
-  box-shadow: 0 0 0 var(--shade);
-}
-.btn:disabled {
-  cursor: not-allowed;
-  filter: grayscale(0.6) brightness(0.85);
-}
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: var(--line) solid var(--edge);
+    border-radius: 999px;
+    box-shadow: var(--pop-sm);
+    font-weight: 800;
+    padding: 0.6rem 1.2rem;
+    transition: transform 80ms ease, box-shadow 80ms ease;
+    cursor: pointer;
+    user-select: none;
+  }
+  .btn:active:not(:disabled) {
+    transform: translate(3px, 3px) scale(0.97, 0.92);
+    box-shadow: 0 0 0 var(--shade);
+  }
+  .btn:disabled {
+    cursor: not-allowed;
+    filter: grayscale(0.6) brightness(0.85);
+  }
 
-.sticker {
-  display: inline-block;
-  border: var(--line) solid var(--edge);
-  border-radius: 14px;
-  box-shadow: var(--pop-sm);
-  padding: 0.35rem 0.8rem;
-  font-weight: 800;
-}
+  .sticker {
+    display: inline-block;
+    border: var(--line) solid var(--edge);
+    border-radius: 14px;
+    box-shadow: var(--pop-sm);
+    padding: 0.35rem 0.8rem;
+    font-weight: 800;
+  }
 
-/* Text inputs and selects, same look as the vote form's link field. */
-.field {
-  width: 100%;
-  border: var(--line) solid var(--edge);
-  border-radius: 14px;
-  background: #fff;
-  color: var(--ink);
-  font-weight: 700;
-  padding: 0.55rem 0.9rem;
-  box-shadow: inset 3px 3px 0 rgba(0, 0, 0, 0.12);
-  outline: none;
-}
-.field::placeholder {
-  color: color-mix(in srgb, var(--ink) 40%, transparent);
-}
-.field:focus-visible {
-  box-shadow: 0 0 0 4px var(--glow);
-}
+  /* Text inputs and selects, same look as the vote form's link field. */
+  .field {
+    width: 100%;
+    border: var(--line) solid var(--edge);
+    border-radius: 14px;
+    background: #fff;
+    color: var(--ink);
+    font-weight: 700;
+    padding: 0.55rem 0.9rem;
+    box-shadow: inset 3px 3px 0 rgba(0, 0, 0, 0.12);
+    outline: none;
+  }
+  .field::placeholder {
+    color: color-mix(in srgb, var(--ink) 40%, transparent);
+  }
+  .field:focus-visible {
+    box-shadow: 0 0 0 4px var(--glow);
+  }
 
-/* ---------------------------------------------------------------- the TV */
+  /* ---------------------------------------------------------------- the TV */
 
-.tv {
-  position: relative;
-  isolation: isolate;
-  background: var(--tv);
-  border: var(--line) solid var(--edge);
-  border-radius: 36px;
-  box-shadow: 8px 8px 0 var(--shade), inset -10px -10px 0 var(--tv-dark);
-  padding: clamp(12px, 2.5vw, 26px);
-}
-.tv::before,
-.tv::after {
-  /* rabbit-ear antennas */
-  content: "";
-  position: absolute;
-  top: -64px;
-  width: 6px;
-  height: 80px;
-  background: var(--antenna);
-  border-radius: 6px;
-  transform-origin: bottom center;
-  z-index: -1;
-}
-.tv::before {
-  left: 42%;
-  transform: rotate(-28deg);
-}
-.tv::after {
-  left: 56%;
-  transform: rotate(24deg);
-}
-.tv-screen {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: #000;
-  border: var(--line) solid var(--edge);
-  border-radius: 28px / 22px;
-  box-shadow: 0 0 0 6px var(--tv-dark), 0 0 40px -4px var(--glow);
-}
-.tv-screen iframe,
-.tv-screen > .tv-player {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-.tv-screen::after {
-  /* scanlines + glass curve */
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 0 2px, transparent 2px 4px),
-    radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.12), transparent 55%);
-}
-.tv-knob {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: var(--report);
-  border: var(--line) solid var(--edge);
-  box-shadow: inset -4px -4px 0 rgba(0, 0, 0, 0.18);
-}
+  .tv {
+    position: relative;
+    isolation: isolate;
+    background: var(--tv);
+    border: var(--line) solid var(--edge);
+    border-radius: 36px;
+    box-shadow: 8px 8px 0 var(--shade), inset -10px -10px 0 var(--tv-dark);
+    padding: clamp(12px, 2.5vw, 26px);
+  }
+  .tv::before,
+  .tv::after {
+    /* rabbit-ear antennas */
+    content: "";
+    position: absolute;
+    top: -64px;
+    width: 6px;
+    height: 80px;
+    background: var(--antenna);
+    border-radius: 6px;
+    transform-origin: bottom center;
+    z-index: -1;
+  }
+  .tv::before {
+    left: 42%;
+    transform: rotate(-28deg);
+  }
+  .tv::after {
+    left: 56%;
+    transform: rotate(24deg);
+  }
+  .tv-screen {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #000;
+    border: var(--line) solid var(--edge);
+    border-radius: 28px / 22px;
+    box-shadow: 0 0 0 6px var(--tv-dark), 0 0 40px -4px var(--glow);
+  }
+  .tv-screen iframe,
+  .tv-screen > .tv-player {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .tv-screen::after {
+    /* scanlines + glass curve */
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 0 2px, transparent 2px 4px),
+      radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.12), transparent 55%);
+  }
+  .tv-knob {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--report);
+    border: var(--line) solid var(--edge);
+    box-shadow: inset -4px -4px 0 rgba(0, 0, 0, 0.18);
+  }
 
-/* ---------------------------------------------------------------- the remote */
+  /* ---------------------------------------------------------------- the remote */
 
-.remote {
-  background: var(--remote);
-  border: var(--line) solid var(--edge);
-  border-radius: 48px;
-  box-shadow: var(--pop), inset 6px 6px 0 var(--remote-hi);
-  color: var(--cream);
-}
-.remote-btn {
-  border-radius: 50%;
-  aspect-ratio: 1;
-  width: 100%;
-  max-width: 120px;
-  flex-direction: column;
-  gap: 0.1rem;
-  padding: 0.5rem;
-  box-shadow: 0 6px 0 var(--shade);
-}
-.remote-btn:active:not(:disabled) {
-  transform: translateY(5px) scale(1.04, 0.9);
-  box-shadow: 0 1px 0 var(--shade);
-}
-
-/* The remote drawer: the room's controls slide in from the left so the TV keeps the whole screen (the chat
-   sits on its right). Phones: a floating button bottom-left. Desktop: a tab sticking out of the left edge. */
-.remote-drawer {
-  position: fixed;
-  z-index: 50;
-  top: 50%;
-  left: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  width: min(340px, calc(100vw - 24px));
-  max-height: calc(100dvh - 24px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 1.5rem 1.4rem 1.1rem;
-  /* less round than the classic remote: content scrolls inside */
-  border-radius: 36px;
-  visibility: hidden;
-  transform: translate(calc(-100% - 40px), -50%);
-  transition:
-    transform 320ms cubic-bezier(0.2, 1.25, 0.4, 1),
-    visibility 0s linear 320ms;
-}
-.remote-drawer.is-open {
-  visibility: visible;
-  transform: translate(0, -50%);
-  transition: transform 320ms cubic-bezier(0.2, 1.25, 0.4, 1);
-}
-/* the infrared window at the top of the remote */
-.remote-ir {
-  width: 34px;
-  height: 14px;
-  border: var(--line) solid var(--edge);
-  border-radius: 999px;
-  background: radial-gradient(circle at 35% 40%, #7a3b3b, #1a0d0d 70%);
-}
-.remote-handle {
-  position: fixed;
-  z-index: 45;
-  left: 16px;
-  bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem 0.9rem 0.5rem 0.55rem;
-  border: var(--line) solid var(--edge);
-  border-radius: 999px;
-  background: var(--remote);
-  color: var(--cream);
-  font-weight: 800;
-  box-shadow: var(--pop), inset 3px 3px 0 var(--remote-hi);
-  cursor: pointer;
-  transition: transform 200ms ease, opacity 200ms ease;
-}
-.remote-handle:hover {
-  transform: translateY(-3px);
-}
-.remote-handle.is-hidden {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(20px);
-}
-/* the big red power button */
-.remote-handle-power {
-  width: 24px;
-  height: 24px;
-  border: var(--line) solid var(--edge);
-  border-radius: 50%;
-  background: var(--skip);
-  box-shadow: inset -3px -3px 0 rgba(0, 0, 0, 0.25);
-}
-@media (min-width: 1024px) {
-  .remote-handle {
-    top: 50%;
-    left: 0;
-    bottom: auto;
+  .remote {
+    background: var(--remote);
+    border: var(--line) solid var(--edge);
+    border-radius: 48px;
+    box-shadow: var(--pop), inset 6px 6px 0 var(--remote-hi);
+    color: var(--cream);
+  }
+  .remote-btn {
+    border-radius: 50%;
+    aspect-ratio: 1;
+    width: 100%;
+    max-width: 120px;
     flex-direction: column;
-    gap: 0.9rem;
-    padding: 1rem 0.7rem 1rem 0.6rem;
-    border-left: 0;
-    border-radius: 0 28px 28px 0;
-    transform: translateY(-50%);
+    gap: 0.1rem;
+    padding: 0.5rem;
+    box-shadow: 0 6px 0 var(--shade);
+  }
+  .remote-btn:active:not(:disabled) {
+    transform: translateY(5px) scale(1.04, 0.9);
+    box-shadow: 0 1px 0 var(--shade);
+  }
+
+  /* The remote drawer: the room's controls slide in from the left so the TV keeps the whole screen (the chat
+     sits on its right). Phones: a floating button bottom-left. Desktop: a tab sticking out of the left edge. */
+  .remote-drawer {
+    position: fixed;
+    z-index: 50;
+    top: 50%;
+    left: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: min(340px, calc(100vw - 24px));
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 1.5rem 1.4rem 1.1rem;
+    /* less round than the classic remote: content scrolls inside */
+    border-radius: 36px;
+    visibility: hidden;
+    transform: translate(calc(-100% - 40px), -50%);
+    transition:
+      transform 320ms cubic-bezier(0.2, 1.25, 0.4, 1),
+      visibility 0s linear 320ms;
+  }
+  /* A thin scrollbar in the remote's own colours: the default white track cut the remote in two. */
+  .remote-drawer,
+  .chat-list {
+    scrollbar-width: thin;
+    scrollbar-color: var(--remote-hi) transparent;
+  }
+  .remote-drawer::-webkit-scrollbar,
+  .chat-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  .remote-drawer::-webkit-scrollbar-track,
+  .chat-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .remote-drawer::-webkit-scrollbar-thumb,
+  .chat-list::-webkit-scrollbar-thumb {
+    background: var(--remote-hi);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  .chat-list {
+    scrollbar-color: color-mix(in srgb, var(--ink) 25%, transparent) transparent;
+  }
+  .chat-list::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--ink) 25%, transparent);
+    background-clip: padding-box;
+  }
+  .remote-drawer.is-open {
+    visibility: visible;
+    transform: translate(0, -50%);
+    transition: transform 320ms cubic-bezier(0.2, 1.25, 0.4, 1);
+  }
+  /* the infrared window at the top of the remote */
+  .remote-ir {
+    width: 34px;
+    height: 14px;
+    border: var(--line) solid var(--edge);
+    border-radius: 999px;
+    background: radial-gradient(circle at 35% 40%, #7a3b3b, #1a0d0d 70%);
+  }
+  .remote-handle {
+    position: fixed;
+    z-index: 45;
+    left: 16px;
+    bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.9rem 0.5rem 0.55rem;
+    border: var(--line) solid var(--edge);
+    border-radius: 999px;
+    background: var(--remote);
+    color: var(--cream);
+    font-weight: 800;
+    box-shadow: var(--pop), inset 3px 3px 0 var(--remote-hi);
+    cursor: pointer;
+    transition: transform 200ms ease, opacity 200ms ease;
   }
   .remote-handle:hover {
-    transform: translate(6px, -50%);
+    transform: translateY(-3px);
   }
   .remote-handle.is-hidden {
-    transform: translate(-30px, -50%);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
   }
-  .remote-handle-label {
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
+  /* the big red power button */
+  .remote-handle-power {
+    width: 24px;
+    height: 24px;
+    border: var(--line) solid var(--edge);
+    border-radius: 50%;
+    background: var(--skip);
+    box-shadow: inset -3px -3px 0 rgba(0, 0, 0, 0.25);
   }
-  /* the open remote pushes the page aside rather than covering the TV */
-  body {
-    transition: padding-left 320ms cubic-bezier(0.2, 1.25, 0.4, 1);
+  @media (min-width: 1024px) {
+    .remote-handle {
+      top: 50%;
+      left: 0;
+      bottom: auto;
+      flex-direction: column;
+      gap: 0.9rem;
+      padding: 1rem 0.7rem 1rem 0.6rem;
+      border-left: 0;
+      border-radius: 0 28px 28px 0;
+      transform: translateY(-50%);
+    }
+    .remote-handle:hover {
+      transform: translate(6px, -50%);
+    }
+    .remote-handle.is-hidden {
+      transform: translate(-30px, -50%);
+    }
+    .remote-handle-label {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+    }
+    /* the open remote pushes the page aside rather than covering the TV */
+    body {
+      transition: padding-left 320ms cubic-bezier(0.2, 1.25, 0.4, 1);
+    }
+    :root[data-remote-open] body {
+      padding-left: 384px;
+    }
   }
-  :root[data-remote-open] body {
-    padding-left: 384px;
+
+  /* ---------------------------------------------------------------- couch reactions */
+
+  /* One row of six above the chat's input: they share the width, round as long as there's room. */
+  .reaction-btn {
+    width: 100%;
+    max-width: 3.25rem;
+    aspect-ratio: 1;
+    justify-self: center;
+    padding: 0;
+    line-height: 1;
+  }
+  @keyframes reaction-float {
+    0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
+    10% { opacity: 1; transform: translate(0, -10%) scale(1.1); }
+    100% { transform: translate(var(--drift, 0), -420%) scale(1); opacity: 0; }
+  }
+  .reaction-float {
+    animation-name: reaction-float;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+    filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.35));
+  }
+
+  /* ---------------------------------------------------------------- remote fight + stolen remote */
+
+  @keyframes tug {
+    0%, 100% { margin-left: -3px; }
+    50% { margin-left: 3px; }
+  }
+  .tug {
+    animation: tug 0.35s ease-in-out infinite;
+  }
+  .fight {
+    border-color: var(--skip);
+  }
+
+  @keyframes steal-glow {
+    0%, 100% { box-shadow: var(--pop), 0 0 0 0 var(--report); }
+    50% { box-shadow: var(--pop), 0 0 0 8px var(--report); }
+  }
+  .steal-mine {
+    background: var(--report);
+    color: var(--ink);
+    animation: steal-glow 1s ease-in-out infinite;
+  }
+
+  /* ---------------------------------------------------------------- Twitch room */
+
+  @keyframes live-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 74, 61, 0.7); }
+    50% { box-shadow: 0 0 0 8px rgba(255, 74, 61, 0); }
+  }
+  .live-dot {
+    display: inline-block;
+    width: 0.55em;
+    height: 0.55em;
+    border-radius: 50%;
+    background: var(--skip);
+    border: 3px solid var(--edge);
+    animation: live-pulse 1.4s ease-out infinite;
+  }
+
+  /* Keep-or-change: the panel sweats when it's close, the clock beats in the last seconds. */
+  @keyframes close-shake {
+    0%, 100% { transform: translate(0, 0) rotate(0); }
+    20% { transform: translate(-3px, 1px) rotate(-0.4deg); }
+    40% { transform: translate(3px, -1px) rotate(0.4deg); }
+    60% { transform: translate(-2px, 0) rotate(-0.2deg); }
+    80% { transform: translate(2px, 1px) rotate(0.2deg); }
+  }
+  @keyframes close-glow {
+    0%, 100% { box-shadow: var(--pop), 0 0 0 0 var(--skip); }
+    50% { box-shadow: var(--pop), 0 0 0 10px var(--skip); }
+  }
+  .close-call {
+    border-color: var(--skip);
+    animation: close-shake 0.45s ease-in-out infinite, close-glow 0.9s ease-in-out infinite;
+  }
+  .tug-hard {
+    animation-duration: 0.15s;
+  }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    15% { transform: scale(1.25); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.15); }
+  }
+  .heartbeat {
+    display: inline-block;
+    animation: heartbeat 1s ease-in-out infinite;
+  }
+  @keyframes verdict-pop {
+    0% { transform: scale(0.3) rotate(-12deg); opacity: 0; }
+    60% { transform: scale(1.15) rotate(3deg); opacity: 1; }
+    100% { transform: scale(1) rotate(-2deg); }
+  }
+  .verdict {
+    animation: verdict-pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  }
+  .pick {
+    border-color: var(--glow);
+  }
+
+
+  /* ---------------------------------------------------------------- TV warming up (loading) */
+
+  .tv-poweron {
+    background: #000;
+  }
+  .tv-poweron-beam {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, #fff 0%, #dfe9ff 35%, rgba(120, 160, 255, 0.5) 60%, transparent 75%);
+    transform: translate(-50%, -50%) scale(0, 0);
+    animation:
+      tv-on 900ms cubic-bezier(0.2, 0.9, 0.3, 1) forwards,
+      tv-breathe 1.8s ease-in-out 900ms infinite;
+  }
+  @keyframes tv-on {
+    0% { transform: translate(-50%, -50%) scale(0.02, 0.02); opacity: 1; }
+    35% { transform: translate(-50%, -50%) scale(1, 0.015); opacity: 1; }
+    70% { transform: translate(-50%, -50%) scale(1, 1); opacity: 0.9; }
+    100% { transform: translate(-50%, -50%) scale(1, 1); opacity: 0.18; }
+  }
+  @keyframes tv-breathe {
+    0%, 100% { opacity: 0.18; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ---------------------------------------------------------------- one-shot effects (lib/fx.ts) */
+
+  .fx-beam {
+    position: fixed;
+    z-index: 70;
+    height: 6px;
+    margin-top: -3px;
+    transform-origin: 0 50%;
+    pointer-events: none;
+    border-radius: 3px;
+    background: repeating-linear-gradient(90deg, var(--glow) 0 14px, transparent 14px 26px);
+    filter: drop-shadow(0 0 6px var(--glow));
+    animation: fx-beam 550ms linear forwards;
+  }
+  @keyframes fx-beam {
+    0% { clip-path: inset(0 100% 0 0); opacity: 1; background-position: 0 0; }
+    45% { clip-path: inset(0 0 0 0); opacity: 1; }
+    100% { clip-path: inset(0 0 0 100%); opacity: 0.6; background-position: 104px 0; }
+  }
+  .fx-hit {
+    animation: fx-hit 700ms ease-out;
+  }
+  @keyframes fx-hit {
+    0% { box-shadow: 0 0 0 6px var(--tv-dark), 0 0 0 0 var(--glow); filter: brightness(1); }
+    20% { box-shadow: 0 0 0 6px var(--tv-dark), 0 0 0 14px var(--glow); filter: brightness(1.6); }
+    100% { box-shadow: 0 0 0 6px var(--tv-dark), 0 0 40px -4px var(--glow); filter: brightness(1); }
+  }
+  .fx-crack {
+    animation: fx-crack 400ms steps(2) both;
+  }
+  @keyframes fx-crack {
+    0% { transform: translate(0, 0); filter: invert(1); }
+    50% { transform: translate(-6px, 3px); filter: invert(0); }
+    100% { transform: translate(0, 0); }
+  }
+  .fx-shatter {
+    position: fixed;
+    z-index: 65;
+    pointer-events: none;
+  }
+  .fx-shatter > div {
+    position: absolute;
+    border: 1px solid rgba(0, 0, 0, 0.35);
+    box-sizing: border-box;
+    animation: fx-tile 1100ms cubic-bezier(0.3, 0.1, 0.7, 1) both;
+  }
+  @keyframes fx-tile {
+    0% { transform: translate(0, 0) rotate(0); opacity: 1; }
+    15% { opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.6); opacity: 0; }
+  }
+
+  /* ---------------------------------------------------------------- easter eggs */
+
+  .egg-antenna {
+    position: absolute;
+    top: -78px;
+    width: 14%;
+    height: 86px;
+    z-index: 1;
+    /* nothing to see: the rabbit ears are the TV's ::before/::after */
+    background: transparent;
+  }
+  .egg-antenna-left { left: 34%; }
+  .egg-antenna-right { left: 52%; }
+  .is-cinema .egg-antenna {
+    display: none;
+  }
+  .egg-bw {
+    filter: grayscale(1) contrast(1.15) sepia(0.15);
+    transition: filter 600ms ease;
+  }
+  .egg-roll {
+    animation: egg-roll 1.2s linear infinite;
+  }
+  @keyframes egg-roll {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-100%); }
+  }
+  .egg-roll::after {
+    /* the next frame rolling in from the bottom, so the screen never goes empty */
+    content: "";
+    position: absolute;
+    inset: 0;
+    top: 100%;
+    background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 0 2px, transparent 2px 6px), #000;
+  }
+  /* Analog snow over the picture: grain blended in, the video still visible underneath. */
+  .egg-static {
+    position: absolute;
+    inset: 0;
+    z-index: 25;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    image-rendering: pixelated;
+  }
+  .egg-static-jolt {
+    animation: egg-jolt 500ms steps(3) both;
+  }
+  @keyframes egg-jolt {
+    0% { transform: translate(0, 0) skewX(0); }
+    33% { transform: translate(-4px, 2px) skewX(-1.5deg); }
+    66% { transform: translate(3px, -1px) skewX(1deg); }
+    100% { transform: translate(0, 0) skewX(0); }
+  }
+
+  /* ---------------------------------------------------------------- shame cards (holo foil) */
+
+  .card {
+    --mx: 50%;
+    --my: 50%;
+    --tilt-x: 0deg;
+    --tilt-y: 0deg;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: var(--line) solid var(--edge);
+    border-radius: 22px;
+    background: var(--panel);
+    color: var(--panel-ink);
+    box-shadow: var(--pop);
+    overflow: hidden;
+    transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+    transition: transform 120ms ease, box-shadow 120ms ease;
+    isolation: isolate;
+  }
+  .card:hover {
+    box-shadow: 8px 8px 0 var(--shade);
+  }
+  .card-foil {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+      radial-gradient(circle at var(--mx) var(--my), rgba(255, 255, 255, 0.55), transparent 35%),
+      repeating-linear-gradient(115deg, var(--foil-a) 0 6%, var(--foil-b) 6% 12%, var(--foil-c) 12% 18%);
+    mix-blend-mode: color-dodge;
+    opacity: 0.35;
+    transition: opacity 200ms ease;
+  }
+  .card:hover .card-foil {
+    opacity: 0.6;
+  }
+  .card-frame {
+    position: relative;
+    padding: 10px;
+    background: linear-gradient(135deg, var(--foil-a), var(--foil-b), var(--foil-c));
+  }
+  .card-art {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: var(--line) solid var(--edge);
+    border-radius: 14px;
+    background: var(--skip);
+  }
+  .card-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(40%);
+  }
+  .card-stamp {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-12deg);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .card-mine {
+    outline: 4px solid var(--report);
+    outline-offset: 2px;
+  }
+
+  /* ---------------------------------------------------------------- invite a friend */
+
+  /* The ticket lives in the TV's knob row (floating, it sat on the chat's send button). Full screen hides it. */
+  .invite-cta {
+    flex-shrink: 0;
+  }
+  :root[data-cinema] .invite-cta {
+    display: none;
+  }
+  .invite-dialog {
+    position: fixed;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  .invite-dialog[open] {
+    opacity: 1;
+    transform: none;
+    transition: opacity 180ms ease, transform 220ms cubic-bezier(0.2, 1.25, 0.4, 1);
+  }
+
+  /* ---------------------------------------------------------------- motion */
+
+  @keyframes wobble {
+    0%, 100% { transform: rotate(-3deg) scale(1); }
+    50% { transform: rotate(3deg) scale(1.06); }
+  }
+  .wobble {
+    animation: wobble 0.9s ease-in-out infinite;
+  }
+
+  @keyframes bump {
+    0% { transform: scaleY(1); }
+    40% { transform: scaleY(1.25); }
+    100% { transform: scaleY(1); }
+  }
+  .bump {
+    animation: bump 350ms ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wobble,
+    .bump,
+    .tug,
+    .steal-mine,
+    .live-dot,
+    .close-call,
+    .heartbeat,
+    .verdict,
+    .report-btn:hover:not(:disabled) .report-siren,
+    .egg-roll,
+    .egg-static-jolt,
+    .fx-crack {
+      animation: none;
+    }
+    .tv-poweron-beam {
+      animation: tv-on 900ms ease-out forwards;
+    }
+    .card {
+      transform: none;
+      transition: none;
+    }
+    /* Reactions still show up, they just fade in place instead of flying. */
+    @keyframes reaction-float {
+      0%, 100% { opacity: 0; }
+      20%, 70% { opacity: 1; }
+    }
+    .btn,
+    .remote-btn,
+    .remote-drawer,
+    .remote-drawer.is-open,
+    .remote-handle,
+    body {
+      transition: none;
+    }
   }
 }
 
+/* Outside the components layer on purpose: these are state overrides on elements that also carry Tailwind
+   utilities (`flex`, `mt-12`, `sm:block`, `xl:sticky`), and a layered rule can never beat an unlayered utility. */
 /* ---------------------------------------------------------------- cinema (full screen, chat kept) */
 
 /* The stage covers the window (and goes full screen when the browser lets it): the TV takes all the room it can,
@@ -603,153 +1025,4 @@ body {
 .report-btn:disabled {
   cursor: not-allowed;
   filter: grayscale(0.6) brightness(0.85);
-}
-
-/* ---------------------------------------------------------------- couch reactions */
-
-/* One row of six above the chat's input: they share the width, round as long as there's room. */
-.reaction-btn {
-  width: 100%;
-  max-width: 3.25rem;
-  aspect-ratio: 1;
-  justify-self: center;
-  padding: 0;
-  line-height: 1;
-}
-@keyframes reaction-float {
-  0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
-  10% { opacity: 1; transform: translate(0, -10%) scale(1.1); }
-  100% { transform: translate(var(--drift, 0), -420%) scale(1); opacity: 0; }
-}
-.reaction-float {
-  animation-name: reaction-float;
-  animation-timing-function: ease-out;
-  animation-fill-mode: forwards;
-  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.35));
-}
-
-/* ---------------------------------------------------------------- remote fight + stolen remote */
-
-@keyframes tug {
-  0%, 100% { margin-left: -3px; }
-  50% { margin-left: 3px; }
-}
-.tug {
-  animation: tug 0.35s ease-in-out infinite;
-}
-.fight {
-  border-color: var(--skip);
-}
-
-@keyframes steal-glow {
-  0%, 100% { box-shadow: var(--pop), 0 0 0 0 var(--report); }
-  50% { box-shadow: var(--pop), 0 0 0 8px var(--report); }
-}
-.steal-mine {
-  background: var(--report);
-  color: var(--ink);
-  animation: steal-glow 1s ease-in-out infinite;
-}
-
-/* ---------------------------------------------------------------- Twitch room */
-
-@keyframes live-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 74, 61, 0.7); }
-  50% { box-shadow: 0 0 0 8px rgba(255, 74, 61, 0); }
-}
-.live-dot {
-  display: inline-block;
-  width: 0.55em;
-  height: 0.55em;
-  border-radius: 50%;
-  background: var(--skip);
-  border: 3px solid var(--edge);
-  animation: live-pulse 1.4s ease-out infinite;
-}
-
-/* Keep-or-change: the panel sweats when it's close, the clock beats in the last seconds. */
-@keyframes close-shake {
-  0%, 100% { transform: translate(0, 0) rotate(0); }
-  20% { transform: translate(-3px, 1px) rotate(-0.4deg); }
-  40% { transform: translate(3px, -1px) rotate(0.4deg); }
-  60% { transform: translate(-2px, 0) rotate(-0.2deg); }
-  80% { transform: translate(2px, 1px) rotate(0.2deg); }
-}
-@keyframes close-glow {
-  0%, 100% { box-shadow: var(--pop), 0 0 0 0 var(--skip); }
-  50% { box-shadow: var(--pop), 0 0 0 10px var(--skip); }
-}
-.close-call {
-  border-color: var(--skip);
-  animation: close-shake 0.45s ease-in-out infinite, close-glow 0.9s ease-in-out infinite;
-}
-.tug-hard {
-  animation-duration: 0.15s;
-}
-@keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  15% { transform: scale(1.25); }
-  30% { transform: scale(1); }
-  45% { transform: scale(1.15); }
-}
-.heartbeat {
-  display: inline-block;
-  animation: heartbeat 1s ease-in-out infinite;
-}
-@keyframes verdict-pop {
-  0% { transform: scale(0.3) rotate(-12deg); opacity: 0; }
-  60% { transform: scale(1.15) rotate(3deg); opacity: 1; }
-  100% { transform: scale(1) rotate(-2deg); }
-}
-.verdict {
-  animation: verdict-pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
-}
-.pick {
-  border-color: var(--glow);
-}
-
-/* ---------------------------------------------------------------- motion */
-
-@keyframes wobble {
-  0%, 100% { transform: rotate(-3deg) scale(1); }
-  50% { transform: rotate(3deg) scale(1.06); }
-}
-.wobble {
-  animation: wobble 0.9s ease-in-out infinite;
-}
-
-@keyframes bump {
-  0% { transform: scaleY(1); }
-  40% { transform: scaleY(1.25); }
-  100% { transform: scaleY(1); }
-}
-.bump {
-  animation: bump 350ms ease-out;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .wobble,
-  .bump,
-  .tug,
-  .steal-mine,
-  .live-dot,
-  .close-call,
-  .heartbeat,
-  .verdict,
-  .report-btn:hover:not(:disabled) .report-siren {
-    animation: none;
-  }
-  /* Reactions still show up, they just fade in place instead of flying. */
-  @keyframes reaction-float {
-    0%, 100% { opacity: 0; }
-    20%, 70% { opacity: 1; }
-  }
-  .btn,
-  .remote-btn,
-  .remote-drawer,
-  .remote-drawer.is-open,
-  .remote-handle,
-  body {
-    transition: none;
-  }
 }

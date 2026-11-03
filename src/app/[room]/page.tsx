@@ -3,6 +3,8 @@
 import { AdSlot } from '@/components/AdSlot';
 import { ChatUnfoldButton, CinemaButton, CinemaStage } from '@/components/Cinema';
 import { CHAT_RAIL, CouchChat, WITH_CHAT } from '@/components/CouchChat';
+import { EasterEggs } from '@/components/EasterEggs';
+import { InviteCta } from '@/components/Invite';
 import { OwnerPanel } from '@/components/OwnerPanel';
 import { ReactionOverlay } from '@/components/CouchReactions';
 import { PoolBars } from '@/components/PoolBars';
@@ -49,6 +51,7 @@ function YouTubeStage() {
           )}
           <StolenRemote />
           <div className="tv mt-12">
+            <EasterEggs />
             <SyncedPlayer np={np} overlay={<ReactionOverlay />} />
             <div className="mt-3 flex items-center justify-between gap-3 px-1 text-[var(--ink)]">
               <div className="min-w-0">
@@ -64,6 +67,7 @@ function YouTubeStage() {
                     <span className="font-display text-2xl tabular-nums sm:text-3xl">{formatClock(left)}</span>
                   </p>
                 )}
+                <InviteCta />
                 <ChatUnfoldButton />
                 <CinemaButton />
                 <span aria-hidden className="tv-knob" />

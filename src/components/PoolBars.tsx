@@ -1,6 +1,7 @@
 'use client';
 
 import type { PoolEntry } from '@/lib/types';
+import { beam } from '@/lib/fx';
 import { formatClock, useLive } from '@/lib/live';
 import { openVote } from './VoteBox';
 
@@ -73,7 +74,10 @@ export function PoolBars({
               type="button"
               className="btn shrink-0 bg-[var(--glow)] px-3 py-1 text-[var(--ink)]"
               disabled={plusOneDisabled || !p.matchesTheme}
-              onClick={() => onPlusOne(p.id)}
+              onClick={(e) => {
+                beam(e.currentTarget, document.querySelector('.tv-screen') ?? e.currentTarget.closest('li')?.querySelector('img'));
+                onPlusOne(p.id);
+              }}
               aria-label={t.pool.voteFor(p.title)}
             >
               +1

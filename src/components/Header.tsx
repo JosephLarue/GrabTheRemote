@@ -42,7 +42,7 @@ export function Header({ lastRoom }: { lastRoom: RoomId }) {
                 key={n.key}
                 href={room ? `/${room}${n.href}` : n.href || '/'}
                 aria-current={active ? 'page' : undefined}
-                className={`btn text-sm sm:text-base ${active ? 'bg-[var(--glow)] text-[var(--ink)]' : 'bg-[var(--remote)] text-[var(--cream)]'}`}
+                className={`btn px-3 text-sm whitespace-nowrap sm:px-5 sm:text-base ${active ? 'bg-[var(--glow)] text-[var(--ink)]' : 'bg-[var(--remote)] text-[var(--cream)]'}`}
               >
                 {t.nav[n.key]}
               </Link>

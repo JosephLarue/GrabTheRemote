@@ -27,6 +27,12 @@ describe('origin lock', () => {
     expect(middleware(req('/api/health')).status).toBe(200);
   });
 
+  it('exempts public/ assets (next/image fetches them from the app itself)', () => {
+    vi.stubEnv('ORIGIN_SECRET', 'cf-secret');
+    expect(middleware(req('/logo.png')).status).toBe(200);
+    expect(middleware(req('/logo.pngx')).status).toBe(403);
+  });
+
   it('checks the origin before admin auth', () => {
     vi.stubEnv('ORIGIN_SECRET', 'cf-secret');
     vi.stubEnv('ADMIN_PASSWORD', 'pw');
