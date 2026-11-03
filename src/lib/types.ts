@@ -54,8 +54,8 @@ export type LiveSnapshot = {
 
 /** House rules. Public rooms use the site defaults; a private room's streamer picks their own. */
 export type RoomRules = {
-  /** Longest video allowed. */
-  maxDurationS: number;
+  /** Longest video allowed, in seconds. Null: any length. */
+  maxDurationS: number | null;
   /** How often each viewer can vote. */
   voteCooldownS: number;
   /** ISO 639-1; null takes any language. */

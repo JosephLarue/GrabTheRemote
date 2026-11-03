@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_DURATION_S, THEMES_ENABLED } from '@/config/app';
+import { THEMES_ENABLED } from '@/config/app';
 import type { VideoMeta } from '@/lib/types';
 import { db, schema } from '@/server/db/client';
 import { me, playNext, seedVideo, setTheme, state, vid, vote } from './helpers';
@@ -63,7 +63,6 @@ describe('POST /api/vote', () => {
   });
 
   it.each<[string, Partial<VideoMeta>]>([
-    ['too_long', { durationS: MAX_DURATION_S + 1 }],
     ['live', { durationS: 0 }],
     ['age_restricted', { ageRestricted: true }],
     ['not_embeddable', { embeddable: false }],
@@ -76,8 +75,8 @@ describe('POST /api/vote', () => {
     expect((await me('en')).body.voteCooldownEndsAt).toBeNull();
   });
 
-  it('accepts a video of exactly the maximum duration', async () => {
-    const id = await seedVideo({ id: vid(1), durationS: MAX_DURATION_S });
+  it('accepts a video of any length', async () => {
+    const id = await seedVideo({ id: vid(1), durationS: 10 * 3600 });
     expect((await vote('en', id)).status).toBe(200);
   });
 
