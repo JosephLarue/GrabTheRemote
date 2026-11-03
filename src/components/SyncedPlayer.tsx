@@ -57,7 +57,8 @@ let unmutedThisSession = false;
  */
 export function SyncedPlayer({ np, overlay }: { np: NowPlaying | null; overlay?: React.ReactNode }) {
   const { serverNow, state, t } = useLive();
-  const hosts = [useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null)];
+  // The two player mounts, filled by ref callbacks (an array of refs read in render trips the refs rule).
+  const hosts = useRef<(HTMLDivElement | null)[]>([null, null]);
   const players = useRef<(YTPlayer | null)[]>([null, null]);
   // Which player is on screen; the other one is the standby.
   const [active, setActive] = useState(0);
@@ -72,9 +73,9 @@ export function SyncedPlayer({ np, overlay }: { np: NowPlaying | null; overlay?:
     let readyCount = 0;
     loadYT().then((YT) => {
       if (cancelled) return;
-      hosts.forEach((host, i) => {
-        if (!host.current) return;
-        players.current[i] = new YT.Player(host.current, {
+      hosts.current.forEach((host, i) => {
+        if (!host) return;
+        players.current[i] = new YT.Player(host, {
           host: 'https://www.youtube-nocookie.com',
           playerVars: { autoplay: 1, mute: 1, controls: 0, disablekb: 1, playsinline: 1, rel: 0, fs: 0, iv_load_policy: 3 },
           events: {
@@ -90,7 +91,6 @@ export function SyncedPlayer({ np, overlay }: { np: NowPlaying | null; overlay?:
       players.current.forEach((p) => p?.destroy());
       players.current = [null, null];
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const playId = np?.playId;
@@ -205,7 +205,7 @@ export function SyncedPlayer({ np, overlay }: { np: NowPlaying | null; overlay?:
   return (
     <div className="tv-screen">
       {/* Both players fill the screen; the standby sits behind, invisible and muted. */}
-      {hosts.map((host, i) => (
+      {[0, 1].map((i) => (
         <div
           key={i}
           className="tv-player"
@@ -213,7 +213,11 @@ export function SyncedPlayer({ np, overlay }: { np: NowPlaying | null; overlay?:
           inert={active !== i}
           style={{ zIndex: active === i ? 1 : 0, opacity: active === i ? 1 : 0 }}
         >
-          <div ref={host} />
+          <div
+            ref={(el) => {
+              hosts.current[i] = el;
+            }}
+          />
         </div>
       ))}
 
