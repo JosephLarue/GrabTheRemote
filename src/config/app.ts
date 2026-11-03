@@ -32,7 +32,7 @@ export const SKIP_RATIO = 0.5;
 export const SKIP_COOLDOWN_S = 1800;
 
 // Mass report
-export const REPORT_MIN = 3;
+export const REPORT_MIN = 5;
 export const REPORT_RATIO = 0.1;
 export const REPORT_CARD_S = 8;
 /** Skip/report vote sets outlive a play only when its room vanished under it; they're swept after this. */

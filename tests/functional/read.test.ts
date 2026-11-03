@@ -35,7 +35,7 @@ describe('GET /api/state', () => {
       theme: null,
       viewers: 0,
       skip: { votes: 0, needed: 3, cooldownEndsAt: null },
-      report: { votes: 0, needed: 3 },
+      report: { votes: 0, needed: 5 },
     });
     expect(Math.abs(res.body.serverNow - Date.now())).toBeLessThan(5000);
   });
