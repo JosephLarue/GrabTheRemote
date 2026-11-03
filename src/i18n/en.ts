@@ -227,6 +227,14 @@ export const en = {
     watching: (n: number) => `${n} on the couch right now`,
     hallTitle: 'Hall of Fame',
     hallDescription: "The crowd's all-time favorites, biggest landslides, peak crowds, and the Hall of Shame with its share cards.",
+    twitchTitle: 'Watch Twitch together · Twitch room',
+    twitchDescription:
+      'One shared screen for a live Twitch stream. Everyone watches the same channel at the same time, and the crowd votes to keep it or change it, then picks the next one. No account, no sign-up.',
+  },
+  notFound: {
+    title: 'Nobody on this couch 🚪',
+    body: 'This page does not exist, or it got up and left.',
+    back: 'Back to the couch',
   },
   sfx: { on: 'Sound effects: on', off: 'Sound effects: off' },
   invite: {
@@ -314,6 +322,7 @@ export const en = {
     blocked_keyword: 'Nope, not that kind of video 🙅',
     rate_limited: 'Whoa, slow down! Too many button mashes 🫨',
     captcha: 'The robot detector says beep boop. Try again 🤖',
+    captcha_unavailable: 'The robot detector is napping. Try again in a moment 😴',
     internal: 'The remote fell behind the couch. Try again in a sec.',
     network: 'Lost the signal. Check your connection and try again 📡',
     bad_room: "That room doesn't exist 🚪",

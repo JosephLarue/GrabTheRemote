@@ -3,9 +3,10 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { AdSlot } from '@/components/AdSlot';
 import { MyCollection, ShameCards } from '@/components/ShameCards';
-import { isRoom, isTwitchRoom, type RoomId } from '@/config/rooms';
+import { isPublicRoom, isRoom, isTwitchRoom, type RoomId } from '@/config/rooms';
 import { type Dict, dict, localeOf } from '@/i18n';
 import { formatLasted, roastOf } from '@/lib/roast';
+import { roomAlternates } from '@/lib/seo';
 import { HALL_TABS, type HallRow, type HallTab, hall } from '@/server/hall';
 
 export const dynamic = 'force-dynamic';
@@ -14,7 +15,13 @@ export async function generateMetadata({ params }: { params: Promise<{ room: str
   const { room } = await params;
   if (!isRoom(room)) return {};
   const t = dict(room);
-  return { title: t.seo.hallTitle, description: t.seo.hallDescription, openGraph: { title: t.seo.hallTitle, description: t.seo.hallDescription } };
+  return {
+    title: t.seo.hallTitle,
+    description: t.seo.hallDescription,
+    // Own canonical and hreflang, else the Hall inherits the room root's. Every tab canonicalizes to /hall.
+    ...(isPublicRoom(room) ? { alternates: roomAlternates(room, '/hall') } : {}),
+    openGraph: { title: t.seo.hallTitle, description: t.seo.hallDescription },
+  };
 }
 
 const UNITS: Record<HallTab, (t: Dict, locale: string) => (n: number) => string> = {
@@ -152,7 +159,7 @@ function Row({
           {shame && row.reason === 'vetoed' && t.hall.vetoed}
         </p>
         {shame && (
-          <p className="mt-0.5 truncate text-xs font-black text-[var(--skip)]">
+          <p className="mt-0.5 truncate text-xs font-black text-[var(--danger-panel-ink)]">
             “{t.hall.roasts[roastOf(row.reason, row.value)]}”
           </p>
         )}

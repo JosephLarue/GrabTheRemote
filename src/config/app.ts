@@ -32,18 +32,26 @@ export const SKIP_RATIO = 0.5;
 export const SKIP_COOLDOWN_S = 1800;
 
 // Mass report
-export const REPORT_MIN = 3;
+export const REPORT_MIN = 5;
 export const REPORT_RATIO = 0.1;
 export const REPORT_CARD_S = 8;
+/** Skip/report vote sets outlive a play only when its room vanished under it; they're swept after this. */
+export const VOTE_SETS_TTL_S = 24 * 3600;
 
 // YouTube Data API quota (10k units/day)
 export const YT_QUOTA_SOFT = 8000;
 export const YT_QUOTA_HARD = 9500;
 export const META_STALE_H = 24;
+/** Upstream calls (YouTube, Turnstile) give up after this long, so a slow provider can't pin requests. */
+export const UPSTREAM_TIMEOUT_MS = 5000;
 
 // Live state
 export const PRESENCE_WINDOW_S = 30;
 export const STATIC_TRANSITION_MS = 1200;
+/** Open SSE streams one IP may hold at once (a few tabs, not a bot farm). */
+export const MAX_STREAMS_PER_IP = 6;
+/** Health reports the ticker stale when no tick ran for this long. */
+export const TICKER_STALE_MS = 10_000;
 /** From this many viewers, "on the couch" becomes "the couch is collapsing". */
 export const COUCH_COLLAPSE_AT = 1000;
 

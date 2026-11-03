@@ -6,14 +6,26 @@ import { ApiError } from './http';
 
 const LIST_TTL_MS = 60_000;
 let lists: { at: number; channels: Set<string>; keywords: string[] } | undefined;
+let staleWarned = false;
 
 async function blocklists() {
   if (!lists || Date.now() - lists.at > LIST_TTL_MS) {
-    const [channels, keywords] = await Promise.all([
-      db().select({ id: schema.bannedChannels.channelId }).from(schema.bannedChannels),
-      db().select({ k: schema.blockedKeywords.keyword }).from(schema.blockedKeywords),
-    ]);
-    lists = { at: Date.now(), channels: new Set(channels.map((c) => c.id)), keywords: keywords.map((k) => k.k.toLowerCase()) };
+    try {
+      const [channels, keywords] = await Promise.all([
+        db().select({ id: schema.bannedChannels.channelId }).from(schema.bannedChannels),
+        db().select({ k: schema.blockedKeywords.keyword }).from(schema.blockedKeywords),
+      ]);
+      lists = { at: Date.now(), channels: new Set(channels.map((c) => c.id)), keywords: keywords.map((k) => k.k.toLowerCase()) };
+      staleWarned = false;
+    } catch (e) {
+      // Postgres hiccup: a minute-old blocklist beats refusing every vote and freezing every room.
+      if (!lists) throw e;
+      if (!staleWarned) {
+        staleWarned = true;
+        console.error('[moderation] blocklist refresh failed, serving the previous one', e);
+      }
+      lists.at = Date.now();
+    }
   }
   return lists;
 }
@@ -21,6 +33,7 @@ async function blocklists() {
 /** Call after admin edits so changes apply immediately. */
 export function invalidateBlocklists() {
   lists = undefined;
+  staleWarned = false;
 }
 
 const LANGUAGE_NAMES: Record<string, string> = { en: 'English', fr: 'French', es: 'Spanish', it: 'Italian' };

@@ -225,6 +225,14 @@ export const es: Dict = {
     watching: (n) => `${n} en el sofá ahora mismo`,
     hallTitle: 'Hall of Fame',
     hallDescription: 'Los favoritos de siempre, las mayores goleadas, los récords de público y el Hall of Shame con sus tarjetas para compartir.',
+    twitchTitle: 'Ver Twitch juntos · sala Twitch',
+    twitchDescription:
+      'Una sola pantalla compartida para un directo de Twitch. Todo el mundo ve el mismo canal a la vez, y la gente vota si se queda o se cambia, y luego elige el siguiente. Sin cuenta, sin registro.',
+  },
+  notFound: {
+    title: 'Nadie en este sofá 🚪',
+    body: 'Esta página no existe, o se ha levantado y se ha ido.',
+    back: 'Volver al sofá',
   },
   sfx: { on: 'Efectos de sonido: activados', off: 'Efectos de sonido: apagados' },
   invite: {
@@ -308,6 +316,7 @@ export const es: Dict = {
     blocked_keyword: 'No, ese tipo de vídeo no 🙅',
     rate_limited: '¡Más despacio! Demasiados clics seguidos 🫨',
     captcha: 'El detector de robots dice bip bup. Inténtalo otra vez 🤖',
+    captcha_unavailable: 'El detector de robots está echando la siesta. Inténtalo en un momento 😴',
     internal: 'El mando se ha caído detrás del sofá. Inténtalo en un segundo.',
     network: 'Se perdió la señal. Revisa tu conexión e inténtalo otra vez 📡',
     bad_room: 'Esa sala no existe 🚪',

@@ -83,7 +83,7 @@ function Join({ locale }: { locale: string }) {
       >
         {busy ? t.private.joining : t.private.join}
       </button>
-      <p role="status" aria-live="polite" className="min-h-5 text-sm font-bold text-[var(--skip)]">
+      <p role="status" aria-live="polite" className="min-h-5 text-sm font-bold text-[var(--danger-panel-ink)]">
         {msg}
       </p>
     </form>
@@ -124,7 +124,7 @@ function Create({ locale, onCreated }: { locale: string; onCreated: (c: Created)
         onSubmit={create}
       />
       <div ref={captchaRef} />
-      <p role="status" aria-live="polite" className="min-h-5 text-sm font-bold text-[var(--skip)]">
+      <p role="status" aria-live="polite" className="min-h-5 text-sm font-bold text-[var(--danger-panel-ink)]">
         {msg}
       </p>
     </section>

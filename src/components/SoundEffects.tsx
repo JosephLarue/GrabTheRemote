@@ -54,7 +54,7 @@ export function SoundEffects() {
 
   if (!toast) return null;
   return (
-    <p role="status" className="sticker fixed bottom-20 left-1/2 z-[60] -translate-x-1/2 bg-[var(--ink)] text-center text-sm text-[var(--cream)] lg:bottom-6">
+    <p role="status" className="sticker fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] left-1/2 z-[60] -translate-x-1/2 bg-[var(--ink)] text-center text-sm text-[var(--cream)] lg:bottom-6">
       {toast}
     </p>
   );

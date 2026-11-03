@@ -94,7 +94,7 @@ export function EasterEggs() {
       <span aria-hidden className="egg-antenna egg-antenna-right" onClick={() => tap('antenna', 'snow')} />
 
       {toast && (
-        <p role="status" className="sticker fixed bottom-20 left-1/2 z-[60] -translate-x-1/2 bg-[var(--report)] text-center text-sm text-[var(--ink)] lg:bottom-6">
+        <p role="status" className="sticker fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] left-1/2 z-[60] -translate-x-1/2 bg-[var(--report)] text-center text-sm text-[var(--ink)] lg:bottom-6">
           {toast}
         </p>
       )}

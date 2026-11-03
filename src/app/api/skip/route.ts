@@ -1,4 +1,4 @@
-import { SKIP_COOLDOWN_S, skipThreshold } from '@/config/app';
+import { SKIP_COOLDOWN_S, VOTE_SETS_TTL_S, skipThreshold } from '@/config/app';
 import { advance, withLock } from '@/server/engine';
 import { ApiError, handle, ok, openRoom } from '@/server/http';
 import { ipHash } from '@/server/ip';
@@ -32,14 +32,19 @@ export const POST = handle(async (req: Request) => {
   }
   const viewers = await viewerCount(room);
   const votes = await redis().scard(K.skipVotes(np.playId));
+  // The set normally dies with the play (advance deletes it); the TTL covers a room that is closed or
+  // expires with the video still on screen.
+  if (votes === 1) await redis().expire(K.skipVotes(np.playId), VOTE_SETS_TTL_S);
 
   let skipped = false;
   if (votes >= skipThreshold(viewers)) {
     await withLock(room, async () => {
       const cur = await getNowPlaying(room);
       if (cur?.playId !== np.playId || cur.state !== 'playing') return;
-      if (!(await redis().set(K.skipCd(room), '1', 'EX', SKIP_COOLDOWN_S, 'NX'))) return;
+      if ((await redis().pttl(K.skipCd(room))) > 0) return;
       await advance(room, 'skipped');
+      // Only a skip that happened starts the cooldown: a failed advance must not lock the button for 30 min.
+      await redis().set(K.skipCd(room), '1', 'EX', SKIP_COOLDOWN_S);
       skipped = true;
     });
   }

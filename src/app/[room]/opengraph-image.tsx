@@ -9,6 +9,8 @@ import { SHARE_CARD_SIZE, shareCard } from '@/lib/share-card';
 export const alt = APP_NAME;
 export const size = SHARE_CARD_SIZE;
 export const contentType = 'image/png';
+// The couch count is live; a minute old is fine for a share card and spares Redis a trip per crawler hit.
+export const revalidate = 60;
 
 // A room link shares that room's decor and tagline. Nothing about a private room beyond its look.
 export default async function RoomOgImage({ params }: { params: Promise<{ room: string }> }) {

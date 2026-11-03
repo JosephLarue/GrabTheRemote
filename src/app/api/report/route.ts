@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { REPORT_CARD_S, reportThreshold } from '@/config/app';
+import { REPORT_CARD_S, VOTE_SETS_TTL_S, reportThreshold } from '@/config/app';
 import { db, schema } from '@/server/db/client';
 import { closePlay, withLock } from '@/server/engine';
 import { ApiError, handle, ok, openRoom } from '@/server/http';
@@ -30,6 +30,8 @@ export const POST = handle(async (req: Request) => {
   }
   const viewers = await viewerCount(room);
   const votes = await redis().scard(K.reportVotes(np.playId));
+  // Same as the skip set: advance deletes it, the TTL covers a room that closes with the video on screen.
+  if (votes === 1) await redis().expire(K.reportVotes(np.playId), VOTE_SETS_TTL_S);
 
   let hidden = false;
   if (votes >= reportThreshold(viewers)) {

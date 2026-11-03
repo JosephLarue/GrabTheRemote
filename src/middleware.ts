@@ -30,7 +30,12 @@ function adminAllowed(req: NextRequest): boolean {
   const header = req.headers.get('authorization') ?? '';
   const [scheme, encoded] = header.split(' ');
   if (!expected || scheme !== 'Basic' || !encoded) return false;
-  const decoded = atob(encoded);
+  let decoded: string;
+  try {
+    decoded = atob(encoded);
+  } catch {
+    return false; // not base64: a malformed header is just a wrong password, not a 500
+  }
   return safeEqual(decoded.slice(decoded.indexOf(':') + 1), expected);
 }
 
@@ -54,7 +59,12 @@ function rooms(req: NextRequest): NextResponse {
   headers.set(ROOM_HEADER, isPublicRoom(first) ? first : fallback);
   const res = NextResponse.next({ request: { headers } });
   if (isPublicRoom(first) && saved !== first) {
-    res.cookies.set(ROOM_COOKIE, first, { path: '/', maxAge: ROOM_COOKIE_MAX_AGE_S, sameSite: 'lax' });
+    res.cookies.set(ROOM_COOKIE, first, {
+      path: '/',
+      maxAge: ROOM_COOKIE_MAX_AGE_S,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+    });
   }
   return res;
 }

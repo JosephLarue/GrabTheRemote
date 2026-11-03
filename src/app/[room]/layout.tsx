@@ -7,10 +7,11 @@ import { PickCelebration } from '@/components/PickCelebration';
 import { SoundEffects } from '@/components/SoundEffects';
 import { TabTitle } from '@/components/TabTitle';
 import { SITE_URL } from '@/config/app';
-import { DECOR_INFO, ROOM_INFO, ROOMS, isPrivateRoom, isPublicRoom, isRoom } from '@/config/rooms';
+import { DECOR_INFO, ROOM_INFO, isPrivateRoom, isPublicRoom, isRoom } from '@/config/rooms';
 import { dict, localeOf } from '@/i18n';
 import { lastRoom } from '@/lib/last-room';
 import { LiveProvider } from '@/lib/live';
+import { roomAlternates } from '@/lib/seo';
 import { accessOf } from '@/server/private-rooms';
 import { roomSettings } from '@/server/room-settings';
 import { viewerCount } from '@/server/state';
@@ -22,13 +23,6 @@ export async function generateViewport({ params }: { params: Params }): Promise<
   const settings = isRoom(room) ? await roomSettings(room) : null;
   return settings ? { themeColor: DECOR_INFO[settings.decor].wall } : {};
 }
-
-// Language rooms are translations of one another: each one points search engines at the others.
-const LANGUAGE_ROOMS = ROOMS.filter((r) => ROOM_INFO[r].lang);
-const HREFLANG = {
-  ...Object.fromEntries(LANGUAGE_ROOMS.map((r) => [ROOM_INFO[r].lang as string, `${SITE_URL}/${r}`])),
-  'x-default': `${SITE_URL}/en`,
-};
 
 // Public rooms: a localized title and a description with the live couch count (crawlers fetch it fresh).
 // Private rooms stay out of search engines; their name is the page title.
@@ -42,13 +36,16 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const t = dict(room);
   const info = ROOM_INFO[room];
   const viewers = await viewerCount(room).catch(() => 0);
-  const title = t.seo.roomTitle(info.name);
-  const description = `${t.seo.roomDescription(info.name)} ${t.seo.watching(viewers)}.`;
+  const twitch = info.kind === 'twitch';
+  const title = twitch ? t.seo.twitchTitle : t.seo.roomTitle(info.name);
+  const pitch = twitch ? t.seo.twitchDescription : t.seo.roomDescription(info.name);
+  // The couch count only when there is one: "0 on the couch" is no invitation in a search result.
+  const description = viewers > 0 ? `${pitch} ${t.seo.watching(viewers)}.` : pitch;
   const url = `${SITE_URL}/${room}`;
   return {
     title: { absolute: `${info.emoji} ${title}` },
     description,
-    alternates: { canonical: url, ...(info.lang ? { languages: HREFLANG } : {}) },
+    alternates: roomAlternates(room),
     openGraph: { title, description, url, type: 'website', locale: localeOf(room) },
     twitter: { card: 'summary_large_image', title, description },
   };

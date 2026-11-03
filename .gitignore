@@ -45,3 +45,6 @@ next-env.d.ts
 
 # internal planning notes
 /plan-de-claude-le-bogoss/
+
+# Claude Code agent worktrees
+/.claude/worktrees/

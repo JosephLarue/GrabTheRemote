@@ -18,6 +18,10 @@
   --muted: #d9cffd;
   --panel: #fff6e0;
   --panel-ink: #1c1236;
+  /* error text: --skip is a button fill, too light to read as text. One shade for dark surfaces (the remote,
+     the wall), one for the cream panels. */
+  --danger-ink: #ffb3a8;
+  --danger-panel-ink: #b3261e;
   --edge: #1c1236;
   --antenna: #1c1236;
   --shade: #1c1236;
@@ -42,6 +46,7 @@
     --muted: #a99ce0;
     --panel: #2a2156;
     --panel-ink: #fff6e0;
+    --danger-panel-ink: #ffb3a8;
     /* lights off: black outlines, neon-pink drop shadows */
     --edge: #07040f;
     --antenna: #8f84c6;
@@ -151,6 +156,7 @@
   --glow: #ffd76a;
   --panel: #122258;
   --panel-ink: #f3e6c2;
+  --danger-panel-ink: #ffb3a8;
   --remote: #0d1a44;
   --remote-hi: #1b2f73;
   --edge: #c9a227;
@@ -191,6 +197,7 @@
   --glow: #ff3b1f;
   --panel: #1c1414;
   --panel-ink: #e9d8b8;
+  --danger-panel-ink: #ffb3a8;
   --remote: #1a1010;
   --remote-hi: #3a1414;
   --edge: #8b0000;
@@ -630,7 +637,7 @@ body {
     position: fixed;
     z-index: 45;
     left: 16px;
-    bottom: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
     display: flex;
     align-items: center;
     gap: 0.6rem;
@@ -642,15 +649,22 @@ body {
     font-weight: 800;
     box-shadow: var(--pop), inset 3px 3px 0 var(--remote-hi);
     cursor: pointer;
-    transition: transform 200ms ease, opacity 200ms ease;
+    transition: transform 200ms ease, opacity 200ms ease, visibility 0s linear 200ms;
   }
   .remote-handle:hover {
     transform: translateY(-3px);
   }
   .remote-handle.is-hidden {
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
     transform: translateY(20px);
+  }
+  /* Phones: the floating button must never sit on the chat's input or the footer links. */
+  @media (max-width: 1023px) {
+    body {
+      padding-bottom: calc(84px + env(safe-area-inset-bottom));
+    }
   }
   /* the big red power button */
   .remote-handle-power {
@@ -684,9 +698,6 @@ body {
       transform: rotate(180deg);
     }
     /* the open remote pushes the page aside rather than covering the TV */
-    body {
-      transition: padding-left 320ms cubic-bezier(0.2, 1.25, 0.4, 1);
-    }
     :root[data-remote-open] body {
       padding-left: 384px;
     }
@@ -1156,8 +1167,6 @@ body {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
     padding: 8px;
-    /* the remote's button floats at the bottom: keep it off the chat's input */
-    padding-bottom: 76px;
     gap: 8px;
   }
   .is-cinema .cinema-grow,

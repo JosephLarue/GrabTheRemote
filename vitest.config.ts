@@ -4,5 +4,5 @@ import { configDefaults, defineConfig } from 'vitest/config';
 export default defineConfig({
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   // Functional tests need Postgres and Redis: `pnpm test:functional`.
-  test: { exclude: [...configDefaults.exclude, 'tests/functional/**'] },
+  test: { exclude: [...configDefaults.exclude, 'tests/functional/**', '.claude/**'] },
 });

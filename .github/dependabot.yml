@@ -1,0 +1,17 @@
+# Weekly dependency PRs into dev (the branch every PR goes through; dev -> main is the release PR).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    target-branch: dev
+    # One PR for all minor and patch bumps; majors still come one by one.
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    target-branch: dev
