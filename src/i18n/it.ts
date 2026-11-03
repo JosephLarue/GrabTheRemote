@@ -308,6 +308,7 @@ export const it: Dict = {
     blocked_keyword: 'No, non quel tipo di video 🙅',
     rate_limited: 'Piano! Troppi clic di fila 🫨',
     captcha: 'Il rilevatore di robot fa bip bop. Riprova 🤖',
+    captcha_unavailable: 'Il rilevatore di robot sta facendo un pisolino. Riprova tra un attimo 😴',
     internal: 'Il telecomando è caduto dietro il divano. Riprova tra un secondo.',
     network: 'Segnale perso. Controlla la connessione e riprova 📡',
     bad_room: 'Questa stanza non esiste 🚪',

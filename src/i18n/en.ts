@@ -314,6 +314,7 @@ export const en = {
     blocked_keyword: 'Nope, not that kind of video 🙅',
     rate_limited: 'Whoa, slow down! Too many button mashes 🫨',
     captcha: 'The robot detector says beep boop. Try again 🤖',
+    captcha_unavailable: 'The robot detector is napping. Try again in a moment 😴',
     internal: 'The remote fell behind the couch. Try again in a sec.',
     network: 'Lost the signal. Check your connection and try again 📡',
     bad_room: "That room doesn't exist 🚪",

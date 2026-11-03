@@ -1,6 +1,6 @@
 import 'server-only';
 import { eq, inArray } from 'drizzle-orm';
-import { META_STALE_H, YT_QUOTA_HARD, YT_QUOTA_SOFT } from '@/config/app';
+import { META_STALE_H, UPSTREAM_TIMEOUT_MS, YT_QUOTA_HARD, YT_QUOTA_SOFT } from '@/config/app';
 import type { VideoCard, VideoMeta } from '@/lib/types';
 import { parseIsoDuration } from '@/lib/youtube-id';
 import { db, schema } from './db/client';
@@ -63,7 +63,7 @@ async function fetchFromApi(ids: string[]): Promise<Map<string, Omit<VideoMeta, 
   url.searchParams.set('part', 'snippet,contentDetails,statistics,status');
   url.searchParams.set('id', ids.join(','));
   url.searchParams.set('key', env().YT_API_KEY);
-  const res = await fetch(url, { cache: 'no-store' });
+  const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS) });
   if (!res.ok) throw new Error(`YouTube API ${res.status}: ${await res.text()}`);
   const body = (await res.json()) as { items: ApiItem[] };
   for (const it of body.items) {
@@ -92,7 +92,7 @@ type OEmbed = { title: string; author_name: string; thumbnail_url: string };
 /** Free (no quota). 401/403 means embedding is disabled; 400/404 means no such video. */
 async function fetchOEmbed(id: string): Promise<{ status: 'ok'; data: OEmbed } | { status: 'blocked' | 'missing' }> {
   const url = `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(`https://www.youtube.com/watch?v=${id}`)}`;
-  const res = await fetch(url, { cache: 'no-store' });
+  const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS) });
   if (res.status === 401 || res.status === 403) return { status: 'blocked' };
   if (!res.ok) return { status: 'missing' };
   return { status: 'ok', data: (await res.json()) as OEmbed };
