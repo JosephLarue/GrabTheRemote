@@ -19,5 +19,6 @@ export default async function RoomOgImage({ params }: { params: Promise<{ room: 
   const { wall, tv } = DECOR_INFO[settings.decor];
   const t = dictFor(settings.locale);
   const viewers = await viewerCount(room).catch(() => 0);
-  return shareCard({ wall, tv, tagline: t.tagline, sub: t.seo.watching(viewers) });
+  // An empty couch is nothing to brag about: the pill only shows when someone is watching.
+  return shareCard({ wall, tv, tagline: t.tagline, sub: viewers > 0 ? t.seo.watching(viewers) : undefined });
 }
