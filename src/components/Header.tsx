@@ -16,7 +16,7 @@ const NAV = [
 
 export function Header({ lastRoom }: { lastRoom: RoomId }) {
   const path = usePathname();
-  // Outside a room (/privacy, /legal…), links go through / and the middleware picks the room.
+  // Outside a room (/privacy, /legal…), links go through / and the proxy picks the room.
   const { room, ui } = useRoom(lastRoom);
   const sub = room ? path.slice(room.length + 1) : '';
   const t = dict(ui);

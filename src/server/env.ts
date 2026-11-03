@@ -15,7 +15,7 @@ const schema = z
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1),
     TURNSTILE_SECRET: z.string().min(1),
     ADMIN_PASSWORD: z.string().min(1),
-    // The middleware reads these two from process.env itself (edge runtime); they're only validated here.
+    // The proxy reads these two from process.env itself; they're only validated here.
     ORIGIN_SECRET: z.string().optional().default(''),
     NEXT_PUBLIC_SITE_URL: z.string().optional().default(''),
   })
