@@ -90,6 +90,7 @@ export const fr: Dict = {
     linkLabel: 'Lien YouTube',
     grabbing: 'On chope…',
     grab: 'Choper la télécommande',
+    grabShort: 'Choper !',
     againIn: 'Tu pourras rechoper la télécommande dans',
     tuning: 'Réglage en cours…',
     offTheme: 'Ne colle pas au thème actuel.',

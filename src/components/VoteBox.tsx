@@ -196,7 +196,7 @@ export function VoteForm({ compact = false }: { compact?: boolean }) {
           className={`btn font-display bg-[var(--skip)] text-[var(--ink)] ${compact ? 'shrink-0 px-4 text-base' : 'text-lg'}`}
           disabled={!id || busy || cooldown > 0 || blocked}
         >
-          {busy ? t.vote.grabbing : t.vote.grab}
+          {busy ? t.vote.grabbing : compact ? t.vote.grabShort : t.vote.grab}
         </button>
       </form>
 

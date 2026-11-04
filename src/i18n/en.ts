@@ -92,6 +92,7 @@ export const en = {
     linkLabel: 'YouTube link',
     grabbing: 'Grabbing…',
     grab: 'Grab the remote',
+    grabShort: 'Grab it!',
     againIn: 'You can grab the remote again in',
     tuning: 'Tuning in…',
     offTheme: "Doesn't fit the current theme.",
