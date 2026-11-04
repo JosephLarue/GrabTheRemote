@@ -90,6 +90,7 @@ export const it: Dict = {
     linkLabel: 'Link di YouTube',
     grabbing: 'Lo prendo…',
     grab: 'Prendi il telecomando',
+    grabShort: 'Prendi!',
     againIn: 'Potrai riprendere il telecomando tra',
     tuning: 'Sintonizzazione…',
     offTheme: 'Non rispetta il tema attuale.',

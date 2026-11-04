@@ -570,7 +570,7 @@ body {
   }
 
   /* The remote drawer: the room's controls slide in from the left so the TV keeps the whole screen (the chat
-     sits on its right). Phones: a floating button bottom-left. Desktop: a tab sticking out of the left edge. */
+     sits on its right). Phones: a bar along the bottom of the screen. Desktop: a tab sticking out of the left edge. */
   .remote-drawer {
     position: fixed;
     z-index: 50;
@@ -636,14 +636,10 @@ body {
   .remote-handle {
     position: fixed;
     z-index: 45;
-    left: 16px;
-    bottom: calc(16px + env(safe-area-inset-bottom));
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    padding: 0.5rem 0.9rem 0.5rem 0.55rem;
     border: var(--line) solid var(--edge);
-    border-radius: 999px;
     background: var(--remote);
     color: var(--cream);
     font-weight: 800;
@@ -651,19 +647,41 @@ body {
     cursor: pointer;
     transition: transform 200ms ease, opacity 200ms ease, visibility 0s linear 200ms;
   }
-  .remote-handle:hover {
-    transform: translateY(-3px);
-  }
   .remote-handle.is-hidden {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translateY(20px);
   }
-  /* Phones: the floating button must never sit on the chat's input or the footer links. */
+  /* Phones: a bar across the bottom of the screen, not a pill floating over the page (three quarters of the
+     width, it sat right on the chat's input). The bar steps away while a text field has the keyboard. */
   @media (max-width: 1023px) {
+    .remote-handle {
+      inset: auto 0 0;
+      padding: 0.55rem 1rem calc(0.55rem + env(safe-area-inset-bottom)) 0.9rem;
+      border-bottom: 0;
+      border-radius: 22px 22px 0 0;
+    }
+    .remote-handle-label {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-align: left;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .remote-handle.is-hidden,
+    :root:has(input:focus, textarea:focus) .remote-handle {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(110%);
+    }
+    /* The page ends above the bar, and a field getting focus scrolls clear of it. */
     body {
       padding-bottom: calc(84px + env(safe-area-inset-bottom));
+    }
+    .field {
+      scroll-margin-bottom: calc(96px + env(safe-area-inset-bottom));
     }
   }
   /* the big red power button */
@@ -1181,6 +1199,13 @@ body {
   .cinema.is-cinema.chat-folded {
     grid-template-rows: auto;
     align-content: center;
+  }
+}
+/* Phones: the remote's bar runs along the bottom of the screen, and the stage can't scroll, so the stage ends
+   above it (the chat's input is the last thing in it). */
+@media (max-width: 1023px) {
+  .cinema.is-cinema {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
   }
 }
 

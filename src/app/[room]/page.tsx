@@ -50,14 +50,14 @@ function YouTubeStage() {
           <div className="tv mt-12">
             <EasterEggs />
             <SyncedPlayer np={np} overlay={<ReactionOverlay />} />
-            <div className="mt-3 flex items-center justify-between gap-3 px-1 text-[var(--tv-ink)]">
-              <div className="min-w-0">
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-1 text-[var(--tv-ink)] sm:flex-nowrap">
+              <div className="min-w-0 flex-[1_1_14rem]">
                 <p className="truncate text-base font-black sm:text-lg" title={np?.video.title}>
                   {np ? np.video.title : t.watch.nothingOnScreen}
                 </p>
                 <p className="truncate text-xs font-bold opacity-80">{np?.video.channelTitle}</p>
               </div>
-              <div className="flex shrink-0 items-center gap-3">
+              <div className="ml-auto flex shrink-0 items-center gap-3">
                 {np && np.state === 'playing' && <NextPickIn np={np} />}
                 <InviteCta />
                 <ChatUnfoldButton />
@@ -69,7 +69,7 @@ function YouTubeStage() {
           </div>
         </section>
 
-        {/* Phones: the link box sits right under the TV; the remote (a floating button there) only keeps the
+        {/* Phones: the link box sits right under the TV; the remote (a bar along the bottom there) only keeps the
             skip/report buttons. Desktop: the remote drawer has the full form. */}
         <section aria-label={t.vote.title} className="cinema-hide lg:hidden">
           <VoteForm compact />

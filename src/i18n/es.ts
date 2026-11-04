@@ -90,6 +90,7 @@ export const es: Dict = {
     linkLabel: 'Enlace de YouTube',
     grabbing: 'Pillando…',
     grab: 'Pillar el mando',
+    grabShort: '¡Pillar!',
     againIn: 'Podrás volver a pillar el mando en',
     tuning: 'Sintonizando…',
     offTheme: 'No encaja con el tema actual.',
