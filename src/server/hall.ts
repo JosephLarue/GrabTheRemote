@@ -1,5 +1,6 @@
 import 'server-only';
 import { type SQL, and, desc, eq, inArray, sql } from 'drizzle-orm';
+import { HALL_TOP } from '@/config/app';
 import type { RoomId } from '@/config/rooms';
 import { db, schema } from './db/client';
 import { K } from './keys';
@@ -24,7 +25,7 @@ export type HallRow = {
 };
 
 const CACHE_S = 300;
-const LIMIT = 20;
+const LIMIT = HALL_TOP;
 const p = schema.plays;
 const v = schema.videos;
 
@@ -39,7 +40,6 @@ const videoCols = {
 async function query(room: RoomId, tab: HallTab): Promise<HallRow[]> {
   const inRoom = eq(p.room, room);
   const clean = and(inRoom, eq(v.banned, false), eq(v.flagged, false));
-  const base = () => db().select().from(p).innerJoin(v, eq(v.id, p.videoId));
   switch (tab) {
     case 'watched': {
       const value = sql<number>`sum(${p.viewerSeconds})::int`;
@@ -68,17 +68,18 @@ async function query(room: RoomId, tab: HallTab): Promise<HallRow[]> {
     }
     case 'landslide':
     case 'peak': {
+      // A record per video, not per play: a video the crowd keeps bringing back would otherwise fill the board
+      // with its reruns. DISTINCT ON keeps each video's best play (the first one, on a tie), then the best videos.
       const col = tab === 'landslide' ? p.votesAtPick : p.peakViewers;
-      const rows = await base().where(and(clean, sql`${col} > 0`)).orderBy(desc(col)).limit(LIMIT);
-      return rows.map(({ plays, videos }) => ({
-        videoId: videos.id,
-        title: videos.title,
-        channelTitle: videos.channelTitle,
-        thumbnailUrl: videos.thumbnailUrl,
-        hidden: false,
-        value: tab === 'landslide' ? plays.votesAtPick : plays.peakViewers,
-        at: plays.startedAt.toISOString(),
-      }));
+      const best = db()
+        .selectDistinctOn([v.id], { videoId: v.id, title: v.title, channelTitle: v.channelTitle, thumbnailUrl: v.thumbnailUrl, value: col, at: p.startedAt })
+        .from(p)
+        .innerJoin(v, eq(v.id, p.videoId))
+        .where(and(clean, sql`${col} > 0`))
+        .orderBy(v.id, desc(col), p.startedAt)
+        .as('best');
+      const rows = await db().select().from(best).orderBy(desc(best.value), best.at).limit(LIMIT);
+      return rows.map((r) => ({ ...r, hidden: false, at: r.at.toISOString() }));
     }
     case 'shame':
       return shameRows(room, undefined, LIMIT);

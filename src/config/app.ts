@@ -6,6 +6,8 @@ export const COFFEE_URL = 'https://buymeacoffee.com/jozyjozy';
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
 /** The room's search snippet carries the live couch count from this many viewers: "1 on the couch" invites nobody. */
 export const SEO_COUCH_MIN = 3;
+/** Rows per Hall of Fame tab. */
+export const HALL_TOP = 10;
 
 // Legal notice (/legal, required in France by the LCEN) and contact for /privacy. Public.
 export const LEGAL = {
