@@ -43,8 +43,11 @@ function YouTubeStage() {
     <CinemaStage className={WITH_CHAT}>
       <div className="cinema-col flex min-w-0 flex-col gap-6">
         <section aria-label={t.watch.nowPlaying} className="cinema-grow min-w-0">
-          {settings.private && (
+          {settings.private ? (
             <h1 className="cinema-hide font-display mb-4 truncate text-3xl sm:text-4xl">🔒 {settings.name}</h1>
+          ) : (
+            // The page's one heading, for people and crawlers alike: the title names the room, this says the pitch.
+            <h1 className="cinema-hide font-display mb-8 text-2xl text-balance sm:text-3xl">{t.watch.headline}</h1>
           )}
           <StolenRemote />
           <div className="tv mt-12">
@@ -79,6 +82,8 @@ function YouTubeStage() {
           <RemoteFight />
           <UpNext />
         </section>
+
+        <HowItWorks />
       </div>
 
       <div className={CHAT_RAIL}>
@@ -96,6 +101,24 @@ function YouTubeStage() {
         <OwnerPanel />
       </RemoteDrawer>
     </CinemaStage>
+  );
+}
+
+/** Plain words on what this is, in the room's language: the one part of the page a search engine can read. */
+function HowItWorks() {
+  const { t } = useLive();
+  return (
+    <section
+      aria-labelledby="about-title"
+      className="cinema-hide panel flex min-w-0 flex-col gap-3 p-5 text-sm font-semibold sm:text-base"
+    >
+      <h2 id="about-title" className="font-display text-2xl">
+        {t.about.title}
+      </h2>
+      <p>{t.about.sync}</p>
+      <p>{t.about.vote}</p>
+      <p>{t.about.rooms}</p>
+    </section>
   );
 }
 

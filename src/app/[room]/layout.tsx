@@ -6,7 +6,7 @@ import { InviteClaim } from '@/components/Invite';
 import { PickCelebration } from '@/components/PickCelebration';
 import { SoundEffects } from '@/components/SoundEffects';
 import { TabTitle } from '@/components/TabTitle';
-import { SITE_URL } from '@/config/app';
+import { APP_NAME, SEO_COUCH_MIN, SITE_URL } from '@/config/app';
 import { DECOR_INFO, ROOM_INFO, isPrivateRoom, isPublicRoom, isRoom } from '@/config/rooms';
 import { dict, localeOf } from '@/i18n';
 import { lastRoom } from '@/lib/last-room';
@@ -39,11 +39,12 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const twitch = info.kind === 'twitch';
   const title = twitch ? t.seo.twitchTitle : t.seo.roomTitle(info.name);
   const pitch = twitch ? t.seo.twitchDescription : t.seo.roomDescription(info.name);
-  // The couch count only when there is one: "0 on the couch" is no invitation in a search result.
-  const description = viewers > 0 ? `${pitch} ${t.seo.watching(viewers)}.` : pitch;
+  // The couch count only once there is a couch: "1 on the couch" is no invitation in a search result.
+  const description = viewers >= SEO_COUCH_MIN ? `${pitch} ${t.seo.watching(viewers)}.` : pitch;
   const url = `${SITE_URL}/${room}`;
   return {
-    title: { absolute: `${info.emoji} ${title}` },
+    // The brand goes in by hand: `absolute` skips the root template, and a search for the name must match the title.
+    title: { absolute: `${info.emoji} ${title} | ${APP_NAME}` },
     description,
     alternates: roomAlternates(room),
     openGraph: { title, description, url, type: 'website', locale: localeOf(room) },
