@@ -8,6 +8,7 @@ export const it: Dict = {
     nextPickIn: 'Prossima scelta tra',
     queue: 'Coda',
     upNext: 'Prossimi',
+    headline: 'Guardare YouTube insieme. Il telecomando ce l’ha il pubblico.',
   },
   player: {
     soundOn: "Attiva l'audio",
@@ -219,6 +220,13 @@ export const it: Dict = {
     copied: 'Link copiato 📋',
     cta: 'Pensi di avere più gusto? Prendi il telecomando.',
     back: 'Torna alla Hall of Shame',
+  },
+  /* The readable block under the queue: what this is, for people and search engines. */
+  about: {
+    title: 'Come funziona',
+    sync: 'Grab The Remote è una watch party gratuita per YouTube. Ogni stanza ha un solo schermo condiviso: tutti vedono lo stesso video nello stesso secondo, in sincrono, con una chat dal vivo sul divano. Niente account, niente iscrizione, niente da installare.',
+    vote: 'Incolla un link di YouTube per metterlo in coda, oppure vota +1 alla scelta di qualcun altro. Quando il video finisce, quello con più voti prende lo schermo. Metà stanza può saltare un video, e qualche segnalazione lo nasconde per sempre.',
+    rooms: 'Stanze per lingua: inglese, francese, spagnolo e italiano, più la Giungla dove passa tutto e una stanza Twitch che vota quale stream guardare. Le stanze private con password sono per una watch party tra amici.',
   },
   seo: {
     roomTitle: (room) => `Guardare YouTube insieme · stanza ${room}`,

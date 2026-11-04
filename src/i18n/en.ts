@@ -10,6 +10,7 @@ export const en = {
     nextPickIn: 'Next pick in',
     queue: 'Queue',
     upNext: 'Up next',
+    headline: 'Watch YouTube together. The crowd holds the remote.',
   },
   player: {
     soundOn: 'Turn the sound on',
@@ -221,6 +222,13 @@ export const en = {
     copied: 'Link copied 📋',
     cta: 'Think your taste is better? Grab the remote.',
     back: 'Back to the Hall of Shame',
+  },
+  /* The readable block under the queue: what this is, for people and search engines. */
+  about: {
+    title: 'How it works',
+    sync: 'Grab The Remote is a free watch party for YouTube. Each room has one shared screen: everyone sees the same video at the same second, in sync, with a live chat on the couch. No account, no sign-up, nothing to install.',
+    vote: 'Paste a YouTube link to put it in the queue, or +1 what someone else picked. When the video ends, the pick with the most votes takes the screen. Half the room can skip a video, and a few reports hide it for good.',
+    rooms: 'Rooms by language: English, French, Spanish and Italian, plus the Jungle where anything goes and a Twitch room that votes on which stream to watch. Private rooms with a password are there for a watch party with friends.',
   },
   seo: {
     roomTitle: (room: string) => `Watch YouTube together · ${room} room`,
