@@ -27,6 +27,11 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: APP_NAME, statusBarStyle: 'black-translucent' },
   formatDetection: { telephone: false },
   category: 'entertainment',
+  // Search Console and Bing Webmaster ownership tags, from the environment so the repo carries no token.
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION || null,
+    other: process.env.BING_SITE_VERIFICATION ? { 'msvalidate.01': process.env.BING_SITE_VERIFICATION } : undefined,
+  },
 };
 
 // Structured data: one web app, searchable by room.

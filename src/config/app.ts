@@ -4,6 +4,8 @@ export const APP_TAGLINE = 'One screen. The whole internet. Only one remote.';
 export const COFFEE_URL = 'https://buymeacoffee.com/jozyjozy';
 /** Public URL, no trailing slash. Read at build time (NEXT_PUBLIC_*); sitemap, robots and canonical links use it. */
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
+/** The room's search snippet carries the live couch count from this many viewers: "1 on the couch" invites nobody. */
+export const SEO_COUCH_MIN = 3;
 
 // Legal notice (/legal, required in France by the LCEN) and contact for /privacy. Public.
 export const LEGAL = {
